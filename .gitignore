@@ -1,0 +1,8 @@
+# 只保留 cq50mian.html 和数据 JSON
+*
+!cq50mian.html
+!cq_all_cates.json
+!cq_cate_list.json
+!cq_mianshop.json
+!cq_revlist.json
+!.gitignore
