@@ -1,8 +1,11 @@
-# 只保留 cq50mian.html 和数据 JSON
+# 只保留部署到 GitHub Pages 的文件
 *
 !cq50mian.html
 !cq_all_cates.json
 !cq_cate_list.json
 !cq_mianshop.json
 !cq_revlist.json
+!feiyi.html
+!feiyi-data/
+!feiyi-data/**
 !.gitignore
