@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>菜品榜成榜可行性分析报告 v3</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 40px; border-radius: 12px; margin-bottom: 24px; }
+.header h1 { font-size: 28px; margin-bottom: 8px; }
+.header p { opacity: 0.9; font-size: 14px; }
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.stat-card .label { font-size: 13px; color: #888; margin-bottom: 4px; }
+.stat-card .value { font-size: 28px; font-weight: 700; color: #333; }
+.stat-card .sub { font-size: 12px; color: #aaa; margin-top: 4px; }
+.section { background: white; border-radius: 10px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.section h2 { font-size: 18px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 14px; flex-wrap: wrap; }
+.breadcrumb span { color: #667eea; cursor: pointer; padding: 4px 10px; border-radius: 4px; transition: background 0.2s; }
+.breadcrumb span:hover { background: #f0f3ff; }
+.breadcrumb span.active { color: #333; font-weight: 600; cursor: default; }
+.breadcrumb .sep { color: #ccc; cursor: default; padding: 0; }
+.breadcrumb .sep:hover { background: none; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #f8f9fc; padding: 10px 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #eee; position: sticky; top: 0; }
+td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+tr:hover { background: #f8f9fc; }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover { background: #f0f3ff; }
+tr.clickable td:first-child::before { content: '\u25b6 '; color: #667eea; font-size: 10px; }
+tr.expanded td:first-child::before { content: '\u25bc '; color: #667eea; font-size: 10px; }
+.detail-row { display: none; }
+.detail-row.show { display: table-row; }
+.detail-row td { padding: 0; }
+.detail-content { background: #f8f9fc; padding: 12px 20px 12px 40px; border-left: 3px solid #667eea; }
+.detail-content table { font-size: 12px; }
+.detail-content th { background: #eef1f8; font-size: 12px; padding: 6px 10px; }
+.detail-content td { padding: 6px 10px; border-bottom: 1px solid #e8e8e8; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+.badge-main { background: #e8f5e9; color: #2e7d32; }
+.badge-side { background: #fff3e0; color: #e65100; }
+.badge-soup { background: #e3f2fd; color: #1565c0; }
+.badge-other { background: #f3e5f5; color: #7b1fa2; }
+.filter-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-bar select, .filter-bar input { padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; }
+.filter-bar select:focus, .filter-bar input:focus { border-color: #667eea; }
+.btn { padding: 6px 14px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; transition: background 0.2s; }
+.btn:hover { background: #5a6fd6; }
+.btn-outline { background: white; color: #667eea; border: 1px solid #667eea; }
+.btn-outline:hover { background: #f0f3ff; }
+.note { background: #fffde7; border-left: 4px solid #ffc107; padding: 12px 16px; border-radius: 4px; font-size: 13px; margin-bottom: 16px; }
+.hidden { display: none; }
+.poi-link { color: #667eea; text-decoration: none; }
+.poi-link:hover { text-decoration: underline; }
+.score-bar { display: inline-block; height: 6px; border-radius: 3px; background: #e0e0e0; width: 60px; position: relative; vertical-align: middle; margin-left: 6px; }
+.score-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #667eea, #764ba2); }
+.quality-score { font-weight: 600; }
+.quality-high { color: #2e7d32; }
+.quality-mid { color: #e65100; }
+.quality-low { color: #c62828; }
+.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+.summary-item { text-align: center; padding: 16px; background: #f8f9fc; border-radius: 8px; }
+.summary-item .num { font-size: 24px; font-weight: 700; color: #667eea; }
+.summary-item .desc { font-size: 12px; color: #888; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>菜品榜成榜可行性分析报告</h1>
+    <p>数据来源: mart_daocao_dish.dish_name_score_ss + dish_score_ss (菜品质量分) | 分区: 20260601 | 筛选: spu_source=1 (原子菜), 覆盖\u226520家门店 | 排序: 覆盖门店数 DESC | 覆盖: 100个城区完整数据</p>
+  </div>
+
+  <!-- 概览统计 -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="label">覆盖城市数</div>
+      <div class="value" id="stat-cities">-</div>
+      <div class="sub">TOP100城区所属城市</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">覆盖城区数</div>
+      <div class="value" id="stat-districts">-</div>
+      <div class="sub">门店数\u22651600的城区</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">TOP菜品数</div>
+      <div class="value" id="stat-dishes">-</div>
+      <div class="sub">100城区各TOP30（覆盖\u226520家门店）</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">平均覆盖门店</div>
+      <div class="value" id="stat-avg-poi">-</div>
+      <div class="sub">每个TOP菜品平均覆盖门店数</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">平均质量分</div>
+      <div class="value" id="stat-avg-quality">-</div>
+      <div class="sub">菜品综合质量评分(满分100)</div>
+    </div>
+  </div>
+
+  <!-- 数据说明 -->
+  <div class="note">
+    <strong>数据说明：</strong>本报告包含「主菜」「佐餐品」「汤羹」「饮品」「主食」等品类的原子菜（spu_source=1）数据。<br>
+    四级钻取路径：全部城市 \u2192 城区列表 \u2192 菜品列表(TOP30) \u2192 门店明细(TOP20)。点击菜品行可展开查看具体门店。<br>
+    <strong>核心指标：</strong>以「覆盖门店数」为主排序指标，反映菜品在该城区的普及程度。「覆盖率」= 该菜品门店数 / 城区总门店数。<br>
+    <strong>菜品质量分：</strong>来自 dish_score_ss 表的 score 字段，综合了菜名规范性(name_score)、图片质量(pic_score)、价格合理性(price_score)、前台名称(front_name_score)、单位名称(unit_name_score)、标签(tag_score)等多维度评分，范围 0-100，区分度良好（38-80分）。<br>
+    <strong>门店覆盖：</strong>100个城区全部30菜品各展示TOP20门店（共58700条记录，28339家有真实店名），点击门店名可跳转美团页面。
+  </div>
+
+  <!-- 主数据区 -->
+  <div class="section">
+    <h2>数据钻取</h2>
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="active">全部城市</span>
+    </div>
+    <div class="filter-bar" id="filter-bar">
+      <select id="filter-cat">
+        <option value="">全部品类</option>
+        <option value="主菜">主菜</option>
+        <option value="主食">主食</option>
+        <option value="佐餐品">佐餐品</option>
+        <option value="汤羹">汤羹</option>
+        <option value="饮品">饮品</option>
+        <option value="小吃">小吃</option>
+        <option value="其他">其他</option>
+      </select>
+      <input type="text" id="filter-search" placeholder="搜索菜品名称..." style="width:200px;">
+      <button class="btn-outline btn" onclick="resetFilters()">重置</button>
+    </div>
+    <div id="data-table-container" style="max-height: 600px; overflow-y: auto;">
+      <table id="data-table">
+        <thead id="table-head"></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 品类分布 -->
+  <div class="section">
+    <h2>品类分布概览</h2>
+    <div class="summary-grid" id="cat-summary"></div>
+  </div>
+
+  <!-- 质量分分布 -->
+  <div class="section">
+    <h2>菜品质量分分布</h2>
+    <div class="summary-grid" id="quality-summary" style="grid-template-columns: repeat(5, 1fr);"></div>
+  </div>
+
+  <!-- 结论 -->
+  <div class="section">
+    <h2>可行性结论</h2>
+    <div id="conclusion"></div>
+  </div>
+</div>
+
+<script>
+// ===== 数据文件加载 =====
+</script>
+<script src="bangdan_feasibility_data_v3.js"></script>
+<script src="bangdan_store_data.js"></script>
+<script src="store_dish_names_data.js"></script>
+<script>
+// ===== 应用逻辑 =====
+let currentLevel = 'city';
+let currentCity = null;
+let currentDistrict = null;
+let currentDish = null;
+
+function init() {
+  computeStats();
+  renderCitySummary();
+  renderBreadcrumb();
+  renderCatSummary();
+  renderQualitySummary();
+  renderConclusion();
+  bindFilters();
+}
+
+function computeStats() {
+  const cities = new Set(cityDistrictData.map(r => r[0]));
+  document.getElementById('stat-cities').textContent = cities.size;
+  document.getElementById('stat-districts').textContent = cityDistrictData.length;
+  document.getElementById('stat-dishes').textContent = topDishData.length;
+  const avgPoi = Math.round(topDishData.reduce((s, r) => s + r[4], 0) / topDishData.length);
+  document.getElementById('stat-avg-poi').textContent = avgPoi.toLocaleString();
+  const qualityScores = topDishData.filter(r => r[8] !== null).map(r => r[8]);
+  if (qualityScores.length > 0) {
+    document.getElementById('stat-avg-quality').textContent = (qualityScores.reduce((s, v) => s + v, 0) / qualityScores.length).toFixed(1);
+  }
+}
+
+const districtPoiMap = {};
+cityDistrictData.forEach(r => { districtPoiMap[r[0] + '|' + r[1]] = r[3]; });
+
+function getQualityClass(score) {
+  if (score >= 72) return 'quality-high';
+  if (score >= 60) return 'quality-mid';
+  return 'quality-low';
+}
+
+function renderQualityBar(score) {
+  if (score === null || score === undefined) return '<span style="color:#ccc;">-</span>';
+  const width = Math.round((score / 80) * 100);
+  const cls = getQualityClass(score);
+  return '<span class="quality-score ' + cls + '">' + score + '</span> <span class="score-bar"><span class="score-bar-fill" style="width:' + Math.min(width, 100) + '%"></span></span>';
+}
+
+function renderBreadcrumb() {
+  const bc = document.getElementById('breadcrumb');
+  let html = '';
+  if (currentLevel === 'city') html += '<span class="active">全部城市</span>';
+  else html += '<span onclick="drillTo(\'city\')">全部城市</span>';
+  if (currentCity) {
+    html += '<span class="sep">\u203a</span>';
+    if (currentLevel === 'district') html += '<span class="active">' + currentCity + '</span>';
+    else html += '<span onclick="drillTo(\'district\')">' + currentCity + '</span>';
+  }
+  if (currentDistrict) {
+    html += '<span class="sep">\u203a</span>';
+    if (currentLevel === 'dish') html += '<span class="active">' + currentDistrict + '</span>';
+    else html += '<span onclick="drillTo(\'dish\')">' + currentDistrict + '</span>';
+  }
+  if (currentDish) {
+    html += '<span class="sep">\u203a</span>';
+    html += '<span class="active">' + currentDish + '</span>';
+  }
+  bc.innerHTML = html;
+}
+
+function drillTo(level) {
+  if (level === 'city') { currentCity = null; currentDistrict = null; currentDish = null; currentLevel = 'city'; renderCitySummary(); }
+  else if (level === 'district') { currentDistrict = null; currentDish = null; currentLevel = 'district'; renderDistrictList(); }
+  else if (level === 'dish') { currentDish = null; currentLevel = 'dish'; renderDishList(); }
+  renderBreadcrumb();
+}
+
+function renderCitySummary() {
+  currentLevel = 'city';
+  const cityMap = {};
+  cityDistrictData.forEach(r => {
+    if (!cityMap[r[0]]) cityMap[r[0]] = { districts: 0, poi_cnt: 0, dish_cnt: 0, top_dishes: 0, quality_sum: 0, quality_cnt: 0 };
+    cityMap[r[0]].districts++;
+    cityMap[r[0]].poi_cnt += r[3];
+    cityMap[r[0]].dish_cnt += r[2];
+    if (r[6] !== null) { cityMap[r[0]].quality_sum += r[6]; cityMap[r[0]].quality_cnt++; }
+  });
+  topDishData.forEach(r => { if (cityMap[r[0]]) cityMap[r[0]].top_dishes++; });
+  const rows = Object.entries(cityMap).map(([city, d]) => ({
+    city, districts: d.districts, poi_cnt: d.poi_cnt, dish_cnt: d.dish_cnt, top_dishes: d.top_dishes,
+    avg_quality: d.quality_cnt > 0 ? (d.quality_sum / d.quality_cnt).toFixed(1) : null
+  })).sort((a, b) => b.poi_cnt - a.poi_cnt);
+
+  const thead = document.getElementById('table-head');
+  thead.innerHTML = '<tr><th>城市</th><th>城区数</th><th>门店总数</th><th>菜品记录数</th><th>TOP菜品数</th><th>平均质量分</th></tr>';
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = rows.map(r => '<tr class="clickable" onclick="selectCity(\'' + r.city + '\')">' +
+    '<td>' + r.city + '</td><td>' + r.districts + '</td><td>' + r.poi_cnt.toLocaleString() + '</td><td>' + r.dish_cnt.toLocaleString() + '</td><td>' + r.top_dishes + '</td>' +
+    '<td>' + (r.avg_quality ? renderQualityBar(parseFloat(r.avg_quality)) : '-') + '</td></tr>').join('');
+  document.getElementById('filter-bar').classList.add('hidden');
+}
+
+function selectCity(city) {
+  currentCity = city;
+  currentLevel = 'district';
+  renderDistrictList();
+  renderBreadcrumb();
+}
+
+function renderDistrictList() {
+  const rows = cityDistrictData.filter(r => r[0] === currentCity);
+  const distDishCount = {};
+  topDishData.filter(r => r[0] === currentCity).forEach(r => { distDishCount[r[1]] = (distDishCount[r[1]] || 0) + 1; });
+  const thead = document.getElementById('table-head');
+  thead.innerHTML = '<tr><th>城区</th><th>门店数</th><th>菜品记录数</th><th>TOP菜品数</th><th>SPU数</th><th>平均质量分</th></tr>';
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = rows.sort((a,b) => b[3] - a[3]).map(r => '<tr class="clickable" onclick="selectDistrict(\'' + r[1] + '\')">' +
+    '<td>' + r[1] + '</td><td>' + r[3].toLocaleString() + '</td><td>' + r[2].toLocaleString() + '</td><td>' + (distDishCount[r[1]] || 0) + '</td><td>' + r[4].toLocaleString() + '</td>' +
+    '<td>' + (r[6] !== null ? renderQualityBar(r[6]) : '-') + '</td></tr>').join('');
+  document.getElementById('filter-bar').classList.add('hidden');
+}
+
+function selectDistrict(district) {
+  currentDistrict = district;
+  currentLevel = 'dish';
+  renderDishList();
+  renderBreadcrumb();
+}
+
+function renderDishList() {
+  document.getElementById('filter-bar').classList.remove('hidden');
+  const catFilter = document.getElementById('filter-cat').value;
+  const searchFilter = document.getElementById('filter-search').value.toLowerCase();
+  let rows = topDishData.filter(r => r[0] === currentCity && r[1] === currentDistrict);
+  if (catFilter) rows = rows.filter(r => r[3] === catFilter);
+  if (searchFilter) rows = rows.filter(r => r[2].toLowerCase().includes(searchFilter));
+  const totalPoi = districtPoiMap[currentCity + '|' + currentDistrict] || 1;
+
+  const thead = document.getElementById('table-head');
+  thead.innerHTML = '<tr><th>排名</th><th>菜品名称</th><th>品类</th><th>覆盖门店数</th><th>覆盖率</th><th>质量分</th></tr>';
+  const tbody = document.getElementById('table-body');
+  let html = '';
+  rows.forEach((r, idx) => {
+    const badgeClass = (r[3] === '主菜' || r[3] === '主食') ? 'badge-main' : r[3] === '佐餐品' ? 'badge-side' : r[3] === '汤羹' ? 'badge-soup' : 'badge-other';
+    const coverage = (r[4] / totalPoi * 100).toFixed(1);
+    const coverageColor = coverage >= 20 ? '#2e7d32' : coverage >= 10 ? '#e65100' : '#888';
+    const dishName = r[2].replace(/'/g, "\\'");
+    html += '<tr class="clickable" id="dish-row-' + idx + '" onclick="toggleStoreDetail(\'' + r[0] + '\',\'' + r[1] + '\',\'' + dishName + '\',' + idx + ')">' +
+      '<td style="color:#888;">' + (idx + 1) + '</td>' +
+      '<td>' + r[2] + '</td>' +
+      '<td><span class="badge ' + badgeClass + '">' + r[3] + '</span></td>' +
+      '<td><strong>' + r[4].toLocaleString() + '</strong></td>' +
+      '<td style="color:' + coverageColor + ';font-weight:600;">' + coverage + '%</td>' +
+      '<td>' + renderQualityBar(r[8]) + '</td></tr>';
+    html += '<tr class="detail-row" id="detail-row-' + idx + '"><td colspan="6"><div class="detail-content" id="detail-content-' + idx + '"></div></td></tr>';
+  });
+  tbody.innerHTML = html;
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:40px;">该城区暂无满足条件的菜品数据</td></tr>';
+  }
+}
+
+function toggleStoreDetail(city, district, dish, idx) {
+  const detailRow = document.getElementById('detail-row-' + idx);
+  const dishRow = document.getElementById('dish-row-' + idx);
+  if (detailRow.classList.contains('show')) {
+    detailRow.classList.remove('show');
+    dishRow.classList.remove('expanded');
+    return;
+  }
+  document.querySelectorAll('.detail-row.show').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('tr.expanded').forEach(el => el.classList.remove('expanded'));
+  detailRow.classList.add('show');
+  dishRow.classList.add('expanded');
+
+  let stores = storeDetailData.filter(s => s[0] === city && s[1] === district && s[2] === dish);
+  let matchLevel = '城区';
+  if (stores.length === 0) {
+    stores = storeDetailData.filter(s => s[0] === city && s[2] === dish);
+    matchLevel = '城市';
+  }
+  const content = document.getElementById('detail-content-' + idx);
+  if (stores.length > 0) {
+    let tableHtml = '<table><thead><tr><th>门店名称</th><th>门店菜名</th><th>品牌</th><th>城区</th><th>品类</th><th>质量分</th><th>跳转链接</th></tr></thead><tbody>';
+    stores.forEach(s => {
+      const poiInfo = (typeof poiNameMap !== 'undefined' && poiNameMap[s[4]]) ? poiNameMap[s[4]] : {name: '门店#'+s[4], brand: ''};
+const badgeClass = (s[3]==='主菜'||s[3]==='主食')?'badge-main':s[3]==='佐餐品'?'badge-side':s[3]==='汤羹'?'badge-soup':'badge-other';
+const scoreHtml = s[5] === 0 ? '<span style="color:#ccc;">-</span>' : renderQualityBar(s[5]);
+const dishKey = s[4] + '|' + dish;
+const storeDishName = (typeof storeDishNameMap !== 'undefined' && storeDishNameMap[dishKey]) ? storeDishNameMap[dishKey] : null;
+const dishNameHtml = storeDishName ? '<span style="color:#e65100;font-weight:500;">' + storeDishName + '</span>' : '<span style="color:#bbb;">' + dish + '</span>';
+tableHtml += '<tr><td><a class="poi-link" href="https://meishi.meituan.com/i/poi/' + s[4] + '" target="_blank">' + poiInfo.name + '</a></td>' +
+'<td>' + dishNameHtml + '</td>' +
+'<td>' + (poiInfo.brand || '-') + '</td><td>' + s[1] + '</td>' +
+'<td><span class="badge ' + badgeClass + '">' + s[3] + '</span></td>' +
+'<td>' + scoreHtml + '</td>' +
+'<td><a class="poi-link" href="https://meishi.meituan.com/i/poi/' + s[4] + '" target="_blank" title="美团美食">美团</a> | <a class="poi-link" href="https://www.dianping.com/shop/' + s[4] + '" target="_blank" title="大众点评">点评</a> <span style="color:#aaa;font-size:11px;">(' + s[4] + ')</span></td></tr>';
+    });
+    tableHtml += '</tbody></table>';
+    const note = matchLevel === '城市' ? '<span style="color:#888;font-size:12px;">（展示' + city + '全市数据）</span>' : '';
+    const uniqueNameCount = stores.filter(s => typeof storeDishNameMap !== 'undefined' && storeDishNameMap[s[4] + '|' + dish]).length;
+    const nameNote = uniqueNameCount > 0 ? ' <span style="color:#e65100;font-size:12px;">(' + uniqueNameCount + '家有独特菜名)</span>' : '';
+    content.innerHTML = '<div style="margin-bottom:8px;font-weight:600;color:#555;">「' + dish + '」门店列表（TOP ' + stores.length + ' 家）' + nameNote + note + '</div>' + tableHtml;
+  } else {
+    content.innerHTML = '<div style="color:#999;padding:12px;">该菜品暂无门店明细数据。</div>';
+  }
+}
+
+function renderCatSummary() {
+  const catCount = {};
+  topDishData.forEach(r => { catCount[r[3]] = (catCount[r[3]] || 0) + 1; });
+  const total = topDishData.length;
+  const sorted = Object.entries(catCount).sort((a, b) => b[1] - a[1]);
+  const container = document.getElementById('cat-summary');
+  container.style.gridTemplateColumns = 'repeat(' + Math.min(sorted.length, 5) + ', 1fr)';
+  container.innerHTML = sorted.map(function(item) {
+    return '<div class="summary-item"><div class="num">' + item[1] + '</div><div class="desc">' + item[0] + '（' + (item[1]/total*100).toFixed(1) + '%）</div></div>';
+  }).join('');
+}
+
+function renderQualitySummary() {
+  const scores = topDishData.filter(r => r[8] !== null).map(r => r[8]);
+  const total = scores.length;
+  const ranges = [
+    { label: '优秀 (\u226575)', min: 75, max: 100, color: '#2e7d32' },
+    { label: '良好 (70-75)', min: 70, max: 75, color: '#558b2f' },
+    { label: '中等 (65-70)', min: 65, max: 70, color: '#e65100' },
+    { label: '偏低 (60-65)', min: 60, max: 65, color: '#f57c00' },
+    { label: '较低 (<60)', min: 0, max: 60, color: '#c62828' }
+  ];
+  const container = document.getElementById('quality-summary');
+  container.innerHTML = ranges.map(function(r) {
+    const cnt = scores.filter(s => s >= r.min && s < r.max).length;
+    return '<div class="summary-item"><div class="num" style="color:' + r.color + '">' + cnt + '</div><div class="desc">' + r.label + '（' + (cnt/total*100).toFixed(1) + '%）</div></div>';
+  }).join('');
+}
+
+function renderConclusion() {
+  const cities = new Set(cityDistrictData.map(r => r[0]));
+  const totalPoi = cityDistrictData.reduce((s, r) => s + r[3], 0);
+  const avgPoiPerDish = Math.round(topDishData.reduce((s, r) => s + r[4], 0) / topDishData.length);
+  const maxPoi = Math.max(...topDishData.map(r => r[4]));
+  const topDish = topDishData.find(r => r[4] === maxPoi);
+  const qualityScores = topDishData.filter(r => r[8] !== null).map(r => r[8]);
+  const avgQuality = (qualityScores.reduce((s,v) => s+v, 0) / qualityScores.length).toFixed(1);
+  const minQuality = Math.min(...qualityScores).toFixed(1);
+  const maxQuality = Math.max(...qualityScores).toFixed(1);
+  const above65 = qualityScores.filter(s => s >= 65).length;
+  const above65Pct = (above65 / qualityScores.length * 100).toFixed(1);
+
+  document.getElementById('conclusion').innerHTML =
+    '<p style="margin-bottom:12px;">基于 <strong>mart_daocao_dish.dish_name_score_ss</strong> + <strong>dish_score_ss</strong> 全量数据分析，菜品榜成榜可行性结论如下：</p>' +
+    '<p style="margin-bottom:8px;"><strong>1. 数据覆盖充分：</strong>TOP100城区覆盖 ' + cities.size + ' 个城市，累计 ' + totalPoi.toLocaleString() + ' 家门店有原子菜数据，数据基础扎实。</p>' +
+    '<p style="margin-bottom:8px;"><strong>2. 覆盖门店数区分度好：</strong>TOP菜品平均覆盖 ' + avgPoiPerDish + ' 家门店，最高覆盖 ' + maxPoi.toLocaleString() + ' 家（' + (topDish ? topDish[0]+topDish[1]+'「'+topDish[2]+'」' : '') + '），可作为排序的核心指标。</p>' +
+    '<p style="margin-bottom:8px;"><strong>3. 菜品质量分区分度良好：</strong>质量分范围 ' + minQuality + ' ~ ' + maxQuality + '，平均 ' + avgQuality + ' 分。\u226565分的菜品占 ' + above65Pct + '%（' + above65 + '/' + qualityScores.length + '），质量分可作为辅助排序维度，与覆盖门店数形成「量+质」双维度评估体系。</p>' +
+    '<p style="margin-bottom:8px;"><strong>4. 品类集中度高：</strong>主菜占比最高，佐餐品次之，符合用户点餐决策的核心需求。拍黄瓜、金针菇、鱼豆腐等高频菜品覆盖超2000家门店，具备成榜条件。</p>' +
+    '<p style="margin-bottom:8px;"><strong>5. name_score 区分度不足：</strong>该字段为菜品名称规范性评分（非口碑评分），经过「覆盖\u226520家门店」筛选后高覆盖菜品几乎全为100分，不适合作为排序维度。</p>' +
+    '<p style="margin-bottom:8px;"><strong>6. 区域差异明显：</strong>重庆两江新区、北京朝阳区、上海浦东新区为TOP3热门区域，火锅类菜品在川渝地区占据绝对优势。</p>' +
+    '<p><strong>建议：</strong>以「覆盖门店数」为核心排序指标，「菜品质量分」为辅助质量维度，优先在重庆、北京、上海、成都、广州、深圳6个核心城市试点菜品榜。建议成榜门槛：覆盖\u226520家门店 + 质量分\u226565分。</p>';
+}
+
+function bindFilters() {
+  document.getElementById('filter-cat').addEventListener('change', function() { if (currentLevel === 'dish') renderDishList(); });
+  document.getElementById('filter-search').addEventListener('input', function() { if (currentLevel === 'dish') renderDishList(); });
+}
+
+function resetFilters() {
+  document.getElementById('filter-cat').value = '';
+  document.getElementById('filter-search').value = '';
+  if (currentLevel === 'dish') renderDishList();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
