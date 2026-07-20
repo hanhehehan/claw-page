@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食单命名 · Z世代网感版</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    padding: 40px 20px;
+    min-width: 1100px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .hero {
+    background: linear-gradient(135deg, #1a1d28, #1e2230);
+    border-radius: 16px;
+    padding: 40px 44px;
+    margin-bottom: 36px;
+    border: 1px solid #2a2d3a;
+  }
+  .hero h1 { font-size: 28px; color: #ff6b9d; margin-bottom: 8px; }
+  .hero p { font-size: 15px; color: #999; line-height: 1.7; max-width: 800px; }
+  .hero .meta { margin-top: 16px; font-size: 13px; color: #666; }
+
+  .cat-section {
+    background: #1a1d28;
+    border-radius: 14px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    border: 1px solid #2a2d3a;
+  }
+  .cat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .cat-num {
+    background: #3a2a4a;
+    color: #ff6b9d;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 6px;
+  }
+  .cat-title { font-size: 20px; font-weight: 700; color: #ddd; }
+  .cat-desc { font-size: 14px; color: #777; margin-bottom: 24px; line-height: 1.6; }
+
+  .name-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .name-card {
+    background: #222531;
+    border-radius: 10px;
+    padding: 16px 20px;
+    border: 1px solid #2a2d3a;
+  }
+  .name-card.best { border-color: #ff6b9d; background: #2a1a26; }
+  .name-card.top { border-color: #ffd93d; background: #2a2818; box-shadow: 0 0 0 1px #ffd93d33; }
+  .name-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .name-text { font-size: 20px; font-weight: 700; color: #fff; }
+  .name-card.best .name-text { color: #ff6b9d; }
+  .name-card.top .name-text { color: #ffd93d; }
+  .name-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+  .badge-best { background: #4a1a3a; color: #ff6b9d; }
+  .badge-top { background: #4a3a1a; color: #ffd93d; }
+  .name-pinyin { font-size: 12px; color: #666; margin-left: auto; }
+  .name-reason { font-size: 13px; color: #bbb; line-height: 1.6; margin-bottom: 6px; }
+  .name-reason strong { color: #ddd; }
+  .name-vibe { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 6px; font-style: italic; }
+  .name-pros-cons { display: flex; gap: 12px; font-size: 12px; line-height: 1.5; }
+  .name-pros { color: #7fdb9e; flex: 1; }
+  .name-cons { color: #e08080; flex: 1; }
+  .name-pros::before { content: "✓ "; }
+  .name-cons::before { content: "✗ "; }
+
+  .cat-best {
+    margin-top: 20px;
+    padding: 14px 20px;
+    background: #15171f;
+    border-radius: 8px;
+    border-left: 3px solid #ff6b9d;
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.7;
+  }
+  .cat-best strong { color: #ff6b9d; }
+
+  .final-section {
+    background: linear-gradient(135deg, #1e2230, #1a2030);
+    border-radius: 16px;
+    padding: 40px 44px;
+    margin-top: 36px;
+    border: 2px solid #ff6b9d;
+  }
+  .final-title { font-size: 24px; font-weight: 700; color: #ff6b9d; margin-bottom: 8px; }
+  .final-subtitle { font-size: 14px; color: #888; margin-bottom: 28px; }
+  .final-cards { display: flex; gap: 20px; }
+  .final-card {
+    flex: 1;
+    background: #222531;
+    border-radius: 12px;
+    padding: 28px 24px;
+    border: 1px solid #3a3d4a;
+    position: relative;
+  }
+  .final-card.gold { border-color: #ff6b9d; }
+  .final-card.silver { border-color: #ffd93d; }
+  .final-rank { position: absolute; top: -12px; left: 24px; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 12px; }
+  .final-card.gold .final-rank { background: #ff6b9d; color: #1a1d28; }
+  .final-card.silver .final-rank { background: #ffd93d; color: #1a1d28; }
+  .final-name { font-size: 36px; font-weight: 700; margin-bottom: 4px; margin-top: 8px; }
+  .final-card.gold .final-name { color: #ff6b9d; }
+  .final-card.silver .final-name { color: #ffd93d; }
+  .final-pinyin { font-size: 14px; color: #666; margin-bottom: 16px; }
+  .final-reason { font-size: 14px; color: #ccc; line-height: 1.8; margin-bottom: 12px; }
+  .final-reason strong { color: #ddd; }
+  .final-why { font-size: 13px; color: #aaa; line-height: 1.7; padding-top: 12px; border-top: 1px solid #333; }
+  .final-why strong { color: #ddd; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>「食单」命名 · Z世代网感版</h1>
+    <p>产品本质不变：基于真实消费数据的个人美食策展，可编辑、可分享、可拥有。但命名逻辑彻底切换——不要文化感，不要典故，要的是直觉冲击、画面感、反差萌、自嘲式亲切感。</p>
+    <p>对标：闲鱼、哈啰、得物、拼多多、西瓜视频、字节跳动、蚂蚁森林——好名字像动物/水果/拟声词，一看就记住，不需要解释。</p>
+    <div class="meta">10个分类 · 88个候选 · 每类精选1-3个 · 最终推荐2个</div>
+  </div>
+
+  <!-- ========== Cat 1: 动物 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">01</span><span class="cat-title">动物类</span></div>
+    <div class="cat-desc">互联网最经典的命名范式。蚂蚁、飞猪、菜鸟、闲鱼、天猫、斑马——动物自带人格和画面感，用户零教育成本。关键是找到一种动物，它的习性和食单的产品逻辑天然对应。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">松鼠</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">sōng shǔ</span></div>
+        <div class="name-reason"><strong>松鼠屯粮=你屯好店。</strong>松鼠的核心行为是"收集+藏+记住位置"，和食单的"收藏+策展+复访"完美对应。松鼠屯松果，你屯好餐厅。冬天来了松鼠知道去哪挖，朋友来了你知道带去哪吃。</div>
+        <div class="name-vibe">画面感：毛茸茸的小松鼠抱着松果，眼睛亮亮的，藏完一颗又跑去藏下一颗</div>
+        <div class="name-pros-cons"><div class="name-pros">习性与产品完美对应（屯粮=屯店）；形象可爱有亲和力；可做IP吉祥物；"松鼠的粮仓"=你的食单</div><div class="name-cons">松鼠已有一定品牌联想（坚果/快递）；需要在食物场景中重新定义</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">蜜蜂</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">mì fēng</span></div>
+        <div class="name-reason"><strong>蜜蜂采蜜=你采店。</strong>蜜蜂的核心行为是"飞遍花丛+记住好花+回巢酿蜜+蜂巢共享"。你飞遍餐厅+记住好店+策展成食单+分享给朋友。蜂巢=食单，蜂蜜=策展成果。</div>
+        <div class="name-vibe">画面感：小蜜蜂嗡嗡嗡飞过一家又一店店，最后回到蜂巢把采到的花蜜酿成蜂蜜</div>
+        <div class="name-pros-cons"><div class="name-pros">采蜜=消费采集的完美隐喻；蜂巢=食单的共享属性；酿蜜=策展加工过程；形象正面</div><div class="name-cons">蜜蜂偏勤劳形象，少了一点"选择"的策展感</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">馋猫</span><span class="name-pinyin">chán māo</span></div>
+        <div class="name-reason">嘴馋的猫。猫=年轻人最爱动物，馋=爱吃。双关亲切。</div>
+        <div class="name-vibe">画面感：一只橘猫趴在桌边眼巴巴看着你吃饭</div>
+        <div class="name-pros-cons"><div class="name-pros">猫+馋双buff；IP化极强；年轻态</div><div class="name-cons">偏食欲不偏策展；可能和猫粮品牌混淆</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">考拉</span><span class="name-pinyin">kǎo lā</span></div>
+        <div class="name-reason">考拉只吃桉树叶，极其挑食。=有标准的人。</div>
+        <div class="name-vibe">画面感：考拉慢慢嚼叶子，一脸满足</div>
+        <div class="name-pros-cons"><div class="name-pros">挑食=有品味的隐喻；形象呆萌</div><div class="name-cons">考拉=懒的代名词，可能与效率矛盾</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食蚁兽</span><span class="name-pinyin">shí yǐ shòu</span></div>
+        <div class="name-reason">食=吃，蚁=微小。谐音梗+反差萌。</div>
+        <div class="name-vibe">画面感：长鼻子食蚁兽一家一家店地嗅</div>
+        <div class="name-pros-cons"><div class="name-pros">名字本身有"食"字；反差萌</div><div class="name-cons">形象不够好看；三字偏长</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">仓鼠</span><span class="name-pinyin">cāng shǔ</span></div>
+        <div class="name-reason">仓鼠塞满腮帮子=你塞满食单。屯积癖=策展癖。</div>
+        <div class="name-vibe">画面感：腮帮子鼓鼓的小仓鼠</div>
+        <div class="name-pros-cons"><div class="name-pros">屯积=收集的隐喻；形象极萌</div><div class="name-cons">仓鼠=无脑屯，缺少"精选"的策展感</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">河豚</span><span class="name-pinyin">hé tún</span></div>
+        <div class="name-reason">河豚吃好东西就鼓起来=你的食单越吃越丰富。</div>
+        <div class="name-vibe">画面感：圆鼓鼓的河豚，很满足的样子</div>
+        <div class="name-pros-cons"><div class="name-pros">形象有趣；"鼓起来"=食单变厚</div><div class="name-cons">河豚=有毒的联想；可能与食物安全矛盾</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">萤火虫</span><span class="name-pinyin">yíng huǒ chóng</span></div>
+        <div class="name-reason">萤火虫标记路径=你用消费标记美食路径。发光=被发现。</div>
+        <div class="name-vibe">画面感：黑夜里一闪一闪的萤火虫连成线</div>
+        <div class="name-pros-cons"><div class="name-pros">有路径感和发现感；画面极美</div><div class="name-cons">三字偏长；与食物关联度低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">八爪鱼</span><span class="name-pinyin">bā zhǎo yú</span></div>
+        <div class="name-reason">八爪鱼触手多=你吃的范围广。触手=探索。</div>
+        <div class="name-vibe">画面感：八条触手各抓一家店</div>
+        <div class="name-pros-cons"><div class="name-pros">有广度感；形象有趣</div><div class="name-cons">形象不够可爱；三字偏长</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">啄木鸟</span><span class="name-pinyin">zhuó mù niǎo</span></div>
+        <div class="name-reason">啄=精准选择。啄木鸟精准啄虫=你精准选店。</div>
+        <div class="name-vibe">画面感：笃笃笃笃在树上敲</div>
+        <div class="name-pros-cons"><div class="name-pros">有精准选择的隐喻</div><div class="name-cons">偏"找问题"的联想；三字偏长</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>松鼠 · 蜜蜂。松鼠屯粮的习性与"收藏+记住位置+复访"最匹配，蜜蜂采蜜的"采集+加工+共享"链路最完整。两者都可以做IP吉祥物，有天然的视觉延展。</div>
+  </div>
+
+  <!-- ========== Cat 2: 水果 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">02</span><span class="cat-title">水果类</span></div>
+    <div class="cat-desc">西瓜视频、苹果、橘子娱乐、芒果TV——水果命名的好处是亲切、无害、自带色彩感。关键是找到一种水果，它的特性能隐喻食单的产品逻辑。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">榴莲</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">liú lián</span></div>
+        <div class="name-reason"><strong>爱之者赞其香，厌之者怨其臭。</strong>榴莲是最"有态度"的水果——你不是喜欢就是讨厌，没有中间态。食单也是：你的食单是你的品味宣言，有人认同有人不认同，但它是你的。而且"榴莲"谐音"留恋"——去过的好店，留恋不忘。</div>
+        <div class="name-vibe">画面感：一个带刺的榴莲，外表扎人，内心柔软——就像你的食单，有棱有角但是真材实料</div>
+        <div class="name-pros-cons"><div class="name-pros">态度感最强（爱憎分明=品味宣言）；谐音"留恋"；辨识度极高；刺=已验证的标记</div><div class="name-cons">榴莲味道两极分化可能影响第一印象；需要品牌语境</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">百香果</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">bǎi xiāng guǒ</span></div>
+        <div class="name-reason"><strong>百种香味集于一果。</strong>百香果=一百种味道的集合，你的食单=一百家好店的集合。"百香"直接对应"多样品味"，"果"=成果/结果。你的消费成果，百香集结。</div>
+        <div class="name-vibe">画面感：切开一颗百香果，里面是满满的籽，每一颗都是一种味道</div>
+        <div class="name-pros-cons"><div class="name-pros">"百香"=多样品味的完美隐喻；色彩感强（紫色/黄色）；名字本身有品质感</div><div class="name-cons">三字偏长；可能偏女性化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">杨梅</span><span class="name-pinyin">yáng méi</span></div>
+        <div class="name-reason">谐音"扬眉"。你的食单让你扬眉吐气。</div>
+        <div class="name-vibe">画面感：红紫色的杨梅，酸甜多汁</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音"扬眉"有自信感；水果本身有酸甜=人生百味</div><div class="name-cons">与食单的产品逻辑关联弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">山竹</span><span class="name-pinyin">shān zhú</span></div>
+        <div class="name-reason">外壳坚硬内心柔软。外表冷静内心热烈=有品味的人。</div>
+        <div class="name-vibe">画面感：紫色硬壳掰开，里面是白嫩的果肉</div>
+        <div class="name-pros-cons"><div class="name-pros">有"表里不一"的反差感；形象高级</div><div class="name-cons">与食单产品逻辑关联弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">无花果</span><span class="name-pinyin">wú huā guǒ</span></div>
+        <div class="name-reason">不开花直接结果=不张扬但有实力。你的食单不炫耀但全是干货。</div>
+        <div class="name-vibe">画面感：低调的无花果，掰开里面是密密麻麻的果肉</div>
+        <div class="name-pros-cons"><div class="name-pros">有"低调有料"的隐喻</div><div class="name-cons">三字偏长；"无花"可能有负面联想</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">牛油果</span><span class="name-pinyin">niú yóu guǒ</span></div>
+        <div class="name-reason">牛油果=健康生活=Z世代饮食icon。自带品质感标签。</div>
+        <div class="name-vibe">画面感：切开的牛油果，绿色果肉，文艺范</div>
+        <div class="name-pros-cons"><div class="name-pros">Z世代饮食文化icon；自带健康品质感</div><div class="name-cons">与食单的策展/信任逻辑无关；三字偏长</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">荔枝</span><span class="name-pinyin">lì zhī</span></div>
+        <div class="name-reason">谐音"励志"。你的食单=你的美食励志史。</div>
+        <div class="name-vibe">画面感：红亮的荔枝，剥开是晶莹的果肉</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音有趣；色彩感好</div><div class="name-cons">与产品逻辑无关；过于普通</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">青柠</span><span class="name-pinyin">qīng níng</span></div>
+        <div class="name-reason">青涩+宁静。年轻+清爽。谐音"轻宁"。</div>
+        <div class="name-vibe">画面感：一颗青柠切半，酸爽清新</div>
+        <div class="name-pros-cons"><div class="name-pros">清爽年轻；有调性</div><div class="name-cons">与食单逻辑无关；偏饮品类</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">柿子</span><span class="name-pinyin">shì zi</span></div>
+        <div class="name-reason">"挑软柿子捏"反着来——你挑的是硬柿子（好店）。</div>
+        <div class="name-vibe">画面感：橙红色的柿子，饱满透亮</div>
+        <div class="name-pros-cons"><div class="name-pros">有反差趣味</div><div class="name-cons">"挑软柿子"负面联想强</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">桑葚</span><span class="name-pinyin">sāng shèn</span></div>
+        <div class="name-reason">吃完满嘴紫色=吃过的痕迹很明显。=消费证据。</div>
+        <div class="name-vibe">画面感：吃完桑葚手指和嘴巴都紫紫的</div>
+        <div class="name-pros-cons"><div class="name-pros">"留下痕迹"的证据隐喻巧妙</div><div class="name-cons">名字偏小众；不够响亮</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>榴莲 · 百香果。榴莲的态度感（爱憎分明=品味宣言）和谐音（留恋）是最大亮点。百香果的"百种香味集于一果"=多家好店集于一单的隐喻最精准。</div>
+  </div>
+
+  <!-- ========== Cat 3: 拟声词 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">03</span><span class="cat-title">拟声词类</span></div>
+    <div class="cat-desc">叮咚、滴滴、哈哈、嗡嗡——拟声词命名的优势是听觉记忆、天然口语化、不需要任何解释。关键是找到与"吃"或"记录"相关的拟声词。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">吧唧</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">ba ji</span></div>
+        <div class="name-reason"><strong>吧唧嘴=吃得香的拟声词。</strong>吧唧是所有人听到都会联想到"吃"的声音。不需要任何解释，一秒建立食物联想。而且吧唧自带"小孩子感"，亲切到极致，完全不old。你的吧唧=你吃过的好东西的声音记录。</div>
+        <div class="name-vibe">画面感：一个小孩子吃得满嘴油，吧唧吧唧响，特别开心的样子</div>
+        <div class="name-pros-cons"><div class="name-pros">听觉记忆极强；一秒联想到吃；亲切到极致；完全不old；"吧唧一下"可做动词</div><div class="name-cons">吧唧嘴在部分文化中是不礼貌的；需要品牌消解</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">咔嚓</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">kā chā</span></div>
+        <div class="name-reason"><strong>咔嚓=拍照声+盖章声+咬碎声。</strong>三重拟声：拍下美食照片（咔嚓）+给好店盖章认证（咔嚓）+一口咬下去（咔嚓）。每消费一家店=咔嚓一声，记录在案。</div>
+        <div class="name-vibe">画面感：每走进一家好店，"咔嚓"一声，像盖章一样标记在你的食单上</div>
+        <div class="name-pros-cons"><div class="name-pros">三重拟声（拍照+盖章+咬）；有"打卡标记"的动作感；极口语化</div><div class="name-cons">可能与相机类产品混淆；不直接关联食物</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">嗝</span><span class="name-pinyin">gé</span></div>
+        <div class="name-reason">吃饱了打嗝。吃完一家店的满足感标志。一个字，极致简洁。</div>
+        <div class="name-vibe">画面感：吃饱喝足后一个满足的嗝</div>
+        <div class="name-pros-cons"><div class="name-pros">一字极简；有满足感和幽默感；完全不old</div><div class="name-cons">嗝=不雅，部分用户反感；单字品牌保护难</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">咕噜</span><span class="name-pinyin">gū lū</span></div>
+        <div class="name-reason">肚子饿的咕噜声。从饿到吃的过程。</div>
+        <div class="name-vibe">画面感：肚子咕噜叫，然后去吃好吃的</div>
+        <div class="name-pros-cons"><div class="name-pros">可爱有画面感</div><div class="name-cons">偏饥饿不偏满足；不承载策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">哧溜</span><span class="name-pinyin">chī liū</span></div>
+        <div class="name-reason">吃面条/喝汤的哧溜声。有动感。</div>
+        <div class="name-vibe">画面感：哧溜一口把面吸进去</div>
+        <div class="name-pros-cons"><div class="name-pros">有食物画面感</div><div class="name-cons">偏特定食物（面条/汤）；不够通用</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">哈呜</span><span class="name-pinyin">hā wū</span></div>
+        <div class="name-reason">大口吃东西的"啊呜"声。一口吞下。</div>
+        <div class="name-vibe">画面感：啊呜一口咬下去</div>
+        <div class="name-pros-cons"><div class="name-pros">有吃的动作感</div><div class="name-cons">造词感强；不够响亮</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">嘬</span><span class="name-pinyin">zuō</span></div>
+        <div class="name-reason">嘬一口的嘬。吃好吃的的动作。</div>
+        <div class="name-vibe">画面感：嘬一口奶茶，嘬一口小龙虾</div>
+        <div class="name-pros-cons"><div class="name-pros">有吃的动作感；口语化</div><div class="name-cons">一字品牌保护难；不承载策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">叮</span><span class="name-pinyin">dīng</span></div>
+        <div class="name-reason">消费后"叮"一声，到账了/记录了。如收银机声。</div>
+        <div class="name-vibe">画面感：每消费一家店，"叮"一声，食单上多了一个标记</div>
+        <div class="name-pros-cons"><div class="name-pros">有"记录完成"的反馈感</div><div class="name-cons">不关联食物；单字品牌保护难</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">吸溜</span><span class="name-pinyin">xī liū</span></div>
+        <div class="name-reason">吸溜一口。和哧溜类似但更口语。</div>
+        <div class="name-vibe">画面感：吸溜一口螺蛳粉</div>
+        <div class="name-pros-cons"><div class="name-pros">口语化有画面</div><div class="name-cons">偏特定食物；不够通用</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>吧唧 · 咔嚓。吧唧是所有拟声词中最直接关联"吃"的，一秒建立食物联想，亲切到极致。咔嚓的三重拟声（拍照+盖章+咬碎）与食单的"消费→标记→记录"链路完美对应。</div>
+  </div>
+
+  <!-- ========== Cat 4: 动作黑话 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">04</span><span class="cat-title">Z世代黑话类</span></div>
+    <div class="cat-desc">干饭、种草、拔草、探店、打卡——Z世代有自己的美食语言体系。从这些黑话中提取或变形，天然拥有年轻用户认知基础。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">探长</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">tàn zhǎng</span></div>
+        <div class="name-reason"><strong>探店探长。</strong>探店已经是Z世代通用黑话，"探长"把探店的人升级为一个身份——不是随便探店，是有体系、有记录、有信用的探店专家。每个用户都是自己美食领地的探长。双关"探长"（侦探/探险队长）。</div>
+        <div class="name-vibe">画面感：拿着放大镜一家一家店地考察，最后写一份探店报告</div>
+        <div class="name-pros-cons"><div class="name-pros">基于"探店"黑话认知度极高；"探长"=身份感+权威感；可延展（探长等级/探长勋章）</div><div class="name-cons">探店文化已有竞品使用类似概念；需要差异化</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">拔草记</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">bá cǎo jì</span></div>
+        <div class="name-reason"><strong>种草是想去，拔草是去过。</strong>种草/拔草是Z世代最核心的消费黑话。种草=收藏想去，拔草=实际消费。你的食单=你的拔草记录——全部是已验证的，不是空想。"记"=策展记录。</div>
+        <div class="name-vibe">画面感：你的美食愿望清单（种草）一条条被划掉（拔草），变成一份战果记录</div>
+        <div class="name-pros-cons"><div class="name-pros">黑话认知度极高；"拔草=已消费"完美对应交易证据；有完成感和成就感</div><div class="name-cons">三字偏长；"拔草"在部分语境中有负面含义（去除不想要的）</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">干饭人</span><span class="name-pinyin">gàn fàn rén</span></div>
+        <div class="name-reason">干饭人干饭魂。Z世代吃饭黑话天花板。</div>
+        <div class="name-vibe">画面感：一个年轻人端着饭碗眼神坚定</div>
+        <div class="name-pros-cons"><div class="name-pros">认知度极高；态度鲜明</div><div class="name-cons">已被过度使用审美疲劳；三字偏长；不承载策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">种草本</span><span class="name-pinyin">zhòng cǎo běn</span></div>
+        <div class="name-reason">你的种草+拔草合集本。</div>
+        <div class="name-vibe">画面感：一个贴满便签的笔记本</div>
+        <div class="name-pros-cons"><div class="name-pros">黑话+实体感</div><div class="name-cons">种草偏未来导向，与已验证矛盾</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">干饭榜</span><span class="name-pinyin">gàn fàn bǎng</span></div>
+        <div class="name-reason">你的个人干饭排行榜。</div>
+        <div class="name-vibe">画面感：一张手写的"本人干饭排行榜"</div>
+        <div class="name-pros-cons"><div class="name-pros">有排行感</div><div class="name-cons">偏排行不偏策展；干饭已审美疲劳</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">饭搭子</span><span class="name-pinyin">fàn dā zi</span></div>
+        <div class="name-reason">饭搭子=一起吃饭的人。你的食单=你的饭搭子推荐。</div>
+        <div class="name-vibe">画面感：两个好朋友一起吃饭聊天</div>
+        <div class="name-pros-cons"><div class="name-pros">社交属性强；口语自然</div><div class="name-cons">偏人/社交不偏策展；三字</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">打卡本</span><span class="name-pinyin">dǎ kǎ běn</span></div>
+        <div class="name-reason">你的美食打卡记录本。打卡=去过+标记。</div>
+        <div class="name-vibe">画面感：一个盖满章的打卡本</div>
+        <div class="name-pros-cons"><div class="name-pros">打卡=消费+标记双义</div><div class="name-cons">打卡偏形式不偏品味；三字</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">踩点</span><span class="name-pinyin">cǎi diǎn</span></div>
+        <div class="name-reason">踩点=提前探路。你踩过的点=你验证过的店。</div>
+        <div class="name-vibe">画面感：一家一家店走过去踩点</div>
+        <div class="name-pros-cons"><div class="name-pros">有"实地验证"含义</div><div class="name-cons">偏踩点办事不偏吃饭；不够响亮</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">开箱</span><span class="name-pinyin">kāi xiāng</span></div>
+        <div class="name-reason">美食开箱。每家店都是一个盲盒，你开过了=你验证了。</div>
+        <div class="name-vibe">画面感：拆开一个箱子，里面是惊喜美食</div>
+        <div class="name-pros-cons"><div class="name-pros">有惊喜感和验证感</div><div class="name-cons">偏测评不偏策展；不承载消费证据</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">回血</span><span class="name-pinyin">huí xuè</span></div>
+        <div class="name-reason">游戏黑话"回血"。吃饭=回血。你的回血点=你吃过的好店。</div>
+        <div class="name-vibe">画面感：血条见底了赶紧找家店吃饭回血</div>
+        <div class="name-pros-cons"><div class="name-pros">游戏化有趣</div><div class="name-cons">偏功能不偏策展；不够品牌化</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>探长 · 拔草记。探长把"探店"升级为身份，有体系感和权威感。拔草记的"种草想去→拔草去过"完美对应食单的交易证据核心——你的食单里全是拔过草的，不是空想。</div>
+  </div>
+
+  <!-- ========== Cat 5: 反差/自嘲 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">05</span><span class="cat-title">反差自嘲类</span></div>
+    <div class="cat-desc">Z世代最爱的表达方式——不端着，自嘲式幽默。把"缺点"变成"态度"。如"废物""社恐""卷王"从贬义变中性。食单也可以走这条路。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">好吃鬼</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">hǎo chī guǐ</span></div>
+        <div class="name-reason"><strong>自嘲式身份认同。</strong>"好吃鬼"民间俗语，原本略带贬义（贪吃的人），但Z世代最擅长把贬义变态度——"我就是好吃鬼，怎么了？好吃鬼才有好食单。"鬼=执着的人（如工作鬼、社恐鬼），好吃鬼=对吃有执念的人。</div>
+        <div class="name-vibe">画面感：一个半夜偷偷翻冰箱找吃的的"好吃鬼"，眼睛发光</div>
+        <div class="name-pros-cons"><div class="name-pros">自嘲式亲切感极强；Z世代接受度高；"鬼"=执念者的新用法；有IP化潜力（贪吃鬼形象）</div><div class="name-cons">"鬼"字部分用户忌讳；三字偏长</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">挑嘴</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">tiāo zuǐ</span></div>
+        <div class="name-reason"><strong>"挑食"的口语化升级。</strong>挑嘴=嘴巴刁=有标准。民间说一个人"挑嘴"是觉得他难伺候，但Z世代可以说"我挑嘴，因为我吃过好的"。比"挑食"更有画面感——嘴=品味的入口，挑=主动选择。</div>
+        <div class="name-vibe">画面感：一个人吃了口东西皱皱眉摇摇头——"这个不行"</div>
+        <div class="name-pros-cons"><div class="name-pros">比"挑食"更有画面感和口语化；有态度；"嘴"=品味入口</div><div class="name-cons">部分方言中"挑嘴"=挑拨是非；需语境消解</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">饿霸</span><span class="name-pinyin">è bà</span></div>
+        <div class="name-reason">谐音"恶霸"。饿的时候最霸道。反差萌。</div>
+        <div class="name-vibe">画面感：饿到变身恶霸，横扫一切美食</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音反差有趣；有画面感</div><div class="name-cons">"恶霸"联想偏负面；不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">贪吃</span><span class="name-pinyin">tān chī</span></div>
+        <div class="name-reason">贪吃蛇的经典IP认知。贪吃=有食欲=有动力。</div>
+        <div class="name-vibe">画面感：贪吃蛇一条线吃过去越来越长</div>
+        <div class="name-pros-cons"><div class="name-pros">贪吃蛇IP认知度高；有路径感</div><div class="name-cons">"贪"字偏负面</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">嘴刁</span><span class="name-pinyin">zuǐ diāo</span></div>
+        <div class="name-reason">嘴巴刁=有标准。比挑嘴更狠。</div>
+        <div class="name-vibe">画面感：尝一口就摇头："这家不行"</div>
+        <div class="name-pros-cons"><div class="name-pros">态度鲜明</div><div class="name-cons">"刁"字偏刻薄；可能让人不舒服</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">馋虫</span><span class="name-pinyin">chán chóng</span></div>
+        <div class="name-reason">馋虫上脑=特别想吃。身体里的馋虫。</div>
+        <div class="name-vibe">画面感：脑子里有一条小虫子在说"吃吃吃"</div>
+        <div class="name-pros-cons"><div class="name-pros">有画面感；口语化</div><div class="name-cons">偏食欲不偏策展</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">废胃</span><span class="name-pinyin">fèi wèi</span></div>
+        <div class="name-reason">谐音"废位"。废胃=装不满的胃=总在找好吃的。</div>
+        <div class="name-vibe">画面感：一个永远填不满的胃</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音有趣</div><div class="name-cons">"废"字偏负面；不承载策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">老饕</span><span class="name-pinyin">lǎo tāo</span></div>
+        <div class="name-reason">苏轼《老饕赋》。资深吃货的自嘲式称呼。</div>
+        <div class="name-vibe">画面感：一个摸着肚子笑眯眯的老吃货</div>
+        <div class="name-pros-cons"><div class="name-pros">有文化底蕴+自嘲感</div><div class="name-cons">"老"字太old；Z世代认知度低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">穷鬼</span><span class="name-pinyin">qióng guǐ</span></div>
+        <div class="name-reason">"穷鬼套餐"已是Z世代黑话。穷但也要吃好的。</div>
+        <div class="name-vibe">画面感：穷但嘴刁的年轻人</div>
+        <div class="name-pros-cons"><div class="name-pros">自嘲式亲切</div><div class="name-cons">过于负面；与品质定位矛盾</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>好吃鬼 · 挑嘴。好吃鬼的自嘲式身份认同最Z世代——把贪吃从缺点变成执念。挑嘴比挑食更有画面感和态度感，"我挑嘴因为我吃过好的"一句话讲完产品逻辑。</div>
+  </div>
+
+  <!-- ========== Cat 6: 谐音梗 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">06</span><span class="cat-title">谐音梗类</span></div>
+    <div class="cat-desc">Z世代最爱的语言游戏。谐音梗看似low，但传播力极强——"食力""饭制""胃你"这种谐音天然有记忆点，而且有"懂的都懂"的圈层感。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">胃你</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">wèi nǐ</span></div>
+        <div class="name-reason"><strong>谐音"为你"。</strong>胃你=为你。你的胃=你的品味。分享食单="胃你推荐"——用我的胃为你背书。双关极自然，且有社交温度——不是冷冰冰的"推荐"，是"我用自己的胃替你试过了"。</div>
+        <div class="name-vibe">画面感：朋友问"吃什么"，你说"胃你选好了"——温暖又有趣</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音极自然（为你/胃你）；有社交温度（我替你试过了）；口语化；"胃你"可做万能前缀（胃你推荐/胃你精选/胃你定制）</div><div class="name-cons">谐音梗部分人觉得low；品牌感偏弱</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">食力派</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">shí lì pài</span></div>
+        <div class="name-reason"><strong>谐音"实力派"。</strong>食力=美食实力，派=一派人。食力派=有美食实力的一派人。你的食单=你的食力证明。谐音"实力派"自带正面联想，且"食力"可量化（食力值），"派"有社群归属感。</div>
+        <div class="name-vibe">画面感：一群吃货拍着胸脯说"我们是食力派"</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音"实力派"正面联想强；"食力值"天然可做等级体系；"派"有社群感；三字有品牌辨识度</div><div class="name-cons">三字偏长；谐音梗部分人觉得low</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">有食力</span><span class="name-pinyin">yǒu shí lì</span></div>
+        <div name-reason="name-reason">谐音"有实力"。你有食力=你有美食实力。</div>
+        <div class="name-vibe">画面感：自信地说"我可有食力了"</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音自然；有自信感</div><div class="name-cons">与"食力派"重叠度高；三字</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">胃口</span><span class="name-pinyin">wèi kǒu</span></div>
+        <div class="name-reason">谐音"为你口"。"对胃口"=合得来。</div>
+        <div class="name-vibe">画面感：吃到对胃口的菜笑了</div>
+        <div class="name-pros-cons"><div class="name-pros">"对胃口"有匹配感</div><div class="name-cons">太日常不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食言</span><span class="name-pinyin">shí yán</span></div>
+        <div class="name-reason">谐音"食言"（失信）。反着用——我们不信言，只信食。消费证据比嘴说的靠谱。</div>
+        <div class="name-vibe">画面感：别听他说，看他吃过什么</div>
+        <div class="name-pros-cons"><div class="name-pros">反用谐音有深度</div><div class="name-cons">"食言"负面联想太强</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味来</span><span class="name-pinyin">wèi lái</span></div>
+        <div class="name-reason">谐音"未来"。你的味道未来。</div>
+        <div class="name-vibe">画面感：指向未来的味道</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音有记忆点</div><div class="name-cons">偏未来不偏验证</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食在</span><span class="name-pinyin">shí zài</span></div>
+        <div class="name-reason">谐音"实在"。你的美食体验很实在。</div>
+        <div class="name-vibe">画面感：实实在在吃过的</div>
+        <div class="name-pros-cons"><div class="name-pros">有真实感</div><div class="name-cons">偏地域口语；不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">饭制</span><span class="name-pinyin">fàn zhì</span></div>
+        <div class="name-reason">谐音"番制"（粉丝自制）。饭制=粉丝为美食自制食单。</div>
+        <div class="name-vibe">画面感：粉丝为爱发电做出来的美食榜单</div>
+        <div class="name-pros-cons"><div class="name-pros">饭圈文化认知度高</div><div class="name-cons">与食单逻辑关联弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">知食</span><span class="name-pinyin">zhī shí</span></div>
+        <div class="name-reason">谐音"知识"。美食知识。知食分子=吃货知识分子。</div>
+        <div class="name-vibe">画面感：戴着眼镜认真研究菜单的吃货</div>
+        <div class="name-pros-cons"><div class="name-pros">"知食分子"有文化趣味</div><div class="name-cons">偏知识不偏策展</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>胃你 · 食力派。胃你的谐音（为你）+社交温度（我替你试过了）组合最自然，可做万能前缀。食力派的"实力派"正面联想+食力值等级体系+社群归属感，品牌延展性最强。</div>
+  </div>
+
+  <!-- ========== Cat 7: 游戏化 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">07</span><span class="cat-title">游戏化概念类</span></div>
+    <div class="cat-desc">Z世代是游戏原住民。图鉴、成就、技能树、装备栏——这些游戏概念可以完美映射食单的产品逻辑。每消费一家店=解锁一个成就/获得一件装备。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">图鉴</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">tú jiàn</span></div>
+        <div class="name-reason"><strong>宝可梦图鉴的逻辑。</strong>每遇到一只宝可梦，图鉴就多一条记录。每吃一家店，你的美食图鉴就多一条。图鉴=收集+记录+展示，与食单的"消费→记录→策展"完美对应。而且Z世代对"图鉴"概念零教育成本。"已收集"="已验证"。</div>
+        <div class="name-vibe">画面感：翻开一本图鉴，每一家店都是一个条目，有图有评价有"已捕获"标记</div>
+        <div class="name-pros-cons"><div class="name-pros">游戏概念认知度极高（宝可梦/塞尔达）；收集+记录+展示三位一体；"已收集"=已验证天然对应；可延展（图鉴完成度/图鉴等级/稀有度）</div><div class="name-cons">"图鉴"本身是通用词，品牌保护难；需加前缀如"美食图鉴"</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">成就</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">chéng jiù</span></div>
+        <div class="name-reason"><strong>游戏成就系统的逻辑。</strong>每消费一家店=解锁一个成就。"吃过100家粉店"=成就解锁。你的食单=你的美食成就列表。成就=已完成+可展示+有荣誉感，完美对应食单的"已验证+可分享+有身份"。</div>
+        <div class="name-vibe">画面感：每走进一家新店，屏幕上弹出"叮——成就解锁：第50家火锅店"</div>
+        <div class="name-pros-cons"><div class="name-pros">游戏概念认知度极高；"成就"=已完成+可炫耀；有荣誉感和动力感；天然支持等级体系</div><div class="name-cons">"成就"是通用词，品牌保护难；需加前缀如"美食成就"</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">装备栏</span><span class="name-pinyin">zhuāng bèi lán</span></div>
+        <div class="name-reason">你的食单=你的美食装备栏。每家好店=一件装备。</div>
+        <div class="name-vibe">画面感：RPG游戏里的装备栏，每个格子放一家店</div>
+        <div class="name-pros-cons"><div class="name-pros">游戏概念有趣；有"装配"感</div><div class="name-cons">三字偏长；"装备"偏战斗不偏吃</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">技能树</span><span class="name-pinyin">jì néng shù</span></div>
+        <div class="name-reason">你的美食技能树。吃的品类越多，技能树越茂盛。</div>
+        <div class="name-vibe">画面感：一棵树，每个分支是一种品类，每个节点是一家店</div>
+        <div class="name-pros-cons"><div class="name-pros">有成长感和体系感</div><div class="name-cons">三字偏长；过于游戏化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">收藏品</span><span class="name-pinyin">shōu cáng pǐn</span></div>
+        <div class="name-reason">你的美食收藏品。每家好店=一件收藏品。</div>
+        <div class="name-vibe">画面感：博物馆里的展品，每家店是一个展位</div>
+        <div class="name-pros-cons"><div class="name-pros">有珍贵感</div><div class="name-cons">三字偏长；太通用</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">解锁</span><span class="name-pinyin">jiě suǒ</span></div>
+        <div class="name-reason">每消费一家店=解锁一个美食地点。</div>
+        <div class="name-vibe">画面感：地图上一个灰色的点被点亮</div>
+        <div class="name-pros-cons"><div class="name-pros">有成就感和发现感</div><div class="name-cons">偏动作不偏名词；不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">战绩</span><span class="name-pinyin">zhàn jì</span></div>
+        <div class="name-reason">你的美食战绩。吃过的好店=你的战绩。</div>
+        <div class="name-vibe">画面感：游戏结算页面的战绩列表</div>
+        <div class="name-pros-cons"><div class="name-pros">有成就感和可炫耀性</div><div class="name-cons">"战"字偏战斗不偏吃</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">存档</span><span class="name-pinyin">cún dàng</span></div>
+        <div class="name-reason">你的美食存档。每家吃过的店=一个存档点。</div>
+        <div class="name-vibe">画面感：游戏存档列表，每个存档是一家好店</div>
+        <div class="name-pros-cons"><div class="name-pros">有记录感</div><div class="name-cons">偏备份不偏策展</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">徽章</span><span class="name-pinyin">huī zhāng</span></div>
+        <div class="name-reason">每消费一家店=获得一枚徽章。你的食单=你的徽章墙。</div>
+        <div class="name-vibe">画面感：一面墙上贴满了亮闪闪的徽章</div>
+        <div class="name-pros-cons"><div class="name-pros">有收集感和展示感</div><div class="name-cons">偏成就系统的一部分，不够整体</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>图鉴 · 成就。图鉴的"收集+记录+展示"三位一体与食单完美对应，"已收集"=已验证天然成立。成就的"已完成+可炫耀"与食单的"已验证+可分享"完美对应。两者都是Z世代零教育成本的游戏概念。</div>
+  </div>
+
+  <!-- ========== Cat 8: 食物本身 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">08</span><span class="cat-title">食物拟人化类</span></div>
+    <div class="cat-desc">不叫动物水果，直接叫一种食物——但用拟人化方式赋予它人格。就像"闲鱼"不是鱼是闲置交易平台。用食物名字做品牌名，自带品类认知。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">饭团</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">fàn tuán</span></div>
+        <div class="name-reason"><strong>饭团=把散落的米饭捏在一起。</strong>你的消费记录是散落的"米粒"，食单把它们捏成一个"饭团"——有形状、有结构、可携带、可分享。而且饭团是最朴素的食物，亲切到极致，完全不old。双关"团"=团聚（社交）。</div>
+        <div class="name-vibe">画面感：一双大手把散落的米饭一粒粒捏成一个圆润的饭团</div>
+        <div class="name-pros-cons"><div class="name-pros">"散落→聚合"的隐喻完美对应食单；朴素亲切；双关"团聚"有社交含义；可做IP（一个饭团小人）</div><div class="name-cons">饭团偏日式；可能与特定食物混淆</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">菜单</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">cài dān</span></div>
+        <div class="name-reason"><strong>反用"菜单"。</strong>菜单是餐厅给你的——你只能选他们提供的。食单是你给自己的菜单——你选你吃过的。从"被给菜单"到"自己写菜单"，权力反转。"我的菜单"=我的食单，但比"食单"年轻100倍。</div>
+        <div class="name-vibe">画面感：不是餐厅给你菜单，是你掏出自己的菜单说"这些是我验证过的"</div>
+        <div class="name-pros-cons"><div class="name-pros">权力反转概念极强；认知成本零（谁不知道菜单）；"我的菜单"口语极度自然</div><div class="name-cons">"菜单"太日常可能不够品牌化；可能与餐厅菜单混淆</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">便当</span><span class="name-pinyin">biàn dāng</span></div>
+        <div class="name-reason">便当=打包带走的食物。你的食单=你的美食便当，随时打开分享。</div>
+        <div class="name-vibe">画面感：打开一个便当盒，里面是一家家好店</div>
+        <div class="name-pros-cons"><div class="name-pros">有便携感和分享感</div><div class="name-cons">偏日式；与食单策展逻辑关联弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">火锅</span><span class="name-pinyin">huǒ guō</span></div>
+        <div class="name-reason">火锅=什么都往里放=你的食单什么都收录。热闹、社交。</div>
+        <div class="name-vibe">画面感：热气腾腾的火锅，大家围在一起涮</div>
+        <div class="name-pros-cons"><div class="name-pros">社交属性强；有热闹感</div><div class="name-cons">与食单策展逻辑无关；太具体</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">串串</span><span class="name-pinyin">chuàn chuàn</span></div>
+        <div class="name-reason">串串=把一家家店串起来。一串一家店。</div>
+        <div class="name-vibe">画面感：一根签子串着一家店，一串接一串</div>
+        <div class="name-pros-cons"><div class="name-pros">"串联"=策展的隐喻；叠词亲切</div><div class="name-cons">偏特定食物；不够通用</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">烧饼</span><span class="name-pinyin">shāo bǐng</span></div>
+        <div class="name-reason">接地气食物。自嘲式朴实。</div>
+        <div class="name-vibe">画面感：一个热乎乎的烧饼</div>
+        <div class="name-pros-cons"><div class="name-pros">接地气</div><div class="name-cons">与食单逻辑无关</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">糖葫芦</span><span class="name-pinyin">táng hú lu</span></div>
+        <div class="name-reason">一串糖葫芦=一家接一家店串起来。</div>
+        <div class="name-vibe">画面感：红亮亮的糖葫芦，一颗一颗串着</div>
+        <div class="name-pros-cons"><div class="name-pros">有"串联"隐喻；画面感好</div><div class="name-cons">三字偏长；偏甜品</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">大饼</span><span class="name-pinyin">dà bǐng</span></div>
+        <div class="name-reason">画大饼=规划未来。你的食单=你画过的美食大饼。</div>
+        <div class="name-vibe">画面感：一张大饼摊开</div>
+        <div class="name-pros-cons"><div class="name-pros">有反差幽默</div><div class="name-cons">"画大饼"负面联想太强</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">拼盘</span><span class="name-pinyin">pīn pán</span></div>
+        <div class="name-reason">你的食单=你的美食拼盘。各种好店拼在一起。</div>
+        <div class="name-vibe">画面感：一个拼盘里放着各种美食</div>
+        <div class="name-pros-cons"><div class="name-pros">有策展和组合感</div><div class="name-cons">偏餐饮术语；不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">菜单本</span><span class="name-pinyin">cài dān běn</span></div>
+        <div class="name-reason">你的菜单本。自己的菜单。</div>
+        <div class="name-vibe">画面感：一本手写的菜单本</div>
+        <div class="name-pros-cons"><div class="name-pros">有实体感和归属感</div><div class="name-cons">三字偏长；偏传统</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>饭团 · 菜单。饭团的"散落米粒→捏成饭团"隐喻与食单的"散落消费→策展成单"完美对应，朴素亲切。菜单的权力反转（从被给菜单到自己写菜单）概念极强，认知成本为零。</div>
+  </div>
+
+  <!-- ========== Cat 9: 英文/字母 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">09</span><span class="cat-title">英文/字母缩写类</span></div>
+    <div class="cat-desc">B站、OOTD、ASMR、vlog——Z世代对英文缩写的接受度极高。用英文/字母命名自带国际化感和简洁感。关键是找到能被中文用户秒懂的表达。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">EATlas</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">eat + atlas</span></div>
+        <div class="name-reason"><strong>EAT + Atlas 的合成词。</strong>Atlas=地图集/图集，EAT=吃。EATlas=你的美食地图集。发音类似"伊特拉斯"，视觉上EAT大写突出吃，las呼应atlas。你的消费足迹画成一张地图=你的EATlas。</div>
+        <div class="name-vibe">画面感：一本厚厚的皮革封面图集，翻开每一页都是你吃过的店标注在地图上</div>
+        <div class="name-pros-cons"><div class="name-pros">中英双语可用；EAT直白atlas有质感；合成词独特性高；视觉设计空间大</div><div class="name-cons">中国下沉市场用户可能有认知门槛</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">MyList</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">my + list</span></div>
+        <div class="name-reason"><strong>我的列表，最简单直接。</strong>MyList=我的清单。中文可叫"我的单"。极度简洁，国际通用，Z世代对"List"概念零教育成本（wishlist/playlist/mylist）。食单=MyList=我的清单，没有比这更直白的了。</div>
+        <div class="name-vibe">画面感：手机上一个简洁的列表界面，标题是"MyList"</div>
+        <div class="name-pros-cons"><div class="name-pros">极简；国际通用；"List"概念Z世代秒懂；可延展（MyList Pro/MyList Share）</div><div class="name-cons">太通用可能不够独特；品牌保护难</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">FoodMap</span><span class="name-pinyin">food + map</span></div>
+        <div class="name-reason">美食地图。直白。</div>
+        <div class="name-vibe">画面感：一张地图上密密麻麻标记着你吃过的店</div>
+        <div class="name-pros-cons"><div class="name-pros">直白易懂</div><div class="name-cons">太通用；已有大量类似命名</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">Bite</span><span class="name-pinyin">bite</span></div>
+        <div class="name-reason">一口。每家店=一口。简洁有力。</div>
+        <div class="name-vibe">画面感：一口咬下去</div>
+        <div class="name-pros-cons"><div class="name-pros">极简单字英文；有吃的含义</div><div class="name-cons">太通用；中文用户记忆度低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">Taste</span><span class="name-pinyin">taste</span></div>
+        <div class="name-reason">品味+尝。双关。</div>
+        <div class="name-vibe">画面感：优雅地品一口</div>
+        <div class="name-pros-cons"><div class="name-pros">有品味+尝双义</div><div class="name-cons">太通用</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">Pick</span><span class="name-pinyin">pick</span></div>
+        <div class="name-reason">挑选。你选的店。</div>
+        <div class="name-vibe">画面感：手指点选</div>
+        <div class="name-pros-cons"><div class="name-pros">有选择感</div><div class="name-cons">太通用；不关联食物</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">Foody</span><span class="name-pinyin">foody</span></div>
+        <div class="name-reason">吃货的英文。foodie变体。</div>
+        <div class="name-vibe">画面感：一个开心的吃货</div>
+        <div class="name-pros-cons"><div class="name-pros">国际通用</div><div class="name-cons">foodie已被大量使用；不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">Dish</span><span class="name-pinyin">dish</span></div>
+        <div class="name-reason">一道菜/盘子。简洁。</div>
+        <div class="name-vibe">画面感：一个精致的盘子</div>
+        <div class="name-pros-cons"><div class="name-pros">简洁有食物含义</div><div class="name-cons">偏菜品不偏食单</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">Munch</span><span class="name-pinyin">munch</span></div>
+        <div class="name-reason">咔嚓咔嚓嚼。有吃的声音感。</div>
+        <div class="name-vibe">画面感：咔嚓咔嚓嚼薯片</div>
+        <div class="name-pros-cons"><div class="name-pros">有声音感和吃的画面</div><div class="name-cons">中文用户认知度低</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>EATlas · MyList。EATlas是合成词独特性最高，EAT+Atlas的"美食地图集"概念与食单完美对应。MyList极简到极致，"我的清单"零教育成本。</div>
+  </div>
+
+  <!-- ========== Cat 10: 情绪/状态 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">10</span><span class="cat-title">情绪状态类</span></div>
+    <div class="cat-desc">不描述功能，描述情绪——使用食单时的感受。Z世代买的是情绪价值，不是功能。"满足""上头""快乐"——用一个情绪状态做名字。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">饱</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">bǎo</span></div>
+        <div class="name-reason"><strong>一个字：饱。</strong>吃饱是全人类最原始的满足感。你的食单让你"饱"——不是胃饱，是精神饱、品味饱、经历饱。单字命名有极简的高级感，"饱"又是所有人都懂的情绪。你的食单=你的饱。谐音"宝"——你的宝贝好店。</div>
+        <div class="name-vibe">画面感：吃饱喝足瘫在椅子上，一脸满足</div>
+        <div class="name-pros-cons"><div class="name-pros">一字极简；原始满足感人人都懂；谐音"宝"=宝贝；"我的饱"口语有趣；不old</div><div class="name-cons">单字品牌保护难；"饱"可能联想"撑"</div></div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header"><span class="name-text">上头</span><span class="name-badge badge-best">类最佳</span><span class="name-pinyin">shàng tóu</span></div>
+        <div class="name-reason"><strong>Z世代黑话"上头"=太好了/停不下来。</strong>这家店让我上头=这家店太好吃了。你的食单=你的"上头清单"——全是让你上头的好店。黑话天然年轻态，情绪感染力极强。</div>
+        <div class="name-vibe">画面感：吃到一家好店，眼睛一亮，"这家太上头了！"</div>
+        <div class="name-pros-cons"><div class="name-pros">Z世代黑话认知度极高；有强烈的情绪感染力；"上头清单"自然</div><div class="name-cons">"上头"有时指酒精上头；不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">满足</span><span class="name-pinyin">mǎn zú</span></div>
+        <div class="name-reason">吃到的满足感。你的满足清单。</div>
+        <div class="name-vibe">画面感：吃完一顿好的长舒一口气</div>
+        <div class="name-pros-cons"><div class="name-pros">情绪正面</div><div class="name-cons">太泛化；不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">舒服</span><span class="name-pinyin">shū fu</span></div>
+        <div class="name-reason">吃得舒服。你的舒服清单。</div>
+        <div class="name-vibe">画面感：吃完瘫在沙发上</div>
+        <div class="name-pros-cons"><div class="name-pros">情绪正面</div><div class="name-cons">太泛化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">快乐</span><span class="name-pinyin">kuài lè</span></div>
+        <div class="name-reason">吃得快乐。你的快乐清单。</div>
+        <div class="name-vibe">画面感：吃到好吃的笑出来</div>
+        <div class="name-pros-cons"><div class="name-pros">情绪最直接</div><div class="name-cons">太泛化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">解馋</span><span class="name-pinyin">jiě chán</span></div>
+        <div class="name-reason">解馋=解决嘴馋。你的解馋清单。</div>
+        <div class="name-vibe">画面感：馋了就翻食单找一家解馋</div>
+        <div class="name-pros-cons"><div class="name-pros">有场景感</div><div class="name-cons">偏功能不偏情绪</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">回血</span><span class="name-pinyin">huí xuè</span></div>
+        <div class="name-reason">吃饭=回血。你的回血点清单。</div>
+        <div class="name-vibe">画面感：血条见底→吃饭→满血复活</div>
+        <div class="name-pros-cons"><div class="name-pros">游戏化有趣</div><div class="name-cons">偏功能不偏情绪</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">治愈</span><span class="name-pinyin">zhì yù</span></div>
+        <div class="name-reason">美食治愈。你的治愈清单。</div>
+        <div class="name-vibe">画面感：一碗热汤面治愈疲惫的一天</div>
+        <div class="name-pros-cons"><div class="name-pros">有温度</div><div class="name-cons">偏文艺；不够互联网</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">上瘾</span><span class="name-pinyin">shàng yǐn</span></div>
+        <div class="name-reason">吃了还想吃。你的上瘾清单。</div>
+        <div class="name-vibe">画面感：一家店吃了五次还想吃</div>
+        <div class="name-pros-cons"><div class="name-pros">有复购感</div><div class="name-cons">"瘾"字偏负面</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">满</span><span class="name-pinyin">mǎn</span></div>
+        <div class="name-reason">吃饱的满足。一个字。</div>
+        <div class="name-vibe">画面感：满满的满足感</div>
+        <div class="name-pros-cons"><div class="name-pros">一字极简</div><div class="name-cons">太抽象</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>饱 · 上头。饱的单字极简+谐音"宝"+原始满足感，是最有记忆点的情绪命名。上头是Z世代黑话天花板，情绪感染力最强——"这家太上头了"天然就是食单里的评语。</div>
+  </div>
+
+  <!-- ========== Final ========== -->
+  <div class="final-section">
+    <div class="final-title">最终推荐 · TOP 2</div>
+    <div class="final-subtitle">从10个类别88个候选中，综合产品匹配度、Z世代审美、记忆点、IP延展性、口语自然度后选出</div>
+    <div class="final-cards">
+      <div class="final-card gold">
+        <div class="final-rank">★ 首推</div>
+        <div class="final-name">松鼠</div>
+        <div class="final-pinyin">sōng shǔ</div>
+        <div class="final-reason">
+          <strong>一句话：</strong>松鼠屯松果，你屯好店——你的美食粮仓，满满都是你验证过的。
+          <br><br>
+          <strong>为什么首推：</strong>松鼠是所有候选中"产品逻辑+IP化+年轻态"三者结合最好的。松鼠屯粮的习性与食单的"收藏+记住位置+复访"完美对应，不需要解释——"松鼠存冬粮"是所有人都懂的常识。而且松鼠毛茸茸的形象天然适合做IP吉祥物，可以出现在每一个产品触点：食单生成时松鼠搬松果动画、分享时松鼠递松果、成就解锁时松鼠跳出来。
+          <br><br>
+          <strong>品牌延展：</strong>松鼠粮仓（你的食单）· 松鼠足迹（消费记录）· 松鼠分享（给朋友递松果）· 松鼠等级（从小松鼠到大松鼠）· 松鼠精选（平台精选食单）
+        </div>
+        <div class="final-why">
+          <strong>胜出理由：</strong>动物命名是互联网最成熟的范式（闲鱼/蚂蚁/天猫/菜鸟），用户接受度最高。松鼠在所有动物中与食单产品逻辑匹配度最高——不是强行关联，是习性天然对应。它同时满足"不old"（动物天然年轻）、"有网感"（可IP化可萌化）、"有含义"（屯粮=屯店）三个要求。
+        </div>
+      </div>
+      <div class="final-card silver">
+        <div class="final-rank">☆ 次推</div>
+        <div class="final-name">图鉴</div>
+        <div class="final-pinyin">tú jiàn</div>
+        <div class="final-reason">
+          <strong>一句话：</strong>你的美食图鉴——每吃一家店，图鉴多一条，收集你的美食宇宙。
+          <br><br>
+          <strong>为什么次推：</strong>图鉴是Z世代最熟悉的游戏概念之一（宝可梦图鉴/塞尔达图鉴），"收集+记录+展示"三位一体与食单完美对应。每消费一家店=图鉴解锁一条，"已收集"="已验证"天然成立。图鉴的收集感天然驱动用户复访和补全——"我的火锅图鉴还差3家就满了"。
+          <br><br>
+          <strong>品牌延展：</strong>美食图鉴 · 图鉴完成度 · 图鉴等级 · 稀有图鉴（长尾特色店）· 图鉴交换（食单分享）
+        </div>
+        <div class="final-why">
+          <strong>胜出理由：</strong>如果松鼠走的是"动物IP"路线，图鉴走的是"游戏化"路线。图鉴的优势是Z世代对"收集图鉴"的机制零教育成本，且天然有"补全驱动"——用户会为了图鉴完成度去探索更多店。它把食单从"记录工具"变成了"收集游戏"，这是Z世代最买账的产品形态。配合"已验证"标记=图鉴已收集，信任证据和游戏化完美融合。
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
