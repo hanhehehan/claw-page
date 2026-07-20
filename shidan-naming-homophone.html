@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食单命名 · 实体谐音版</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f1117; color: #e0e0e0; padding: 40px 20px; min-width: 1100px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .hero { background: linear-gradient(135deg, #1a1d28, #1e2230); border-radius: 16px; padding: 40px 44px; margin-bottom: 36px; border: 1px solid #2a2d3a; }
+  .hero h1 { font-size: 28px; color: #ff6b9d; margin-bottom: 8px; }
+  .hero p { font-size: 15px; color: #999; line-height: 1.7; max-width: 850px; }
+  .hero .meta { margin-top: 16px; font-size: 13px; color: #666; }
+  .hero .logic { margin-top: 20px; padding: 16px 20px; background: #15171f; border-radius: 8px; border-left: 3px solid #4ec9b0; font-size: 14px; color: #bbb; line-height: 1.8; }
+  .hero .logic strong { color: #4ec9b0; }
+  .cat-section { background: #1a1d28; border-radius: 14px; padding: 32px 36px; margin-bottom: 28px; border: 1px solid #2a2d3a; }
+  .cat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .cat-num { background: #3a2a4a; color: #ff6b9d; font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 6px; }
+  .cat-title { font-size: 20px; font-weight: 700; color: #ddd; }
+  .cat-homo { font-size: 14px; color: #4ec9b0; font-weight: 600; }
+  .cat-desc { font-size: 14px; color: #777; margin-bottom: 24px; line-height: 1.6; }
+  .name-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .name-card { background: #222531; border-radius: 10px; padding: 16px 20px; border: 1px solid #2a2d3a; }
+  .name-card.best { border-color: #ff6b9d; background: #2a1a26; }
+  .name-card.top { border-color: #ffd93d; background: #2a2818; box-shadow: 0 0 0 1px #ffd93d33; }
+  .name-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .name-text { font-size: 20px; font-weight: 700; color: #fff; }
+  .name-card.best .name-text { color: #ff6b9d; }
+  .name-card.top .name-text { color: #ffd93d; }
+  .name-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+  .badge-best { background: #4a1a3a; color: #ff6b9d; }
+  .badge-top { background: #4a3a1a; color: #ffd93d; }
+  .name-homo { font-size: 12px; color: #4ec9b0; font-weight: 600; }
+  .name-pinyin { font-size: 12px; color: #666; margin-left: auto; }
+  .name-reason { font-size: 13px; color: #bbb; line-height: 1.6; margin-bottom: 6px; }
+  .name-reason strong { color: #ddd; }
+  .name-vibe { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 6px; font-style: italic; }
+  .name-pros-cons { display: flex; gap: 12px; font-size: 12px; line-height: 1.5; }
+  .name-pros { color: #7fdb9e; flex: 1; }
+  .name-cons { color: #e08080; flex: 1; }
+  .name-pros::before { content: "✓ "; }
+  .name-cons::before { content: "✗ "; }
+  .cat-best { margin-top: 20px; padding: 14px 20px; background: #15171f; border-radius: 8px; border-left: 3px solid #ff6b9d; font-size: 14px; color: #aaa; line-height: 1.7; }
+  .cat-best strong { color: #ff6b9d; }
+  .final-section { background: linear-gradient(135deg, #1e2230, #1a2030); border-radius: 16px; padding: 40px 44px; margin-top: 36px; border: 2px solid #ff6b9d; }
+  .final-title { font-size: 24px; font-weight: 700; color: #ff6b9d; margin-bottom: 8px; }
+  .final-subtitle { font-size: 14px; color: #888; margin-bottom: 28px; }
+  .final-cards { display: flex; gap: 20px; }
+  .final-card { flex: 1; background: #222531; border-radius: 12px; padding: 28px 24px; border: 1px solid #3a3d4a; position: relative; }
+  .final-card.gold { border-color: #ff6b9d; }
+  .final-card.silver { border-color: #ffd93d; }
+  .final-rank { position: absolute; top: -12px; left: 24px; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 12px; }
+  .final-card.gold .final-rank { background: #ff6b9d; color: #1a1d28; }
+  .final-card.silver .final-rank { background: #ffd93d; color: #1a1d28; }
+  .final-name { font-size: 36px; font-weight: 700; margin-bottom: 4px; margin-top: 8px; }
+  .final-card.gold .final-name { color: #ff6b9d; }
+  .final-card.silver .final-name { color: #ffd93d; }
+  .final-pinyin { font-size: 14px; color: #666; margin-bottom: 8px; }
+  .final-homo { font-size: 14px; color: #4ec9b0; font-weight: 600; margin-bottom: 16px; }
+  .final-reason { font-size: 14px; color: #ccc; line-height: 1.8; margin-bottom: 12px; }
+  .final-reason strong { color: #ddd; }
+  .final-why { font-size: 13px; color: #aaa; line-height: 1.7; padding-top: 12px; border-top: 1px solid #333; }
+  .final-why strong { color: #ddd; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>「食单」命名 · 实体谐音版</h1>
+    <p>核心思路：找到一个真实的动植物/水果，它的名字里天然带着一个跟"收集"同音或近音的字。名字本身是实体词（人人认识），但谐音赋予了收集含义。闲鱼=咸鱼改字，蚂蚁森林=蚂蚁+森林，石榴=拾留，仓鼠=藏鼠——组合创造含义。</p>
+    <div class="logic">
+      <strong>命名公式：</strong>实体词（动植物/水果，自带认知）+ 谐音字（收集意向：拾/留/藏/囤/录/夹/聚/满/单/集/备）= 好记 + 年轻 + 美食 + 收集<br>
+      <strong>关键原则：</strong>不直接拿动植物名字硬贴，而是利用谐音让实体名本身就讲出"收集美食"的故事。石榴=拾留（拾起+留存），不需要解释，听到就知道是水果，稍微一想就懂收集含义。
+    </div>
+    <div class="meta">10个谐音分类 · 78个候选 · 每类精选1个 · 最终推荐2个</div>
+  </div>
+
+  <!-- ========== Cat 1: 拾留 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">01</span>
+      <span class="cat-title">拾留类</span>
+      <span class="cat-homo">石(shí)=拾 · 榴(liú)=留 → 拾留=拾起+留存</span>
+    </div>
+    <div class="cat-desc">拾=捡起来收集，留=留住保存。这两个字合在一起就是收集的完整动作。找到一个实体词，名字里同时藏着"拾"和"留"的谐音——石榴。而且石=食，一音三义：石(石头/实体)、拾(收集)、食(美食)。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">石榴</span>
+          <span class="name-badge badge-best">全场首推</span>
+          <span class="name-homo">石(=拾/食) + 榴(=留) = 拾留/食留</span>
+          <span class="name-pinyin">shí liú</span>
+        </div>
+        <div class="name-reason"><strong>两个字全是精确谐音，水果本身就是收集容器。</strong>石(shí)=拾(shí)=食(shí)，一音三义；榴(liú)=留(liú)。石榴=拾留=食留=拾起留住=吃过的留住。更妙的是，一颗石榴掰开来，里面密密麻麻几百颗籽，全兜在一个壳里——它本身就是"收集容器"的终极隐喻。每颗籽=你收录的一家店，整个石榴=你的食单。石榴汁、石榴籽是年轻人饮品甜品常见元素，不old。</div>
+        <div class="name-vibe">画面感：掰开一颗石榴，红宝石般的籽密密麻麻排列，每颗籽是一家你验证过的好店</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">两字精确谐音（拾+留）；水果本身=收集容器（百籽聚一壳）；石还=食（三重谐音）；红色热烈视觉强；Z世代饮品常见元素；品牌延展自然（石榴籽=每家店、石榴红了=新收录）</div>
+          <div class="name-cons">石榴在部分人认知中偏传统水果；需要品牌化重新定义年轻感</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">石斑鱼</span>
+          <span class="name-homo">石(=拾/食) + 斑鱼</span>
+          <span class="name-pinyin">shí bān yú</span>
+        </div>
+        <div class="name-reason">石(=拾/食)+斑鱼。拾斑鱼=拾起斑鱼=收集好鱼。石斑鱼是高端食用鱼，本身就是美食。</div>
+        <div class="name-vibe">画面感：一条斑纹漂亮的石斑鱼</div>
+        <div class="name-pros-cons"><div class="name-pros">本身就是美食；拾+食双谐音</div><div class="name-cons">三字偏长；斑鱼部分不承载收集含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">柿子</span>
+          <span class="name-homo">柿(shì≈拾shí) + 子</span>
+          <span class="name-pinyin">shì zi</span>
+        </div>
+        <div class="name-reason">柿(≈拾)近音。柿子=拾子=拾起的东西。秋天柿子红了的画面就是"收集成熟果实"。</div>
+        <div class="name-vibe">画面感：秋天柿树上挂满红亮的柿子，一个一个摘下来</div>
+        <div class="name-pros-cons"><div class="name-pros">水果本身有"收获"的季节感；拾近音</div><div class="name-cons">近音非精确谐音；柿子偏秋冬季节性</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">石花菜</span>
+          <span class="name-homo">石(=拾/食) + 花 + 菜</span>
+          <span class="name-pinyin">shí huā cài</span>
+        </div>
+        <div class="name-reason">石(=拾/食)。拾花菜=拾起花菜=收集花菜。石花菜是做凉粉的海藻，本身就是食物。</div>
+        <div class="name-vibe">画面感：海边捡起石花菜</div>
+        <div class="name-pros-cons"><div class="name-pros">本身就是食物；拾+食双谐音</div><div class="name-cons">三字偏长；知名度低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">石斛</span>
+          <span class="name-homo">石(=拾/食) + 斛(hú=量器)</span>
+          <span class="name-pinyin">shí hú</span>
+        </div>
+        <div class="name-reason">石(=拾/食)+斛(古代量器)。拾斛=用斛来量着拾=定量收集。斛本身就是"容器/量器"，收集含义强化。</div>
+        <div class="name-vibe">画面感：用古代量器一斛一斛地收集好东西</div>
+        <div class="name-pros-cons"><div class="name-pros">斛=量器=收集容器，含义精准</div><div class="name-cons">斛字认知度低；石斛偏药材非日常食物</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">石耳</span>
+          <span class="name-homo">石(=拾/食) + 耳(ěr=听)</span>
+          <span class="name-pinyin">shí ěr</span>
+        </div>
+        <div class="name-reason">石(=拾/食)+耳。拾耳=拾起耳朵=收集听到的美食口碑。石耳是山珍食用菌。</div>
+        <div class="name-vibe">画面感：山间岩石上采石耳</div>
+        <div class="name-pros-cons"><div class="name-pros">本身就是山珍美食；拾+食双谐音</div><div class="name-cons">知名度低；耳与收集关联弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">石蟹</span>
+          <span class="name-homo">石(=拾/食) + 蟹</span>
+          <span class="name-pinyin">shí xiè</span>
+        </div>
+        <div class="name-reason">石(=拾/食)+蟹。拾蟹=拾起螃蟹=收集好蟹。石蟹是溪流中的小蟹，本身就是食材。</div>
+        <div class="name-vibe">画面感：溪边翻开石头捡螃蟹</div>
+        <div class="name-pros-cons"><div class="name-pros">本身就是食材；拾+食双谐音</div><div class="name-cons">知名度低；蟹与收集关联弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">石榴籽</span>
+          <span class="name-homo">石榴(=拾留) + 籽(=每家店)</span>
+          <span class="name-pinyin">shí liú zǐ</span>
+        </div>
+        <div class="name-reason">石榴的衍生命名。石榴=拾留，籽=每一家收录的好店。石榴籽=拾留住的好店籽。可作为产品内的功能命名。</div>
+        <div class="name-vibe">画面感：一颗颗红宝石般的石榴籽</div>
+        <div class="name-pros-cons"><div class="name-pros">石榴谐音延伸；籽=单个条目的隐喻精准</div><div class="name-cons">三字偏长；更适合做功能名而非品牌名</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>石榴。这是全场最满意的名字——两个字全是精确谐音（拾+留），水果本身就是收集容器（百籽聚一壳），石还=食，一音三义。跟闲鱼是同一个级别的命名逻辑：咸鱼→闲鱼改一个字，石榴→拾留两个字全谐音，而且实体本身就是收集容器。</div>
+  </div>
+
+  <!-- ========== Cat 2: 藏 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">02</span>
+      <span class="cat-title">藏类</span>
+      <span class="cat-homo">仓/苍(cāng) ≈ 藏(cáng) → 收藏储存</span>
+    </div>
+    <div class="cat-desc">藏=收藏、储存、藏好。仓(cāng)和苍(cāng)跟藏(cáng)只差一个声调，近音。而仓本身就有"粮仓、仓库"的意思——天然就是"收集储存食物的地方"。仓鼠=藏鼠=会藏东西的鼠。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">仓鼠</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">仓(cāng≈藏cáng) + 鼠 = 藏鼠</span>
+          <span class="name-pinyin">cāng shǔ</span>
+        </div>
+        <div class="name-reason"><strong>仓=粮仓=收集储存食物的地方，仓鼠天生就在收集食物。</strong>仓(cāng)≈藏(cáng)，仓鼠=藏鼠=会藏东西的鼠。仓鼠最标志性的行为是什么？腮帮子塞满食物搬回窝里存着。这个行为天然就是"收集+储存"。你的食单=你的仓鼠窝，每收录一家店=腮帮子又鼓了一点。仓本身就不是白叫的——仓=粮仓=仓库，是"收集储存粮食的场所"，含义比谐音还直接。</div>
+        <div class="name-vibe">画面感：一只小仓鼠腮帮子鼓鼓的，蹦蹦跳跳往窝里搬好东西</div>
+        <div class="name-pros-cons"><div class="name-pros">仓=粮仓=收集场所（含义比谐音更直接）；仓鼠行为=收集（腮帮子塞满）；形象极萌IP化强；"仓鼠窝"=你的食单；"腮帮子越来越鼓"=收录越来越多</div><div class="name-cons">仓鼠已有宠物品牌联想；近音非精确谐音（cāng vs cáng）</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">苍耳</span>
+          <span class="name-homo">苍(cāng≈藏cáng) + 耳 = 藏耳</span>
+          <span class="name-pinyin">cāng ěr</span>
+        </div>
+        <div class="name-reason">苍(≈藏)+耳。苍耳是一种植物，果实带刺会粘在衣服上跟着你走——"粘住不放=收集留住"。藏耳=藏在耳朵旁=粘着你走的好店。苍耳的"粘附"特性=收集行为。</div>
+        <div class="name-vibe">画面感：走过草丛，苍耳粘了一裤腿，甩都甩不掉——好店粘住你不放</div>
+        <div class="name-pros-cons"><div class="name-pros">苍耳粘附=收集的物理隐喻独特；植物实体</div><div class="name-cons">苍耳知名度一般；粘附感可能让人不舒服</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">苍鹭</span>
+          <span class="name-homo">苍(cāng≈藏cáng) + 鹭(=录lù) = 藏录</span>
+          <span class="name-pinyin">cāng lù</span>
+        </div>
+        <div class="name-reason">苍(≈藏)+鹭(=录)。苍鹭=藏录=收藏记录。一个名字里同时藏了两个收集含义的字！苍=藏（收藏），鹭=录（记录），组合起来就是"收藏并记录"=食单的核心功能。</div>
+        <div class="name-vibe">画面感：一只苍鹭站在水边一动不动等待猎物——耐心守候好店</div>
+        <div class="name-pros-cons"><div class="name-pros">双谐音（藏+录）罕见；鸟形象优雅</div><div class="name-cons">苍鹭知名度一般；形象偏冷不够亲切</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">仓鸮</span>
+          <span class="name-homo">仓(cāng≈藏cáng) + 鸮(xiāo) = 藏鸮</span>
+          <span class="name-pinyin">cāng xiāo</span>
+        </div>
+        <div class="name-reason">仓(≈藏)+鸮。仓鸮=猫头鹰的一种。猫头鹰夜间出动=你在夜间整理食单。仓=仓库=粮仓=收集粮食的地方。</div>
+        <div class="name-vibe">画面感：夜晚仓鸮站在粮仓上守着收集来的粮食</div>
+        <div class="name-pros-cons"><div class="name-pros">仓=粮仓含义直接；猫头鹰有夜间属性</div><div class="name-cons">鸮字生僻；猫头鹰部分文化中不吉</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">苍鹰</span>
+          <span class="name-homo">苍(cāng≈藏cáng) + 鹰 = 藏鹰</span>
+          <span class="name-pinyin">cāng yīng</span>
+        </div>
+        <div class="name-reason">苍(≈藏)+鹰。苍鹰=藏鹰=会藏的鹰。鹰=视野广阔=你遍览全城美食。</div>
+        <div class="name-vibe">画面感：苍鹰在高空盘旋，锐眼锁定美食</div>
+        <div class="name-pros-cons"><div class="name-pros">有视野感和俯瞰感</div><div class="name-cons">鹰偏攻击性不偏收集；与美食关联弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">苍术</span>
+          <span class="name-homo">苍(cāng≈藏cáng) + 术(shù≈数shù) = 藏数</span>
+          <span class="name-pinyin">cāng zhú</span>
+        </div>
+        <div class="name-reason">苍(≈藏)+术(≈数)。苍术=藏数=收藏的数据/数目。苍术是中药材，有芳香气息。</div>
+        <div class="name-vibe">画面感：中药材铺里的苍术，香气淡淡</div>
+        <div class="name-pros-cons"><div class="name-pros">藏+数双谐音</div><div class="name-cons">术/数声调不同；偏药材非食物</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">仓庚</span>
+          <span class="name-homo">仓(cāng≈藏cáng) + 庚(gēng≈更gēng) = 藏更</span>
+          <span class="name-pinyin">cāng gēng</span>
+        </div>
+        <div class="name-reason">仓(≈藏)+庚(≈更)。仓庚=藏更=收藏更新=不断更新你的收藏。仓庚是黄鹂的古称，诗经中"春日载阳，有鸣仓庚"。</div>
+        <div class="name-vibe">画面感：春天黄鹂在枝头歌唱，万物更新</div>
+        <div class="name-pros-cons"><div class="name-pros">有诗经文化底蕴；藏+更双谐音</div><div class="name-cons">庚字认知度低；仓庚太古雅</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">苍兰</span>
+          <span class="name-homo">苍(cāng≈藏cáng) + 兰 = 藏兰</span>
+          <span class="name-pinyin">cāng lán</span>
+        </div>
+        <div class="name-reason">苍(≈藏)+兰。苍兰=藏兰=收藏兰花=收藏美好事物。苍兰是一种花，清雅芬芳。</div>
+        <div class="name-vibe">画面感：一束苍兰插在花瓶里，淡淡幽香</div>
+        <div class="name-pros-cons"><div class="name-pros">花卉有审美感；女性用户会喜欢</div><div class="name-cons">与美食关联弱；兰偏观赏不偏吃</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>仓鼠。仓=粮仓=收集储存粮食的场所，含义比谐音还直接。仓鼠腮帮子塞满食物的行为就是活生生的"收集"画面，IP化极强。仓鼠窝=你的食单，腮帮子越鼓=收录越多。仓鼠跟蚂蚁森林是一个级别的组合逻辑：蚂蚁+森林=积少成多种树，仓+鼠=粮仓里的收集者。</div>
+  </div>
+
+  <!-- ========== Cat 3: 囤 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">03</span>
+      <span class="cat-title">囤类</span>
+      <span class="cat-homo">豚(tún) = 囤(tún) → 囤积收集</span>
+    </div>
+    <div class="cat-desc">囤是Z世代高频词——囤货、囤券、囤皮肤、囤机票。囤=大量收集储存。豚(tún)跟囤(tún)精确同音。豚鼠=囤鼠=会囤的鼠，河豚=河囤=河里囤东西的鱼。还有吞(tūn)≈囤(tún)，吞拿鱼≈囤拿鱼。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">豚鼠</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">豚(tún=囤tún) + 鼠 = 囤鼠</span>
+          <span class="name-pinyin">tún shǔ</span>
+        </div>
+        <div class="name-reason"><strong>豚=囤精确同音，豚鼠=囤鼠=会囤的小鼠。</strong>豚鼠（荷兰猪）是Z世代热门宠物，圆滚滚的特别萌。虽然豚鼠实际上不怎么囤食，但名字的谐音完美——囤鼠=会囤东西的鼠。而且"豚"在日语中就是猪=美食，豚鼠自带食物基因。</div>
+        <div class="name-vibe">画面感：一只圆滚滚的豚鼠，嘴里塞满了好东西，腮帮子鼓鼓的</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音（豚=囤）；Z世代热门宠物；豚=猪=美食（日语）；形象极萌</div><div class="name-cons">豚鼠实际不囤食（跟仓鼠不同）；豚鼠=荷兰猪可能有混淆</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">河豚</span>
+          <span class="name-homo">豚(tún=囤tún) + 河 = 河囤</span>
+          <span class="name-pinyin">hé tún</span>
+        </div>
+        <div class="name-reason">豚(=囤)+河。河豚=河囤=河里囤东西的鱼。河豚的物理特征是"膨胀"——吃满了气鼓起来，越囤越鼓。你的食单也一样，越吃越满。河豚还是一种高端美食。</div>
+        <div class="name-vibe">画面感：河豚吃满了气，圆鼓鼓的，满足感爆棚</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音；膨胀=越囤越满的视觉隐喻；本身就是美食</div><div class="name-cons">河豚有毒的联想；可能与食品安全矛盾</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">海豚</span>
+          <span class="name-homo">豚(tún=囤tún) + 海 = 海囤</span>
+          <span class="name-pinyin">hǎi tún</span>
+        </div>
+        <div class="name-reason">豚(=囤)+海。海豚=海囤=海里囤东西的。海豚是大家最喜爱的海洋动物之一，形象亲切聪明。</div>
+        <div class="name-vibe">画面感：海豚跃出水面，嘴里叼着一条鱼</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音；海豚形象极好认知度高</div><div class="name-cons">海豚与美食关联弱；海豚保护动物不宜食用</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">吞拿鱼</span>
+          <span class="name-homo">吞(tūn≈囤tún) + 拿 + 鱼 = 囤拿鱼</span>
+          <span class="name-pinyin">tūn ná yú</span>
+        </div>
+        <div class="name-reason">吞(≈囤)+拿+鱼。吞拿鱼(金枪鱼)=囤拿鱼=囤着拿的鱼。吞=吞下=收集进肚子，拿=获取，鱼=美食。三个字组成了"囤+拿+美食"的完整链路。而且吞拿鱼本身就是常见美食（寿司刺身）。</div>
+        <div class="name-vibe">画面感：一条大金枪鱼，吞下满满的好味道</div>
+        <div class="name-pros-cons"><div class="name-pros">三字全有含义（囤+拿+美食）；本身就是常见美食</div><div class="name-cons">近音非精确（tūn vs tún）；三字偏长</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">豚蹄</span>
+          <span class="name-homo">豚(tún=囤tún) + 蹄 = 囤蹄</span>
+          <span class="name-pinyin">tún tí</span>
+        </div>
+        <div class="name-reason">豚(=囤)+蹄。豚蹄=囤蹄=囤着的好蹄。猪蹄是美食，胶原蛋白满满。</div>
+        <div class="name-vibe">画面感：卤得红亮的豚蹄</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音；本身就是美食</div><div class="name-cons">偏具体食材不偏品牌；蹄字不雅</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">豚狸</span>
+          <span class="name-homo">豚(tún=囤tún) + 狸(lí≈理lǐ) = 囤理</span>
+          <span class="name-pinyin">tún lí</span>
+        </div>
+        <div class="name-reason">豚(=囤)+狸(≈理)。豚狸=囤理=囤+整理=收集并整理。豚狸是豚鼠的古称。收集+整理=策展。</div>
+        <div class="name-vibe">画面感：一只小豚狸在认真整理它收集的好东西</div>
+        <div class="name-pros-cons"><div class="name-pros">囤+理=收集+策展双含义</div><div class="name-cons">狸/理声调不同；豚狸知名度极低</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>豚鼠。精确同音（豚=囤），Z世代热门宠物，豚=猪=美食基因。虽然仓鼠实际更爱囤食，但豚鼠的谐音更精确（tún=tún），且形象更圆润可爱。河豚的膨胀感是很好的视觉隐喻但有毒联想是硬伤。</div>
+  </div>
+
+  <!-- ========== Cat 4: 录 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">04</span>
+      <span class="cat-title">录类</span>
+      <span class="cat-homo">鹿/鹭(lù) = 录(lù) → 记录收录</span>
+    </div>
+    <div class="cat-desc">录=记录、收录、登录。你的食单就是你的美食"录"。鹿(lù)和鹭(lù)跟录(lù)精确同音。梅花鹿=美画录=美丽画卷的记录，白鹭=白录=空白记录等你填满。长颈鹿=长景录=大视野的记录。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">白鹭</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">鹭(lù=录lù) + 白 = 白录</span>
+          <span class="name-pinyin">bái lù</span>
+        </div>
+        <div class="name-reason"><strong>白鹭=白录=空白记录，等你用美食填满。</strong>鹭(=录)精确同音。白鹭=白录=一张白纸的记录——你的食单刚创建时是空白的，随着你消费一家家店，白录逐渐被填满。白鹭是极美的鸟，站在水边等待猎物的姿态=你等待发现好店的姿态。"两个黄鹂鸣翠柳，一行白鹭上青天"——白鹭有天然的诗意。</div>
+        <div class="name-vibe">画面感：一只白鹭站在水边，洁白如纸，等待鱼游过来——等待被填满的空白记录</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音（鹭=录）；"白"=空白=等待填满的完美隐喻；白鹭形象极美有诗意；品牌画面感强</div><div class="name-cons">白鹭与美食无直接关联；偏文艺不够萌</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">梅花鹿</span>
+          <span class="name-homo">鹿(lù=录lù) + 梅花 = 美画录</span>
+          <span class="name-pinyin">méi huā lù</span>
+        </div>
+        <div class="name-reason">鹿(=录)+梅花。梅花鹿=美画录=美丽画卷的记录。梅花鹿身上的斑点像梅花=你食单上每家店的标记。你的食单=一幅由好店点缀的美丽画卷。</div>
+        <div class="name-vibe">画面感：梅花鹿身上的梅花斑点，每一个斑点是你收录的一家好店</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音；梅花斑点=收录标记的隐喻巧妙；形象优雅</div><div class="name-cons">三字偏长；梅花鹿偏观赏不偏美食</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">长颈鹿</span>
+          <span class="name-homo">鹿(lù=录lù) + 长颈 = 长景录</span>
+          <span class="name-pinyin">cháng jǐng lù</span>
+        </div>
+        <div class="name-reason">鹿(=录)+长颈。长颈鹿=长景录=大视野的记录。长颈鹿站得高看得远=你遍览全城美食的视野。</div>
+        <div class="name-vibe">画面感：长颈鹿伸长脖子，俯瞰整片草原——你的美食全景图</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音；有视野感和全景感</div><div class="name-cons">三字偏长；与美食无关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">夜鹭</span>
+          <span class="name-homo">鹭(lù=录lù) + 夜 = 夜录</span>
+          <span class="name-pinyin">yè lù</span>
+        </div>
+        <div class="name-reason">鹭(=录)+夜。夜鹭=夜录=夜间记录。晚上整理食单=夜间收录。夜鹭是城市常见水鸟。</div>
+        <div class="name-vibe">画面感：夜幕降临，夜鹭静静站在水边——夜晚安静整理你的美食记录</div>
+        <div class="name-pros-cons"><div class="name-pros">精确同音；有夜间安静整理的氛围感</div><div class="name-cons">夜鹭知名度低；与美食无关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">驯鹿</span>
+          <span class="name-homo">鹿(lù=录lù) + 驯(xùn≈巡xún) = 巡录</span>
+          <span class="name-pinyin">xùn lù</span>
+        </div>
+        <div class="name-reason">鹿(=录)+驯(≈巡)。驯鹿=巡录=巡逻记录=你巡店探店的记录。驯鹿还是圣诞节的标志性动物。</div>
+        <div class="name-vibe">画面感：驯鹿在雪地里拉雪橇，一站一站巡视——你的美食巡店之旅</div>
+        <div class="name-pros-cons"><div class="name-pros">巡+录双含义；驯鹿有节日感</div><div class="name-cons">驯/巡声调不同；与美食无直接关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">鹿茸</span>
+          <span class="name-homo">鹿(lù=录lù) + 茸(róng≈容róng) = 录容</span>
+          <span class="name-pinyin">lù róng</span>
+        </div>
+        <div class="name-reason">鹿(=录)+茸(≈容)。鹿茸=录容=收录内容=记录的内容。你的食单里收录的所有内容。鹿茸是名贵食材。</div>
+        <div class="name-vibe">画面感：毛茸茸的鹿茸，柔软又珍贵</div>
+        <div class="name-pros-cons"><div class="name-pros">录+容双谐音；鹿茸是名贵食材</div><div class="name-cons">茸/容声调不同；鹿茸偏药材</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">水鹿</span>
+          <span class="name-homo">鹿(lù=录lù) + 水 = 水录</span>
+          <span class="name-pinyin">shuǐ lù</span>
+        </div>
+        <div class="name-reason">鹿(=录)+水。水鹿=水录=流水记录。你的消费记录像流水一样不断积累。水鹿是南方常见的鹿种。</div>
+        <div class="name-vibe">画面感：水鹿在溪边饮水，流水潺潺</div>
+        <div class="name-pros-cons"><div class="name-pros">"流水录"=消费记录的隐喻</div><div class="name-cons">水鹿知名度低；与美食无关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">牛背鹭</span>
+          <span class="name-homo">鹭(lù=录lù) + 牛背 = 牛背录</span>
+          <span class="name-pinyin">niú bèi lù</span>
+        </div>
+        <div class="name-reason">鹭(=录)+牛背。牛背鹭=牛背录=在牛背上记录。牛背鹭站在牛背上吃虫子=共生关系=你跟好店的共生关系。</div>
+        <div class="name-vibe">画面感：牛背鹭站在水牛背上，悠闲自在</div>
+        <div class="name-pros-cons"><div class="name-pros">有共生关系的隐喻</div><div class="name-cons">三字偏长；知名度极低</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>白鹭。鹭=录精确同音，白=空白=等待填满的记录。白鹭形象极美有诗意，"白录"=一张空白记录等你用美食填满。梅花鹿的"美画录"和斑点标记隐喻也很巧妙，但三字偏长。</div>
+  </div>
+
+  <!-- ========== Cat 5: 夹 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">05</span>
+      <span class="cat-title">夹类</span>
+      <span class="cat-homo">荚(jiá) ≈ 夹(jiā) → 收藏夹</span>
+    </div>
+    <div class="cat-desc">夹=夹子、文件夹、收藏夹——你的浏览器收藏夹就是"夹"。荚(jiá)跟夹(jiā)近音。豆荚=豆夹=食物+收藏夹。豆荚是一个壳里面夹着一排豆子，打开就是一排整齐的收藏——天然就是"收藏夹"的物理形态。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">豆荚</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">荚(jiá≈夹jiā) + 豆 = 豆夹</span>
+          <span class="name-pinyin">dòu jiá</span>
+        </div>
+        <div class="name-reason"><strong>豆=食物，荚=收藏夹，豆荚=食物收藏夹。</strong>荚(jiá)≈夹(jiā)，豆荚=豆夹=装豆子的夹子=你的美食收藏夹。豆荚的物理形态完美对应收藏夹——一个壳里面夹着一排豆子，打开就是一排整齐排列的条目。每颗豆子=你收录的一家好店，整个豆荚=你的食单。豆荚还是植物、是食物、是容器，三合一。</div>
+        <div class="name-vibe">画面感：掰开一个豆荚，里面一排豆子整整齐齐排列，每颗是一家好店</div>
+        <div class="name-pros-cons"><div class="name-pros">豆=食物+荚=收藏夹（双重含义）；豆荚物理形态=收藏夹（天然对应）；是植物是食物是容器三合一；画面感极强</div><div class="name-cons">荚/夹声调不同（jiá vs jiā）；荚字偏书面</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">皂荚</span>
+          <span class="name-homo">荚(jiá≈夹jiā) + 皂(zào≈造zào) = 造夹</span>
+          <span class="name-pinyin">zào jiá</span>
+        </div>
+        <div class="name-reason">荚(≈夹)+皂(≈造)。皂荚=造夹=创造收藏夹=创建你的食单。皂荚是天然植物，古人用来洗衣服。</div>
+        <div class="name-vibe">画面感：皂荚树上挂着一串串皂荚</div>
+        <div class="name-pros-cons"><div class="name-pros">造+夹双含义（创建收藏夹）</div><div class="name-cons">皂荚偏清洁用品不偏美食；皂字认知偏差</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">槐荚</span>
+          <span class="name-homo">荚(jiá≈夹jiā) + 槐(huái≈怀huái) = 怀夹</span>
+          <span class="name-pinyin">huái jiá</span>
+        </div>
+        <div class="name-reason">荚(≈夹)+槐(≈怀)。槐荚=怀夹=怀抱收藏夹=把好店揣在怀里。槐树是北方常见行道树。</div>
+        <div class="name-vibe">画面感：槐树下捡起一串槐荚，揣进口袋</div>
+        <div class="name-pros-cons"><div class="name-pros">怀+夹双含义（怀抱收藏）</div><div class="name-cons">槐荚知名度低；与美食无关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">花生荚</span>
+          <span class="name-homo">荚(jiá≈夹jiā) + 花生 = 花生夹</span>
+          <span class="name-pinyin">huā shēng jiá</span>
+        </div>
+        <div class="name-reason">荚(≈夹)+花生。花生荚=花生夹=装花生的收藏夹。花生本身是美食，花生壳=收藏容器。一颗花生=一家好店。</div>
+        <div class="name-vibe">画面感：剥开花生壳，里面躺着两颗花生仁</div>
+        <div class="name-pros-cons"><div class="name-pros">花生=美食+荚=收藏夹；花生壳=容器</div><div class="name-cons">三字偏长；花生荚不如豆荚通用</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">榆钱</span>
+          <span class="name-homo">钱(qián≈签qiān) + 榆 = 榆签</span>
+          <span class="name-pinyin">yú qián</span>
+        </div>
+        <div class="name-reason">钱(≈签)+榆。榆钱=榆签=榆树的标签。榆钱是榆树的翅果，圆圆的像铜钱串成一串。签=书签=标签=收录标记。一串榆钱=一串好店的标签。</div>
+        <div class="name-vibe">画面感：榆树上挂满一串串圆圆的榆钱，像一串书签</div>
+        <div class="name-pros-cons"><div class="name-pros">榆钱串=收藏串的隐喻；钱/签近音；榆钱本身可食用</div><div class="name-cons">钱/签声调不同；榆钱知名度偏低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">合欢</span>
+          <span class="name-homo">合(hé=盒hé) + 欢 = 盒欢</span>
+          <span class="name-pinyin">hé huān</span>
+        </div>
+        <div class="name-reason">合(=盒)+欢。合欢=盒欢=快乐的盒子=装满好东西的美食盒。合欢花是粉色的绒花，极美。合=合拢=收拢=收集。</div>
+        <div class="name-vibe">画面感：合欢树上粉色的绒花，像一盒盒粉色棉花糖</div>
+        <div class="name-pros-cons"><div class="name-pros">合=盒精确同音；合欢花极美；"快乐盒子"有温度</div><div class="name-cons">合欢偏观赏不偏美食；与收集关联需解释</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">夹竹桃</span>
+          <span class="name-homo">夹(jiā) + 竹 + 桃 = 夹竹桃</span>
+          <span class="name-pinyin">jiā zhú táo</span>
+        </div>
+        <div class="name-reason">夹(=收藏夹)直接出现在名字里。夹竹桃=收藏竹子和桃子的夹子=收集美食(桃)的夹子。</div>
+        <div class="name-vibe">画面感：夹竹桃开着粉花</div>
+        <div class="name-pros-cons"><div class="name-pros">夹字直接出现</div><div class="name-cons">夹竹桃有毒；四字太长；与美食无关</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">豆角</span>
+          <span class="name-homo">角(jiǎo≈夹jiā) + 豆 = 豆夹</span>
+          <span class="name-pinyin">dòu jiǎo</span>
+        </div>
+        <div class="name-reason">角(≈夹)+豆。豆角=豆夹=装豆子的夹子。跟豆荚类似的逻辑，但豆角更口语化、更日常。</div>
+        <div class="name-vibe">画面感：菜摊上一把把青翠的豆角</div>
+        <div class="name-pros-cons"><div class="name-pros">豆角=日常美食；口语化</div><div class="name-cons">角/夹近音较远；豆角太日常不够品牌化</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>豆荚。豆=食物+荚=收藏夹，一个名字同时命中美食和收集两个维度。豆荚的物理形态——一个壳里夹着一排豆子——完美对应收藏夹的形态：一个列表里排列着一条条收录。每颗豆子=一家好店，整个豆荚=你的食单。</div>
+  </div>
+
+  <!-- ========== Cat 6: 聚 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">06</span>
+      <span class="cat-title">聚类</span>
+      <span class="cat-homo">橘(jú) ≈ 聚(jù) → 聚集收集</span>
+    </div>
+    <div class="cat-desc">聚=聚集、汇聚、聚在一起。你的食单=你聚集的好店。橘(jú)跟聚(jù)近音（韵母相同，声母j相同，仅ü/u差异）。金橘=金聚=金色聚集，橘子=聚子=聚集的东西。橘是水果，天然美食，且橘色明亮年轻。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">金橘</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">橘(jú≈聚jù) + 金 = 金聚</span>
+          <span class="name-pinyin">jīn jú</span>
+        </div>
+        <div class="name-reason"><strong>金=珍贵，橘=聚，金橘=金聚=珍贵的聚集。</strong>橘(jú)≈聚(jù)，金橘=金聚=金色聚集=珍贵的收集。你的食单=你珍贵的美食聚集。金橘本身就是一种小巧可爱的水果，一口一个，像你食单上每一条精挑细选的收录。金橘还谐音"金句"——你的食单里每一家都是"金句"级的好店。</div>
+        <div class="name-vibe">画面感：一盆金橘盆栽，挂满金色小果子，每颗是一家好店</div>
+        <div class="name-pros-cons"><div class="name-pros">橘≈聚近音；金=珍贵+橘=聚集；金橘本身小巧可爱；金橘谐音金句；橘色年轻明亮</div><div class="name-cons">橘/聚非精确同音（jú vs jù）；金橘体积小可能显轻</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">橘子</span>
+          <span class="name-homo">橘(jú≈聚jù) + 子 = 聚子</span>
+          <span class="name-pinyin">jú zi</span>
+        </div>
+        <div class="name-reason">橘(≈聚)+子。橘子=聚子=聚集的东西。最日常的水果，认知度最高。</div>
+        <div class="name-vibe">画面感：剥开一个橘子，一瓣一瓣分着吃</div>
+        <div class="name-pros-cons"><div class="name-pros">认知度最高；橘瓣=条目的隐喻</div><div class="name-cons">太普通不够品牌化；非精确谐音</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">蜜橘</span>
+          <span class="name-homo">橘(jú≈聚jù) + 蜜 = 蜜聚</span>
+          <span class="name-pinyin">mì jú</span>
+        </div>
+        <div class="name-reason">橘(≈聚)+蜜。蜜橘=蜜聚=甜蜜聚集。蜜=美食/甜蜜，橘=聚集。双含义：甜蜜的美食+聚集好店。</div>
+        <div class="name-vibe">画面感：蜜橘汁水丰盈，甜蜜满溢</div>
+        <div class="name-pros-cons"><div class="name-pros">蜜=美食+橘=聚集双命中</div><div class="name-cons">非精确谐音；蜜橘偏品种名</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">丑橘</span>
+          <span class="name-homo">橘(jú≈聚jù) + 丑 = 丑聚</span>
+          <span class="name-pinyin">chǒu jú</span>
+        </div>
+        <div class="name-reason">橘(≈聚)+丑。丑橘=丑聚=丑萌的聚集。丑橘外表皱巴巴但内心超甜=你的食单不靠颜值靠真材实料。Z世代喜欢"丑萌"。</div>
+        <div class="name-vibe">画面感：一个皱巴巴的丑橘，掰开超甜</div>
+        <div class="name-pros-cons"><div class="name-pros">丑萌=Z世代审美；"外表丑内心甜"=真材实料的隐喻</div><div class="name-cons">丑字部分人不喜欢；非精确谐音</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">砂糖橘</span>
+          <span class="name-homo">橘(jú≈聚jù) + 砂糖 = 砂糖聚</span>
+          <span class="name-pinyin">shā táng jú</span>
+        </div>
+        <div class="name-reason">橘(≈聚)+砂糖。砂糖橘=砂糖聚=甜蜜聚集。砂糖橘是过年必备水果，有团聚感。</div>
+        <div class="name-vibe">画面感：过年一家人围着吃砂糖橘，其乐融融</div>
+        <div class="name-pros-cons"><div class="name-pros">有团聚感；认知度高</div><div class="name-cons">三字偏长；非精确谐音</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">橘红</span>
+          <span class="name-homo">橘(jú≈聚jù) + 红 = 聚红</span>
+          <span class="name-pinyin">jú hóng</span>
+        </div>
+        <div class="name-reason">橘(≈聚)+红。橘红=聚红=聚集红火=越聚越红。你的食单越来越红火。橘红是一种药材也是颜色。</div>
+        <div class="name-vibe">画面感：橘红色暖洋洋的，像夕阳</div>
+        <div class="name-pros-cons"><div class="name-pros">有"越聚越红"的兴旺感</div><div class="name-cons">橘红偏颜色/药材；非精确谐音</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">橘柚</span>
+          <span class="name-homo">橘(jú≈聚jù) + 柚(yòu≈有yǒu) = 聚有</span>
+          <span class="name-pinyin">jú yòu</span>
+        </div>
+        <div class="name-reason">橘(≈聚)+柚(≈有)。橘柚=聚有=聚集拥有的=你聚集的好东西。橘柚是一种柑橘类水果。</div>
+        <div class="name-vibe">画面感：一个橘柚，外皮绿内心橙</div>
+        <div class="name-pros-cons"><div class="name-pros">聚+有双含义</div><div class="name-cons">柚/有声调不同；橘柚知名度低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">枸橘</span>
+          <span class="name-homo">橘(jú≈聚jù) + 枸(gǒu≈够gòu) = 够聚</span>
+          <span class="name-pinyin">gǒu jú</span>
+        </div>
+        <div class="name-reason">橘(≈聚)+枸(≈够)。枸橘=够聚=够多的聚集=收集够了=食单够丰富。枸橘是中药枳实的来源。</div>
+        <div class="name-vibe">画面感：枸橘树上结满小果子</div>
+        <div class="name-pros-cons"><div class="name-pros">够+聚双含义有趣</div><div class="name-cons">枸/够声调不同；枸橘知名度极低</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>金橘。金=珍贵+橘(≈聚)=聚集，金橘=金聚=珍贵的聚集。金橘本身小巧可爱，谐音金句（每家店都是金句），橘色年轻明亮。丑橘的丑萌反差感也很有Z世代味道，但金橘更品牌化。</div>
+  </div>
+
+  <!-- ========== Cat 7: 满 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">07</span>
+      <span class="cat-title">满类</span>
+      <span class="cat-homo">鳗(mán) / 蔓(màn) ≈ 满(mǎn) → 收集满了</span>
+    </div>
+    <div class="cat-desc">满=收集满了、丰富、充实。你的食单越收集越满。鳗(mán)和蔓(màn)跟满(mǎn)近音。鳗鱼=满鱼=越来越满的鱼，蔓越莓=满越莓=越来越满的莓。满天星=满=直接就是"满"字，一盆花里密密麻麻全是小花。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">满天星</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">满(mǎn=满mǎn) + 天星 = 满天星</span>
+          <span class="name-pinyin">mǎn tiān xīng</span>
+        </div>
+        <div class="name-reason"><strong>满字直接出现在名字里，满天星本身就是"收集满了"的视觉隐喻。</strong>满天星是一种花，一根枝上密密麻麻开满无数小花——就像你的食单上密密麻麻收录了一家又一家好店。每一朵小花=你收录的一家店，整盆满天星=你的食单。"满天星"三个字就是"收集满了"的画面——满天都是星星，全是你发现的好店。而且满天星是Z世代花艺常见花材，年轻女性极熟悉。</div>
+        <div class="name-vibe">画面感：一盆满天星，密密麻麻全是白色小花，每朵是你收录的一家好店</div>
+        <div class="name-pros-cons"><div class="name-pros">满=收集满了（直接命中）；满天星物理形态=密密麻麻的收集（每朵花=每家店）；Z世代花艺常见花材；画面感极美</div><div class="name-cons">三字偏长；满天星偏花艺与美食无直接关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">鳗鱼</span>
+          <span class="name-homo">鳗(mán≈满mǎn) + 鱼 = 满鱼</span>
+          <span class="name-pinyin">mán yú</span>
+        </div>
+        <div class="name-reason">鳗(≈满)+鱼。鳗鱼=满鱼=越来越满的鱼。鳗鱼本身就是美食（鳗鱼饭），与美食直接关联。鳗鱼滑溜溜的、饱满的形态=食单越吃越满。</div>
+        <div class="name-vibe">画面感：一碗鳗鱼饭，鳗鱼铺满米饭，满足感爆棚</div>
+        <div class="name-pros-cons"><div class="name-pros">鳗鱼=美食直接命中；鳗鱼饭=铺满=满了的视觉</div><div class="name-cons">鳗/满声调不同（mán vs mǎn）；鳗鱼偏日式</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">蔓越莓</span>
+          <span class="name-homo">蔓(màn≈满mǎn) + 越 + 莓 = 满越莓</span>
+          <span class="name-pinyin">màn yuè méi</span>
+        </div>
+        <div class="name-reason">蔓(≈满)+越+莓。蔓越莓=满越莓=越来越满的莓果。蔓=藤蔓（蔓延生长）+满（越来越满）+越（越来越多）+莓（美食）。三个字组成了"越来越满越多"的收集意象。蔓越莓还是Z世代健康饮品常见元素。</div>
+        <div class="name-vibe">画面感：蔓越莓一颗颗红亮饱满，越收越多</div>
+        <div class="name-pros-cons"><div class="name-pros">蔓+越+莓三字全有含义（满+越来越+美食）；Z世代饮品元素</div><div class="name-cons">蔓/满声调不同；三字偏长</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">满江红</span>
+          <span class="name-homo">满(mǎn=满mǎn) + 江红</span>
+          <span class="name-pinyin">mǎn jiāng hóng</span>
+        </div>
+        <div class="name-reason">满字直接出现。满江红是一种水生蕨类植物，秋天水面铺满红色=满江红。你的食单=满江红=铺满好店。满江红还是岳飞的词牌名。</div>
+        <div class="name-vibe">画面感：秋天水面铺满红色小叶，密密麻麻</div>
+        <div class="name-pros-cons"><div class="name-pros">满=直接命中；铺满=收集满的视觉</div><div class="name-cons">三字偏长；满江红偏诗词联想；与美食无关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">鳗鲡</span>
+          <span class="name-homo">鳗(mán≈满mǎn) + 鲡(lí≈理lǐ) = 满理</span>
+          <span class="name-pinyin">mán lí</span>
+        </div>
+        <div class="name-reason">鳗(≈满)+鲡(≈理)。鳗鲡=满理=满+整理=收集满了再整理=策展。鳗鲡是鳗鱼的古称。</div>
+        <div class="name-vibe">画面感：一条鳗鲡在水中游，满满当当</div>
+        <div class="name-pros-cons"><div class="name-pros">满+理=收集+策展双含义</div><div class="name-cons">鲡字生僻；鳗/满声调不同</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">蔓菁</span>
+          <span class="name-homo">蔓(màn≈满mǎn) + 菁(jīng≈精jīng) = 满精</span>
+          <span class="name-pinyin">màn jīng</span>
+        </div>
+        <div class="name-reason">蔓(≈满)+菁(≈精)。蔓菁=满精=满+精选=收集满了精选的好东西。蔓菁是一种根茎蔬菜，本身就是食物。</div>
+        <div class="name-vibe">画面感：地里拔出一根蔓菁，圆滚滚的</div>
+        <div class="name-pros-cons"><div class="name-pros">满+精=收集+精选双含义；本身就是食物</div><div class="name-cons">蔓菁知名度低；蔓/满声调不同</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">蔓藤</span>
+          <span class="name-homo">蔓(màn≈满mǎn) + 藤(téng≈腾téng) = 满腾</span>
+          <span class="name-pinyin">màn téng</span>
+        </div>
+        <div class="name-reason">蔓(≈满)+藤(≈腾)。蔓藤=满腾=满满腾腾=丰富充实。藤蔓蔓延生长=你的食单不断扩展。</div>
+        <div class="name-vibe">画面感：藤蔓蔓延攀爬，越爬越远越满</div>
+        <div class="name-pros-cons"><div class="name-pros">藤蔓蔓延=扩展的隐喻</div><div class="name-cons">与美食无关联；蔓/满声调不同</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>满天星。满字直接出现在名字里，满天星的物理形态（密密麻麻全是小花）完美对应"收集满了"的视觉——每朵小花=一家好店，整盆=你的食单。鳗鱼的美食关联更强但谐音不如满天星直接。</div>
+  </div>
+
+  <!-- ========== Cat 8: 单 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">08</span>
+      <span class="cat-title">单类</span>
+      <span class="cat-homo">丹(dān) = 单(dān) → 清单食单</span>
+    </div>
+    <div class="cat-desc">单=清单、食单、菜单——你的食单就是你的"单"。丹(dān)跟单(dān)精确同音。丹桂=单桂=清单+桂花（美食），牡丹=母单=母清单。丹本身还有红色、精华的含义，视觉感强。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">丹桂</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">丹(dān=单dān) + 桂 = 单桂</span>
+          <span class="name-pinyin">dān guì</span>
+        </div>
+        <div class="name-reason"><strong>丹=单=清单/食单，桂=桂花=美食。</strong>丹(dān)跟单(dān)精确同音。丹桂=单桂=清单+桂花。桂花本身就是美食元素——桂花糕、桂花酒、桂花茶、桂花糖藕。你的食单=你的丹桂=你的美食清单。丹=红色=标记（你在清单上打的红勾），桂=桂花=好味道。丹桂秋天开花，满院飘香=你的食单满载好味道。</div>
+        <div class="name-vibe">画面感：秋天丹桂飘香，金黄小花落满地——你的美食清单香气四溢</div>
+        <div class="name-pros-cons"><div class="name-pros">丹=单精确同音；桂花=美食元素直接命中；丹=红色=标记；丹桂飘香有画面感</div><div class="name-cons">丹桂偏传统花卉可能不够年轻；桂字与收集无直接关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">牡丹</span>
+          <span class="name-homo">丹(dān=单dān) + 牡(mǔ≈母mǔ) = 母单</span>
+          <span class="name-pinyin">mǔ dān</span>
+        </div>
+        <div class="name-reason">丹(=单)+牡(≈母)。牡丹=母单=母清单=总清单=所有食单的母版。牡丹是国花级别，"唯有牡丹真国色"。</div>
+        <div class="name-vibe">画面感：一朵硕大的牡丹花，雍容华贵</div>
+        <div class="name-pros-cons"><div class="name-pros">丹=单精确同音；牡丹认知度极高</div><div class="name-cons">牡丹过于传统/华贵；与美食无直接关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">丹顶鹤</span>
+          <span class="name-homo">丹(dān=单dān) + 顶 = 单顶</span>
+          <span class="name-pinyin">dān dǐng hè</span>
+        </div>
+        <div class="name-reason">丹(=单)+顶。丹顶鹤=单顶鹤=清单顶端的鹤=清单上排名最前的=你食单的TOP1。丹顶=红顶=你的精选标记。</div>
+        <div class="name-vibe">画面感：丹顶鹤头顶一抹红，优雅站立</div>
+        <div class="name-pros-cons"><div class="name-pros">"单顶"=清单TOP的隐喻巧妙</div><div class="name-cons">三字偏长；与美食无关联</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">丹参</span>
+          <span class="name-homo">丹(dān=单dān) + 参(shēn≈申shēn) = 单参</span>
+          <span class="name-pinyin">dān shēn</span>
+        </div>
+        <div class="name-reason">丹(=单)+参。丹参=单参=清单参与=你参与创建的清单。丹参是中药材。</div>
+        <div class="name-vibe">画面感：丹参根红褐色，药材铺里一味药</div>
+        <div class="name-pros-cons"><div class="name-pros">丹=单精确同音</div><div class="name-cons">偏药材非食物；参字含义模糊</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">仙丹</span>
+          <span class="name-homo">丹(dān=单dān) + 仙 = 仙单</span>
+          <span class="name-pinyin">xiān dān</span>
+        </div>
+        <div class="name-reason">丹(=单)+仙。仙丹=仙单=神仙清单=超厉害的食单。你的食单就是你的仙丹——吃了（去过）就升级。仙丹在游戏文化中是"升级道具"。</div>
+        <div class="name-vibe">画面感：一颗金光闪闪的仙丹，吃一颗升一级</div>
+        <div class="name-pros-cons"><div class="name-pros">丹=单精确同音；仙丹=升级道具的游戏感；有Z世代游戏文化属性</div><div class="name-cons">仙丹不是实体动植物；偏玄幻</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">丹鱼</span>
+          <span class="name-homo">丹(dān=单dān) + 鱼 = 单鱼</span>
+          <span class="name-pinyin">dān yú</span>
+        </div>
+        <div class="name-reason">丹(=单)+鱼。丹鱼=单鱼=清单+鱼=美食清单。丹鱼是古籍中记载的红色神鱼。丹=红色+单=清单，鱼=美食。</div>
+        <div class="name-vibe">画面感：一条红色小鱼在水中游</div>
+        <div class="name-pros-cons"><div class="name-pros">丹=单+鱼=美食双命中</div><div class="name-cons">丹鱼知名度极低；偏神话</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">丹皮</span>
+          <span class="name-homo">丹(dān=单dān) + 皮(pí≈批pī) = 单批</span>
+          <span class="name-pinyin">dān pí</span>
+        </div>
+        <div class="name-reason">丹(=单)+皮(≈批)。丹皮=单批=清单批次=你食单上每一批收录的好店。丹皮是牡丹根皮，中药材。</div>
+        <div class="name-vibe">画面感：药材铺里的丹皮卷</div>
+        <div class="name-pros-cons"><div class="name-pros">单+批=清单批次的含义</div><div class="name-cons">偏药材；皮/批声调不同</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">红丹</span>
+          <span class="name-homo">丹(dān=单dān) + 红 = 红单</span>
+          <span class="name-pinyin">hóng dān</span>
+        </div>
+        <div class="name-reason">丹(=单)+红。红丹=红单=红色清单。你的食单用红勾标记好店=红单。红色=标记=已验证。</div>
+        <div class="name-vibe">画面感：一张清单上打满红勾</div>
+        <div class="name-pros-cons"><div class="name-pros">红单=已验证清单的隐喻</div><div class="name-cons">红丹偏化工原料；不够品牌化</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>丹桂。丹=单精确同音，桂花是美食元素（桂花糕/桂花酒/桂花茶），丹=红色=标记。丹桂=单桂=美食清单，秋天的丹桂飘香=你的食单满载好味道。仙丹的游戏化趣味也有亮点但不是实体。</div>
+  </div>
+
+  <!-- ========== Cat 9: 集 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">09</span>
+      <span class="cat-title">集类</span>
+      <span class="cat-homo">棘(jí) = 集(jí) → 集合收集</span>
+    </div>
+    <div class="cat-desc">集=集合、收集、集齐。你的食单=你集齐的好店。棘(jí)跟集(jí)精确同音。沙棘=沙集=在沙漠中集合，荆棘=京集。棘是一种带刺的植物，带刺=有棱角=有态度=已验证的标记。沙棘果是Z世代健康饮品超级常见元素。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">沙棘</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">棘(jí=集jí) + 沙 = 沙集</span>
+          <span class="name-pinyin">shā jí</span>
+        </div>
+        <div class="name-reason"><strong>棘=集精确同音，沙棘=沙集=在广袤中集合好东西。</strong>棘(jí)跟集(jí)精确同音。沙棘=沙集=沙漠中也能找到好东西的集合。沙棘果是橙黄色的小浆果，酸甜可口，沙棘汁是Z世代健康饮品超级常见元素。沙棘生长在荒漠中——在最贫瘠的地方也能找到宝藏，就像在全城海量餐厅中筛出好店。棘=带刺=有棱角=有态度，你的食单有刺=有门槛=不是谁都能上。</div>
+        <div class="name-vibe">画面感：荒漠中一丛沙棘，挂满橙色小果——在贫瘠中发现珍宝</div>
+        <div class="name-pros-cons"><div class="name-pros">棘=集精确同音；沙棘果=美食+健康饮品；带刺=有门槛=已验证的隐喻；在荒漠中找宝藏=在海量餐厅中找好店</div><div class="name-cons">沙棘知名度不如石榴仓鼠；棘字偏书面</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">荆棘</span>
+          <span class="name-homo">棘(jí=集jí) + 荆(jīng≈精jīng) = 精集</span>
+          <span class="name-pinyin">jīng jí</span>
+        </div>
+        <div class="name-reason">棘(=集)+荆(≈精)。荆棘=精集=精选集合=精挑细选的好店集合。荆棘带刺=不好走但值得=探店虽辛苦但找到好店值得。</div>
+        <div class="name-vibe">画面感：穿越荆棘丛，后面是桃花源</div>
+        <div class="name-pros-cons"><div class="name-pros">精+集=精选集合双含义；荆棘=披荆斩棘探店</div><div class="name-cons">荆棘偏负面（刺/痛）；非食物</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">棘豆</span>
+          <span class="name-homo">棘(jí=集jí) + 豆 = 集豆</span>
+          <span class="name-pinyin">jí dòu</span>
+        </div>
+        <div class="name-reason">棘(=集)+豆。棘豆=集豆=集合豆子=收集好豆子。豆=食物，棘=集合。棘豆是一种高原植物。</div>
+        <div class="name-vibe">画面感：高原上一丛棘豆，结着小豆荚</div>
+        <div class="name-pros-cons"><div class="name-pros">集+豆=收集+美食双命中</div><div class="name-cons">棘豆知名度极低；偏药材</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">酸棘</span>
+          <span class="name-homo">棘(jí=集jí) + 酸 = 酸集</span>
+          <span class="name-pinyin">suān jí</span>
+        </div>
+        <div class="name-reason">棘(=集)+酸。酸棘=酸集=酸甜集合。酸是味觉=美食，棘=集合。酸棘是一种野果。</div>
+        <div class="name-vibe">画面感：一颗酸棘果，酸酸甜甜</div>
+        <div class="name-pros-cons"><div class="name-pros">酸=味觉+棘=集合双命中</div><div class="name-cons">知名度极低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">棘椒</span>
+          <span class="name-homo">棘(jí=集jí) + 椒 = 集椒</span>
+          <span class="name-pinyin">jí jiāo</span>
+        </div>
+        <div class="name-reason">棘(=集)+椒。棘椒=集椒=集合辣椒=收集好辣椒。椒=调味=美食，棘=集合。</div>
+        <div class="name-vibe">画面感：一串红棘椒，辣味十足</div>
+        <div class="name-pros-cons"><div class="name-pros">椒=美食+棘=集合双命中</div><div class="name-cons">棘椒非常见植物名</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">棘皮</span>
+          <span class="name-homo">棘(jí=集jí) + 皮(pí≈批pī) = 集批</span>
+          <span class="name-pinyin">jí pí</span>
+        </div>
+        <div class="name-reason">棘(=集)+皮(≈批)。棘皮=集批=集合批次=一批一批地收集。棘皮动物（海胆、海星）=集批动物。海胆是美食！</div>
+        <div class="name-vibe">画面感：海胆浑身是刺，里面是金黄色的海胆黄</div>
+        <div class="name-pros-cons"><div class="name-pros">海胆=美食；集+批=分批收集</div><div class="name-cons">棘皮不是独立物种名；皮/批声调不同</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">鹿棘</span>
+          <span class="name-homo">棘(jí=集jí) + 鹿(lù=录lù) = 录集</span>
+          <span class="name-pinyin">lù jí</span>
+        </div>
+        <div class="name-reason">棘(=集)+鹿(=录)。鹿棘=录集=记录集合=收录集合。一个名字里同时有"录"和"集"两个收集含义！鹿+棘=鹿角+带刺=有态度的记录。</div>
+        <div class="name-vibe">画面感：鹿角上挂着带刺的果子</div>
+        <div class="name-pros-cons"><div class="name-pros">录+集双谐音罕见</div><div class="name-cons">鹿棘非常见物种名</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">枸杞棘</span>
+          <span class="name-homo">棘(jí=集jí) + 枸杞 = 枸杞集</span>
+          <span class="name-pinyin">gǒu qǐ jí</span>
+        </div>
+        <div class="name-reason">棘(=集)+枸杞。枸杞棘=枸杞集=枸杞集合=收集好枸杞。枸杞是养生美食，棘=集合。</div>
+        <div class="name-vibe">画面感：枸杞树上挂满红枸杞</div>
+        <div class="name-pros-cons"><div class="name-pros">枸杞=养生美食</div><div class="name-cons">三字偏长；非标准植物名</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>沙棘。棘=集精确同音，沙棘果是Z世代健康饮品常见元素，带刺=有门槛=已验证。沙棘在荒漠中生长=在海量餐厅中找到宝藏。荆棘的"精集"（精选集合）双谐音也很有趣。</div>
+  </div>
+
+  <!-- ========== Cat 10: 备 ========== -->
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-num">10</span>
+      <span class="cat-title">备类</span>
+      <span class="cat-homo">贝(bèi) = 备(bèi) → 准备收藏</span>
+    </div>
+    <div class="cat-desc">备=准备、备份、储备。你的食单=你准备好的美食储备。贝(bèi)跟备(bèi)精确同音。贝壳=备壳=准备好的壳=天然的收藏容器。扇贝=扇备=像扇子一样的储备。贝类本身有壳=天然容器，珍珠贝还会把异物包裹成珍珠=收集转化。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">贝壳</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-homo">贝(bèi=备bèi) + 壳 = 备壳</span>
+          <span class="name-pinyin">bèi ké</span>
+        </div>
+        <div class="name-reason"><strong>贝=备=准备/储备，贝壳=备壳=准备好的收藏容器。</strong>贝(bèi)跟备(bèi)精确同音。贝壳=备壳=准备好的壳=你的美食储备容器。贝壳是天然容器——打开是容器，合上是保护。你的食单=你的贝壳：打开展示收藏，合上安全保存。而且贝壳是海边捡的——"捡贝壳"本身就是收集行为。扇贝还是美食。</div>
+        <div class="name-vibe">画面感：海边捡起一个贝壳，放进兜里——又收藏了一个好店</div>
+        <div class="name-pros-cons"><div class="name-pros">贝=备精确同音；贝壳=天然收藏容器；"捡贝壳"=收集行为；扇贝=美食；贝壳打开/合上=展示/保存</div><div class="name-cons">贝壳偏女性化/儿童感；与美食关联需通过扇贝转译</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">扇贝</span>
+          <span class="name-homo">贝(bèi=备bèi) + 扇 = 扇备</span>
+          <span class="name-pinyin">shàn bèi</span>
+        </div>
+        <div class="name-reason">贝(=备)+扇。扇贝=扇备=扇形的储备=像扇子一样展开的收藏。扇贝本身就是美食（蒜蓉粉丝蒸扇贝）。扇贝的壳有沟壑纹路=一条条记录。</div>
+        <div class="name-vibe">画面感：扇贝壳上的纹路一条一条，像翻开的收藏列表</div>
+        <div class="name-pros-cons"><div class="name-pros">扇贝=美食直接命中；扇贝壳纹路=记录的隐喻</div><div class="name-cons">扇贝偏具体食材不偏品牌</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">珍珠贝</span>
+          <span class="name-homo">贝(bèi=备bèi) + 珍珠 = 珍珠备</span>
+          <span class="name-pinyin">zhēn zhū bèi</span>
+        </div>
+        <div class="name-reason">贝(=备)+珍珠。珍珠贝=珍珠备=珍贵的储备。珍珠贝会把异物包裹成珍珠=把消费经历转化为珍贵收藏。你的食单=你的珍珠：每一次消费=一粒沙，经过你的体验和记录=变成珍珠。</div>
+        <div class="name-vibe">画面感：珍珠贝里慢慢孕育出一颗珍珠——你的好店记录</div>
+        <div class="name-pros-cons"><div class="name-pros">沙→珍珠=消费→收藏的转化隐喻极妙</div><div class="name-cons">三字偏长；偏珠宝不偏美食</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">宝贝</span>
+          <span class="name-homo">贝(bèi=备bèi) + 宝 = 宝备</span>
+          <span class="name-pinyin">bǎo bèi</span>
+        </div>
+        <div class="name-reason">贝(=备)+宝。宝贝=宝备=宝贵的储备=你珍藏的好店。宝贝这个词人人都说，人人都懂。你的食单=你的宝贝们。</div>
+        <div class="name-vibe">画面感："这些都是我的宝贝"——展示你的食单时那种得意</div>
+        <div class="name-pros-cons"><div class="name-pros">认知度极高；有亲切感</div><div class="name-cons">宝贝太通用不够独特；偏口语</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">蛤贝</span>
+          <span class="name-homo">贝(bèi=备bèi) + 蛤(gé≈格gé) = 格备</span>
+          <span class="name-pinyin">gé bèi</span>
+        </div>
+        <div class="name-reason">贝(=备)+蛤(≈格)。蛤贝=格备=分门别类的储备=分格子整理好你的收藏。蛤贝是贝类的一种。</div>
+        <div class="name-vibe">画面感：一个个格子里放着分类好的贝壳</div>
+        <div class="name-pros-cons"><div class="name-pros">格+备=分类收藏的含义</div><div class="name-cons">蛤贝知名度低；蛤字偏生僻</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">海贝</span>
+          <span class="name-homo">贝(bèi=备bèi) + 海 = 海备</span>
+          <span class="name-pinyin">hǎi bèi</span>
+        </div>
+        <div class="name-reason">贝(=备)+海。海贝=海备=海量储备=海量的美食收藏。海=海量=丰富。</div>
+        <div class="name-vibe">画面感：海滩上散落着无数海贝，每一个是一家好店</div>
+        <div class="name-pros-cons"><div class="name-pros">海+备=海量储备</div><div class="name-cons">海贝太普通不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">贝类</span>
+          <span class="name-homo">贝(bèi=备bèi) + 类 = 备类</span>
+          <span class="name-pinyin">bèi lèi</span>
+        </div>
+        <div class="name-reason">贝(=备)+类。贝类=备类=备好的分类=你按类别整理好的收藏。贝类本身是美食（扇贝、生蚝、蛤蜊）。</div>
+        <div class="name-vibe">画面感：一排贝类整齐排列</div>
+        <div class="name-pros-cons"><div class="name-pros">备+类=分类收藏；贝类=美食</div><div class="name-cons">贝类是分类名不是具体名</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header">
+          <span class="name-text">贝藻</span>
+          <span class="name-homo">贝(bèi=备bèi) + 藻(zǎo≈早zǎo) = 早备</span>
+          <span class="name-pinyin">bèi zǎo</span>
+        </div>
+        <div class="name-reason">贝(=备)+藻(≈早)。贝藻=早备=早做准备=提前收藏好店=做攻略。贝藻指贝类和藻类，都是海洋食材。</div>
+        <div class="name-vibe">画面感：海边礁石上长着贝和藻</div>
+        <div class="name-pros-cons"><div class="name-pros">早+备=提前收藏做攻略的含义</div><div class="name-cons">贝藻非常见词；藻/早声调不同</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>贝壳。贝=备精确同音，贝壳=天然收藏容器，"捡贝壳"=收集行为。扇贝的纹路=记录列表的隐喻也很巧妙。珍珠贝"沙变珍珠"=消费变收藏的转化隐喻是这个类别最有故事感的。</div>
+  </div>
+
+  <!-- ========== Final ========== -->
+  <div class="final-section">
+    <div class="final-title">最终推荐</div>
+    <div class="final-subtitle">从78个候选中，选出2个最符合"美食+年轻+好记+收集"的组合谐音命名</div>
+    <div class="final-cards">
+      <div class="final-card gold">
+        <div class="final-rank">🏆 第一名</div>
+        <div class="final-name">石榴</div>
+        <div class="final-pinyin">shí liú</div>
+        <div class="final-homo">石(=拾/食) + 榴(=留) = 拾留 = 拾起 + 留存</div>
+        <div class="final-reason">
+          <strong>两个字全是精确谐音，一音三义，水果本身就是收集容器。</strong><br><br>
+          石(shí)=拾(shí)=食(shí)，一音三义：石是实体、拾是收集、食是美食。榴(liú)=留(liú)，留住保存。石榴=拾留=食留=拾起留住=吃过的留住。<br><br>
+          更关键的是，石榴这个水果本身就是"收集容器"的终极隐喻——一颗石榴掰开来，几百颗籽密密麻麻兜在一个壳里。每颗籽=你收录的一家店，整个石榴=你的食单。这个物理对应关系是所有候选里最强的。<br><br>
+          跟闲鱼是同一个级别的命名逻辑：闲鱼=咸鱼改一个字=二手交易的幽默感，石榴=拾留=两个字全谐音+实体本身就是收集容器。不需要解释，听到就知道是水果，稍微一想就懂收集含义。
+        </div>
+        <div class="final-why">
+          <strong>为什么是石榴：</strong><br>
+          1. 谐音精度最高：拾(shí)=石(shí)，留(liú)=榴(liú)，两个字全是精确同音，不是近音<br>
+          2. 三重谐音：石还=食，一音三义（石/拾/食），这是其他候选都没有的<br>
+          3. 实体即容器：石榴本身=收集容器（百籽聚一壳），不需要额外解释<br>
+          4. 美食属性：石榴汁是Z世代饮品常见元素，石榴籽是甜品常见配料<br>
+          5. 品牌延展：石榴籽=每家店、石榴红了=新收录、剥石榴=浏览食单<br>
+          6. 视觉强：红宝石般的籽，热烈明亮，品牌色天然就是石榴红
+        </div>
+      </div>
+      <div class="final-card silver">
+        <div class="final-rank">🥈 第二名</div>
+        <div class="final-name">仓鼠</div>
+        <div class="final-pinyin">cāng shǔ</div>
+        <div class="final-homo">仓(cāng≈藏cáng) + 鼠 = 藏鼠 = 会藏的鼠</div>
+        <div class="final-reason">
+          <strong>仓=粮仓=收集储存粮食的场所，仓鼠天生就在收集食物。</strong><br><br>
+          仓(cāng)≈藏(cáng)，仓鼠=藏鼠=会藏东西的鼠。但更妙的是，"仓"本身就不需要靠谐音——仓=粮仓=仓库=收集储存粮食的场所。含义比谐音还直接。<br><br>
+          仓鼠最标志性的行为是什么？腮帮子塞满食物搬回窝里存着。这个行为天然就是"收集+储存"的活广告。你的食单=你的仓鼠窝，每收录一家店=腮帮子又鼓了一点。收录越多，腮帮子越鼓，满足感越强。<br><br>
+          跟蚂蚁森林是一个级别的组合逻辑：蚂蚁+森林=积少成多种树，仓+鼠=粮仓里的收集者。两个字各自有含义，合在一起创造新故事。
+        </div>
+        <div class="final-why">
+          <strong>为什么是仓鼠：</strong><br>
+          1. 仓=粮仓：含义比谐音更直接，粮仓=收集储存粮食的场所<br>
+          2. 行为即收集：仓鼠腮帮子塞满食物=活生生的收集行为，不需要解释<br>
+          3. IP化极强：仓鼠形象极萌，做IP/表情包/动画天然适配<br>
+          4. 产品隐喻丰富：仓鼠窝=你的食单、腮帮子=收录量、搬粮食=收录好店<br>
+          5. 年轻感：仓鼠是Z世代热门宠物，不old<br>
+          6. 组合逻辑：仓+鼠=粮仓+收集者=跟蚂蚁森林同级别的组合命名
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; padding: 40px 0 20px; color: #444; font-size: 13px;">
+    「食单」命名 · 实体谐音版 · 10分类78候选 · 石榴(拾留) + 仓鼠(藏鼠)
+  </div>
+
+</div>
+</body>
+</html>
