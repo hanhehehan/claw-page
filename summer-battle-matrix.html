@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026到餐夏战经营指标体系矩阵</title>
+<style>
+  :root { --line:#e8eaed; --header:#f7f8fa; --text:#202124; --muted:#6b7280; --accent:#ff7a00; --child:#fafbfc; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--text); font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  .wrap { padding:12px; }
+  .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 10px; }
+  .title { font-size:15px; font-weight:600; white-space:nowrap; }
+  .hint { color:var(--muted); font-size:12px; }
+  .table-box { overflow:auto; border:1px solid var(--line); border-radius:8px; }
+  table { width:100%; min-width:1120px; border-collapse:separate; border-spacing:0; }
+  th,td { height:36px; padding:7px 10px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; }
+  th { position:sticky; top:0; z-index:2; background:var(--header); color:#5f6368; font-weight:500; }
+  th:first-child, th:nth-child(2), td:first-child, td:nth-child(2) { text-align:left; }
+  th:first-child { min-width:92px; }
+  th:nth-child(2) { min-width:210px; }
+  tbody tr:last-child td { border-bottom:0; }
+  tbody tr.parent { background:#fff; font-weight:500; }
+  tbody tr.parent:hover, tbody tr.child:hover, tbody tr.single:hover { background:#fff7ed; }
+  tbody tr.child { background:var(--child); }
+  tbody tr.child[hidden] { display:none; }
+  .tree-cell { display:flex; align-items:center; gap:7px; }
+  .toggle { width:18px; height:18px; padding:0; border:0; border-radius:4px; color:#6b7280; background:transparent; cursor:pointer; font-size:18px; line-height:16px; }
+  .toggle:hover { background:#eef0f2; color:#202124; }
+  .toggle[aria-expanded="false"] { transform:rotate(-90deg); }
+  .toggle-placeholder { display:inline-block; width:18px; }
+  .child .tree-cell { padding-left:27px; color:#454b54; font-weight:400; }
+  .badge { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; border:1px solid #b8bdc6; color:#7c828d; font-size:10px; font-weight:600; }
+  .orange { color:#d95f00; font-weight:600; }
+  .negative { color:#c2410c; }
+  @media (max-width:640px) { .wrap{padding:8px}.hint{display:none}.toolbar{margin-bottom:8px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar"><div class="title">经营指标体系矩阵</div><div class="hint">点击左侧箭头展开或收起子指标</div></div>
+  <div class="table-box">
+    <table aria-label="2026到餐夏战经营指标体系矩阵">
+      <thead><tr><th>指标分类</th><th>指标名称</th><th>单位</th><th>2026-06</th><th>2026-07</th><th>2026-08 MTD</th><th>2026-08目标值</th><th>2026-08目标完成率</th><th>7月 vs 6月</th><th>8月 vs 7月</th></tr></thead>
+      <tbody>
+        <tr class="single"><td>Output</td><td><div class="tree-cell"><span class="toggle-placeholder"></span>榜单决策意向UV <span class="badge">?</span></div></td><td>万</td><td>53.8</td><td>137.7</td><td>143.2</td><td>135.0</td><td>106.1%</td><td class="orange">155.9%</td><td>4.0%</td></tr>
+        <tr class="parent" data-group="exposure"><td>Input</td><td><div class="tree-cell"><button class="toggle" aria-expanded="true" aria-controls="exposure">⌄</button>榜单决策曝光UV <span class="badge">?</span></div></td><td>万</td><td>133.8</td><td>275.2</td><td>271.5</td><td>-</td><td>-</td><td class="orange">105.7%</td><td class="negative">-1.3%</td></tr>
+        <tr class="child" data-parent="exposure"><td></td><td><div class="tree-cell">美食首页</div></td><td>万</td><td>21.1</td><td>24.6</td><td>29.9</td><td>-</td><td>-</td><td class="orange">16.6%</td><td>21.5%</td></tr>
+        <tr class="child" data-parent="exposure"><td></td><td><div class="tree-cell">大搜</div></td><td>万</td><td>59.6</td><td>63.2</td><td>68.3</td><td>-</td><td>-</td><td class="orange">6.0%</td><td>8.0%</td></tr>
+        <tr class="child" data-parent="exposure"><td></td><td><div class="tree-cell">首页猜喜</div></td><td>万</td><td>21.0</td><td>130.8</td><td>133.4</td><td>-</td><td>-</td><td class="orange">522.9%</td><td>2.0%</td></tr>
+        <tr class="child" data-parent="exposure"><td></td><td><div class="tree-cell">POI页</div></td><td>万</td><td>42.2</td><td>110.5</td><td>112.4</td><td>-</td><td>-</td><td class="orange">161.8%</td><td>1.7%</td></tr>
+        <tr class="single"><td>Input</td><td><div class="tree-cell"><span class="toggle-placeholder"></span>榜单页转化率 <span class="badge">?</span></div></td><td>%</td><td>64.0%</td><td>68.8%</td><td>76.1%</td><td>-</td><td>-</td><td class="orange">4.8pp</td><td>7.3pp</td></tr>
+        <tr class="single"><td>Input</td><td><div class="tree-cell"><span class="toggle-placeholder"></span>曝光用户数</div></td><td>万</td><td>98.1</td><td>236.9</td><td>227.4</td><td>-</td><td>-</td><td class="orange">141.5%</td><td class="negative">-4.0%</td></tr>
+        <tr class="single"><td>Input</td><td><div class="tree-cell"><span class="toggle-placeholder"></span>点击用户数</div></td><td>万</td><td>62.8</td><td>163.0</td><td>172.9</td><td>-</td><td>-</td><td class="orange">159.6%</td><td>6.1%</td></tr>
+        <tr class="parent" data-group="satisfaction"><td>Input</td><td><div class="tree-cell"><button class="toggle" aria-expanded="true" aria-controls="satisfaction">⌄</button>榜单需求满足度 <span class="badge">?</span></div></td><td>%</td><td>20.3%</td><td>24.0%</td><td>23.5%</td><td>-</td><td>-</td><td class="orange">3.7pp</td><td class="negative">-0.5pp</td></tr>
+        <tr class="child" data-parent="satisfaction"><td></td><td><div class="tree-cell">榜单需求满足人数 <span class="badge">?</span></div></td><td>万</td><td>10.9</td><td>33.0</td><td>33.8</td><td>-</td><td>-</td><td class="orange">202.8%</td><td>2.4%</td></tr>
+        <tr class="single"><td>Input</td><td><div class="tree-cell"><span class="toggle-placeholder"></span>旅游榜适配城市覆盖率 <span class="badge">?</span></div></td><td>%</td><td>84.2%</td><td>94.2%</td><td>-</td><td>-</td><td>-</td><td class="orange">11.9pp</td><td>-</td></tr>
+        <tr class="single"><td>观测指标</td><td><div class="tree-cell"><span class="toggle-placeholder"></span>榜单用户NPS满意度</div></td><td>%</td><td>38.6%（Q2）</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr class="single"><td>观测指标</td><td><div class="tree-cell"><span class="toggle-placeholder"></span>场景榜单预排覆盖率</div></td><td>%</td><td>24.3%</td><td>24.3%</td><td>24.6%</td><td>-</td><td>-</td><td class="orange">0.0pp</td><td>0.3pp</td></tr>
+        <tr class="parent" data-group="coverage"><td>观测指标</td><td><div class="tree-cell"><button class="toggle" aria-expanded="true" aria-controls="coverage">⌄</button>指数榜门店上榜率（约束） <span class="badge">?</span></div></td><td>%</td><td>8.2%</td><td>8.2%</td><td>8.4%</td><td>-</td><td>-</td><td class="orange">0.0pp</td><td>0.2pp</td></tr>
+        <tr class="child" data-parent="coverage"><td></td><td><div class="tree-cell">高线（SA）</div></td><td>%</td><td>15.2%</td><td>15.1%</td><td>15.4%</td><td>-</td><td>-</td><td class="orange negative">-0.1pp</td><td>0.3pp</td></tr>
+        <tr class="child" data-parent="coverage"><td></td><td><div class="tree-cell">中低线（BC）</div></td><td>%</td><td>10.5%</td><td>10.4%</td><td>10.7%</td><td>-</td><td>-</td><td class="orange negative">-0.1pp</td><td>0.3pp</td></tr>
+        <tr class="child" data-parent="coverage"><td></td><td><div class="tree-cell">下沉（D及以下）</div></td><td>%</td><td>5.4%</td><td>5.5%</td><td>5.7%</td><td>-</td><td>-</td><td class="orange">0.1pp</td><td>0.2pp</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('.parent .toggle').forEach(button => {
+    button.addEventListener('click', () => {
+      const group = button.closest('.parent').dataset.group;
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', String(!expanded));
+      document.querySelectorAll(`[data-parent="${group}"]`).forEach(row => row.hidden = expanded);
+    });
+  });
+</script>
+</body>
+</html>
