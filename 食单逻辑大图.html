@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人食单核心逻辑大图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    padding: 40px 20px;
+    min-width: 1100px;
+  }
+  .container { max-width: 1060px; margin: 0 auto; }
+  .diagram-section {
+    background: #1a1d28;
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin-bottom: 36px;
+    border: 1px solid #2a2d3a;
+  }
+  .diagram-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #7eb8ff;
+    margin-bottom: 6px;
+  }
+  .diagram-subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 28px;
+  }
+
+  /* ========== Diagram 1: 信任分层架构 ========== */
+  .trust-pyramid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .trust-layer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 90px;
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+  }
+  .trust-layer-l3 {
+    width: 380px;
+    background: linear-gradient(135deg, #e85d4a, #c94536);
+    border-radius: 8px 8px 0 0;
+    font-size: 17px;
+  }
+  .trust-layer-l2 {
+    width: 600px;
+    background: linear-gradient(135deg, #f0a04b, #d4862e);
+    font-size: 17px;
+  }
+  .trust-layer-l1 {
+    width: 820px;
+    background: linear-gradient(135deg, #3b8c5a, #2a6b43);
+    border-radius: 0 0 8px 8px;
+    font-size: 18px;
+  }
+  .trust-label {
+    position: absolute;
+    left: -180px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: #999;
+    text-align: right;
+    width: 160px;
+    line-height: 1.5;
+  }
+  .trust-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .tag-verified { background: #1a5c3a; color: #7fdb9e; }
+  .tag-want { background: #6b4a1a; color: #f0c87a; }
+  .tag-social { background: #6b2a22; color: #f0a090; }
+  .trust-arrows {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+    gap: 60px;
+  }
+  .trust-arrow-item {
+    text-align: center;
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.6;
+  }
+  .trust-arrow-item strong { color: #7eb8ff; display: block; margin-bottom: 4px; }
+
+  /* ========== Diagram 2: 三态定位差异 ========== */
+  .three-state {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .state-col {
+    flex: 1;
+    background: #222531;
+    border-radius: 12px;
+    padding: 24px 20px;
+    border-top: 3px solid;
+    display: flex;
+    flex-direction: column;
+  }
+  .state-col.ranking { border-top-color: #e85d4a; }
+  .state-col.recommend { border-top-color: #f0a04b; }
+  .state-col.foodlist { border-top-color: #3b8c5a; }
+  .state-header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .state-col.ranking .state-header { color: #e85d4a; }
+  .state-col.recommend .state-header { color: #f0a04b; }
+  .state-col.foodlist .state-header { color: #5fd47e; }
+  .state-question {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  .state-attrs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .state-attr {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+    color: #bbb;
+    line-height: 1.5;
+  }
+  .state-attr .attr-key {
+    color: #777;
+    min-width: 56px;
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+  .state-attr .attr-val { color: #ddd; }
+  .state-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-top: 1px solid #333;
+  }
+  .state-col.ranking .state-footer { color: #e85d4a; }
+  .state-col.recommend .state-footer { color: #f0a04b; }
+  .state-col.foodlist .state-footer { color: #5fd47e; }
+  .three-state-note {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: #1e212c;
+    border-radius: 8px;
+    border-left: 3px solid #7eb8ff;
+    font-size: 14px;
+    color: #ccc;
+    line-height: 1.7;
+  }
+  .three-state-note strong { color: #7eb8ff; }
+
+  /* ========== Diagram 4: B端三层价值 ========== */
+  .bvalue-top {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .bvalue-ch {
+    flex: 1;
+    background: #222531;
+    border-radius: 8px;
+    padding: 14px 12px;
+    text-align: center;
+    border-bottom: 2px solid #444;
+  }
+  .bvalue-ch-name { font-size: 14px; font-weight: 700; color: #ccc; margin-bottom: 4px; }
+  .bvalue-ch-desc { font-size: 12px; color: #777; line-height: 1.5; }
+  .bvalue-ch.fl { border-bottom-color: #5fd47e; background: #1a2a1e; }
+  .bvalue-ch.fl .bvalue-ch-name { color: #5fd47e; }
+  .bvalue-ch.fl .bvalue-ch-desc { color: #8fcfa0; }
+  .bvalue-vs {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+  .bvalue-vs strong { color: #f0a04b; }
+  .bvalue-layers {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .bvalue-layer {
+    display: flex;
+    align-items: stretch;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .bvalue-layer-tag {
+    width: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    padding: 12px 8px;
+    line-height: 1.4;
+    flex-shrink: 0;
+  }
+  .bvalue-layer-1 .bvalue-layer-tag { background: #1e3a2a; color: #5fd47e; }
+  .bvalue-layer-2 .bvalue-layer-tag { background: #1e2a3a; color: #7eb8ff; }
+  .bvalue-layer-3 .bvalue-layer-tag { background: #2a1e2a; color: #d47ebe; }
+  .bvalue-layer-body {
+    flex: 1;
+    padding: 16px 20px;
+    background: #1e212c;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .bvalue-layer-headline {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ddd;
+    min-width: 200px;
+    flex-shrink: 0;
+  }
+  .bvalue-layer-1 .bvalue-layer-headline { color: #5fd47e; }
+  .bvalue-layer-2 .bvalue-layer-headline { color: #7eb8ff; }
+  .bvalue-layer-3 .bvalue-layer-headline { color: #d47ebe; }
+  .bvalue-layer-detail {
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.7;
+    flex: 1;
+  }
+  .bvalue-layer-detail strong { color: #ddd; }
+  .bvalue-layer-vs {
+    font-size: 12px;
+    color: #777;
+    background: #15171f;
+    border-radius: 6px;
+    padding: 8px 12px;
+    min-width: 180px;
+    flex-shrink: 0;
+    line-height: 1.6;
+  }
+  .bvalue-layer-vs strong { color: #999; display: block; margin-bottom: 2px; font-size: 11px; }
+  .bvalue-flywheel {
+    margin-top: 24px;
+    padding: 20px 24px;
+    background: #15171f;
+    border-radius: 10px;
+    border: 1px solid #2a2d3a;
+  }
+  .bvalue-fw-title {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .bvalue-fw-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .bvalue-fw-node {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+    min-width: 100px;
+  }
+  .bvalue-fw-node.c { background: #1e3a2a; color: #7fdb9e; border: 1px solid #3b8c5a; }
+  .bvalue-fw-node.b1 { background: #1e2a3a; color: #7eb8ff; border: 1px solid #3a6a8a; }
+  .bvalue-fw-node.b2 { background: #2a1e2a; color: #d47ebe; border: 1px solid #6a3b5a; }
+  .bvalue-fw-node.b3 { background: #2a2a1e; color: #f0e07a; border: 1px solid #8a8a3a; }
+  .bvalue-fw-arrow { color: #555; font-size: 18px; flex-shrink: 0; }
+  .bvalue-fw-loop {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #666;
+  }
+  .bvalue-fw-loop span { color: #7eb8ff; }
+
+  /* ========== Diagram 5: 冷启动实战路径 ========== */
+  .cs-insight {
+    background: #1e2a1e;
+    border: 1px solid #3b8c5a;
+    border-radius: 10px;
+    padding: 18px 24px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #b0d0b0;
+    line-height: 1.7;
+  }
+  .cs-insight strong { color: #5fd47e; }
+  .cs-phases {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .cs-phase {
+    display: flex;
+    gap: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 3px;
+  }
+  .cs-phase-bar {
+    width: 160px;
+    flex-shrink: 0;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .cs-phase-bar-0 { background: #2a2a3a; }
+  .cs-phase-bar-1 { background: #1e3a2a; }
+  .cs-phase-bar-2 { background: #1e2a3a; }
+  .cs-phase-bar-3 { background: #2a2a1e; }
+  .cs-phase-bar-4 { background: #2a1e2a; }
+  .cs-phase-label { font-size: 11px; color: #888; letter-spacing: 1px; margin-bottom: 2px; }
+  .cs-phase-name { font-size: 16px; font-weight: 700; color: #ddd; line-height: 1.3; }
+  .cs-phase-bar-0 .cs-phase-name { color: #aaa; }
+  .cs-phase-bar-1 .cs-phase-name { color: #5fd47e; }
+  .cs-phase-bar-2 .cs-phase-name { color: #7eb8ff; }
+  .cs-phase-bar-3 .cs-phase-name { color: #f0e07a; }
+  .cs-phase-bar-4 .cs-phase-name { color: #d47ebe; }
+  .cs-phase-time { font-size: 12px; color: #777; margin-top: 4px; }
+  .cs-phase-content {
+    flex: 1;
+    background: #1e212c;
+    padding: 18px 24px;
+    display: flex;
+    gap: 24px;
+  }
+  .cs-phase-block { flex: 1; }
+  .cs-phase-block-title {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .cs-phase-block-body {
+    font-size: 13px;
+    color: #bbb;
+    line-height: 1.7;
+  }
+  .cs-phase-block-body strong { color: #ddd; }
+  .cs-hypothesis {
+    background: #15171f;
+    border-left: 3px solid;
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .cs-phase-bar-1 ~ .cs-phase-content .cs-hypothesis { border-left-color: #5fd47e; color: #9fcfa0; }
+  .cs-phase-bar-2 ~ .cs-phase-content .cs-hypothesis { border-left-color: #7eb8ff; color: #9fc0e0; }
+  .cs-phase-bar-3 ~ .cs-phase-content .cs-hypothesis { border-left-color: #f0e07a; color: #c0c090; }
+  .cs-phase-bar-4 ~ .cs-phase-content .cs-hypothesis { border-left-color: #d47ebe; color: #c090b0; }
+  .cs-metric {
+    display: inline-block;
+    background: #1a2a3a;
+    border: 1px solid #3a5a7a;
+    color: #8fc0e0;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px 3px 2px 0;
+  }
+  .cs-fail {
+    font-size: 12px;
+    color: #e08080;
+    background: #2a1a1a;
+    border: 1px solid #5a3a3a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .cs-fail strong { color: #f0a0a0; }
+  .cs-gate {
+    margin-top: 20px;
+    background: #15171f;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .cs-gate-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ddd;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .cs-gate-lights {
+    display: flex;
+    gap: 16px;
+  }
+  .cs-gate-light {
+    flex: 1;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .cs-gate-green { background: #1a2a1e; border: 1px solid #3b8c5a; }
+  .cs-gate-yellow { background: #2a2a1e; border: 1px solid #8a8a3a; }
+  .cs-gate-red { background: #2a1e1e; border: 1px solid #8c3b3b; }
+  .cs-gate-green strong { color: #5fd47e; }
+  .cs-gate-yellow strong { color: #f0e07a; }
+  .cs-gate-red strong { color: #f0a0a0; }
+  .cs-gate-light-body { color: #aaa; margin-top: 4px; }
+
+  /* ========== Diagram 5: 食单与推荐的差异根源 ========== */
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .diff-table th {
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    border-bottom: 2px solid #333;
+  }
+  .diff-table th.col-dim { color: #888; text-align: left; }
+  .diff-table th.col-rec { color: #f0a04b; }
+  .diff-table th.col-fl { color: #5fd47e; }
+  .diff-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #ccc;
+    border-bottom: 1px solid #2a2d3a;
+    line-height: 1.6;
+  }
+  .diff-table td.col-dim { color: #888; font-weight: 600; text-align: left; width: 120px; }
+  .diff-table td.col-rec { text-align: center; }
+  .diff-table td.col-fl { text-align: center; color: #9fdf9f; }
+  .diff-table tr:last-child td { border-bottom: none; }
+  .diff-note {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: #1e2a1e;
+    border-radius: 8px;
+    border-left: 3px solid #5fd47e;
+    font-size: 14px;
+    color: #b0d0b0;
+    line-height: 1.7;
+  }
+  .diff-note strong { color: #5fd47e; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ===== Diagram 1: 信任分层架构 ===== -->
+  <div class="diagram-section">
+    <div class="diagram-title">图1 · 信任分层架构：交易是地基，收藏是装饰</div>
+    <div class="diagram-subtitle">食单的信任不是单一来源，而是分层叠加 —— 交易证据做承重墙，收藏意图做扩展，分享行为做放大器</div>
+    <div class="trust-pyramid">
+      <div class="trust-layer trust-layer-l3">
+        分享行为 <span class="trust-tag tag-social">社交背书</span>
+        <div class="trust-label">用户主动分享 = 用个人信用为食单背书，信任放大到社交圈</div>
+      </div>
+      <div class="trust-layer trust-layer-l2">
+        收藏行为 <span class="trust-tag tag-want">想去</span>
+        <div class="trust-label">意图信号，"我想去"≠"我去过"<br>可扩展个性，但不可做信任基座</div>
+      </div>
+      <div class="trust-layer trust-layer-l1">
+        交易记录 <span class="trust-tag tag-verified">已验证</span>
+        <div class="trust-label">不可伪造的消费事实<br>美团独有资产，信任的承重墙</div>
+      </div>
+    </div>
+    <div class="trust-arrows">
+      <div class="trust-arrow-item">
+        <strong>地基层</strong>
+        只有交易验证的店才能撑起食单的信任底线<br>没有交易的食单 = 收藏夹，不是食单
+      </div>
+      <div class="trust-arrow-item">
+        <strong>装饰层</strong>
+        收藏的店标注"想去"，丰富个性表达<br>但不承担信任责任
+      </div>
+      <div class="trust-arrow-item">
+        <strong>放大层</strong>
+        分享行为将个人信任扩散到社交网络<br>优质食单获得平台激励（券/流量）
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Diagram 2: 三态定位差异 ===== -->
+  <div class="diagram-section">
+    <div class="diagram-title">图2 · 三态定位：榜单 · 推荐流 · 食单</div>
+    <div class="diagram-subtitle">用户决策的三个支撑工具，回答完全不同的问题，不可互相替代</div>
+    <div class="three-state">
+      <div class="state-col ranking">
+        <div class="state-header">榜单</div>
+        <div class="state-question">"哪些店是好店？"</div>
+        <div class="state-attrs">
+          <div class="state-attr"><span class="attr-key">回答</span><span class="attr-val">好 / 坏（公共评价）</span></div>
+          <div class="state-attr"><span class="attr-key">信任源</span><span class="attr-val">公共权威（平台/专家）</span></div>
+          <div class="state-attr"><span class="attr-key">覆盖度</span><span class="attr-val">有限，精选头部</span></div>
+          <div class="state-attr"><span class="attr-key">时效性</span><span class="attr-val">周期性更新</span></div>
+          <div class="state-attr"><span class="attr-key">用户角色</span><span class="attr-val">被动接收者</span></div>
+          <div class="state-attr"><span class="attr-key">拥有感</span><span class="attr-val">无</span></div>
+        </div>
+        <div class="state-footer">公共权威的信</div>
+      </div>
+      <div class="state-col recommend">
+        <div class="state-header">推荐流</div>
+        <div class="state-question">"现在吃什么？"</div>
+        <div class="state-attrs">
+          <div class="state-attr"><span class="attr-key">回答</span><span class="attr-val">现在 / 即时（实时决策）</span></div>
+          <div class="state-attr"><span class="attr-key">信任源</span><span class="attr-val">算法精准（行为预测）</span></div>
+          <div class="state-attr"><span class="attr-key">覆盖度</span><span class="attr-val">无限流，持续刷新</span></div>
+          <div class="state-attr"><span class="attr-key">时效性</span><span class="attr-val">实时变化</span></div>
+          <div class="state-attr"><span class="attr-key">用户角色</span><span class="attr-val">被动接收者</span></div>
+          <div class="state-attr"><span class="attr-key">拥有感</span><span class="attr-val">无（无法拥有一个流）</span></div>
+        </div>
+        <div class="state-footer">算法精准的信</div>
+      </div>
+      <div class="state-col foodlist">
+        <div class="state-header">食单</div>
+        <div class="state-question">"我是什么样的人？"</div>
+        <div class="state-attrs">
+          <div class="state-attr"><span class="attr-key">回答</span><span class="attr-val">同 / 异（身份投射）</span></div>
+          <div class="state-attr"><span class="attr-key">信任源</span><span class="attr-val">消费证据（不可伪造）</span></div>
+          <div class="state-attr"><span class="attr-key">覆盖度</span><span class="attr-val">有限集合，有边界</span></div>
+          <div class="state-attr"><span class="attr-key">时效性</span><span class="attr-val">稳定持久，渐进更新</span></div>
+          <div class="state-attr"><span class="attr-key">用户角色</span><span class="attr-val">拥有者 + 策展人</span></div>
+          <div class="state-attr"><span class="attr-key">拥有感</span><span class="attr-val">强（可编辑/可分享/可拥有）</span></div>
+        </div>
+        <div class="state-footer">消费证据的信</div>
+      </div>
+    </div>
+    <div class="three-state-note">
+      <strong>核心洞察：</strong>推荐流是工具（utility），解决"现在吃什么"；食单是身份（identity），回答"我是什么样的人"。推荐流用完即走，食单可拥有可分享。差异不在于生成方式（都是算法），而在于<strong>用户能否对其施加意志</strong>——能编辑、能策展、能拥有，才是食单。
+    </div>
+  </div>
+
+  <!-- ===== Diagram 3: 食单与推荐差异根源 ===== -->
+  <div class="diagram-section">
+    <div class="diagram-title">图3 · 食单 vs 推荐流：差异根源拆解</div>
+    <div class="diagram-subtitle">同样是算法生成，为什么食单不是"推荐流换皮"？差异在五个维度上同时成立</div>
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th class="col-dim">维度</th>
+          <th class="col-rec">推荐流</th>
+          <th class="col-fl">个性化食单</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-dim">可拥有性</td>
+          <td class="col-rec">即时流，每次打开都不同，无法"拥有"</td>
+          <td class="col-fl">有限稳定集合，有边界，"这是我的"</td>
+        </tr>
+        <tr>
+          <td class="col-dim">用户意志</td>
+          <td class="col-rec">不可编辑，算法全权决定</td>
+          <td class="col-fl">系统生成草稿 → 用户编辑定稿（增删/排序/备注）</td>
+        </tr>
+        <tr>
+          <td class="col-dim">心理机制</td>
+          <td class="col-rec">不触发禀赋效应（非拥有物）</td>
+          <td class="col-fl">触发禀赋效应 + IKEA效应（投入劳动→拥有感倍增）</td>
+        </tr>
+        <tr>
+          <td class="col-dim">使用目的</td>
+          <td class="col-rec">问题解决："现在吃什么" → 用完即走</td>
+          <td class="col-fl">身份投射："我是什么样的人" → 反复回看</td>
+        </tr>
+        <tr>
+          <td class="col-dim">社交属性</td>
+          <td class="col-rec">不可分享（无法分享一个流）</td>
+          <td class="col-fl">可分享（有限集合 + 消费证据 = 社交货币）</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="diff-note">
+      <strong>关键结论：</strong>如果个性化食单只是系统生成、用户不能编辑，那它就是推荐流的另一种展示——你的直觉完全正确。真正产生差异的是<strong>用户编辑环节</strong>：系统生成是"草稿"，用户编辑是"定稿"。用户删掉两家店、加一条备注、调一下排序——经过这个动作，"算法输出"变成"我的食单"。没有编辑权 = 没有拥有感 = 没有差异。
+    </div>
+  </div>
+
+  <!-- ===== Diagram 4: B端三层价值 ===== -->
+  <div class="diagram-section">
+    <div class="diagram-title">图4 · B端价值：食单不是导流工具，是第五种获客通道</div>
+    <div class="diagram-subtitle">如果B端价值只是"更多流量进长尾店"，那就是个导流功能。食单真正的B端价值有三层，从浅到深，每层都是现有通道给不了的</div>
+
+    <!-- 顶部：现有4个通道 + 食单 -->
+    <div class="bvalue-top">
+      <div class="bvalue-ch">
+        <div class="bvalue-ch-name">搜索</div>
+        <div class="bvalue-ch-desc">意图驱动<br>红海竞价</div>
+      </div>
+      <div class="bvalue-ch">
+        <div class="bvalue-ch-name">榜单</div>
+        <div class="bvalue-ch-desc">权威驱动<br>头部垄断</div>
+      </div>
+      <div class="bvalue-ch">
+        <div class="bvalue-ch-name">推荐流</div>
+        <div class="bvalue-ch-desc">算法驱动<br>强者愈强</div>
+      </div>
+      <div class="bvalue-ch">
+        <div class="bvalue-ch-name">广告</div>
+        <div class="bvalue-ch-desc">付费驱动<br>成本递增</div>
+      </div>
+      <div class="bvalue-ch fl">
+        <div class="bvalue-ch-name">食单</div>
+        <div class="bvalue-ch-desc">信任驱动<br>用户背书</div>
+      </div>
+    </div>
+    <div class="bvalue-vs"><strong>前四个通道</strong> 都是商家→平台→用户（商家花钱买曝光） · <strong>食单</strong> 是用户→用户（用户用消费记录背书）</div>
+
+    <!-- 三层价值 -->
+    <div class="bvalue-layers">
+      <!-- Layer 1: 流量 -->
+      <div class="bvalue-layer bvalue-layer-1">
+        <div class="bvalue-layer-tag">第一层<br>流量</div>
+        <div class="bvalue-layer-body">
+          <div class="bvalue-layer-headline">零成本信任获客通道</div>
+          <div class="bvalue-layer-detail">
+            用户分享食单 → 接收方基于<strong>消费证据</strong>进店决策。<br>
+            商家不需要出价、不需要上榜、不需要投广告。<strong>用户自发推荐 = 零CAC获客</strong>。
+            长尾/特色店不依赖排名逻辑，靠"被某个用户记住"就能获客。
+          </div>
+          <div class="bvalue-layer-vs">
+            <strong>vs 广告</strong>
+            广告：付费曝光，用户不信任<br>
+            食单：用户背书，零成本，高信任
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 2: 信号 -->
+      <div class="bvalue-layer bvalue-layer-2">
+        <div class="bvalue-layer-tag">第二层<br>信号</div>
+        <div class="bvalue-layer-body">
+          <div class="bvalue-layer-headline">第四种商家质量信号</div>
+          <div class="bvalue-layer-detail">
+            <strong>"被N个用户的食单收录" = 群体消费背书。</strong><br>
+            这是区别于评价（个体/噪音）、榜单（权威/头部）、销量（交易/不解释why）的第四种信号。
+            它衡量的是"这家店值不值得被记住"——不是好不好吃，而是有没有复访价值。<br>
+            <strong>反哺路径：</strong>食单收录数据 → 榜单算法（长尾质量发现）→ 推荐模型（冷启动供给）→ 商业化决策（谁值得被推）
+          </div>
+          <div class="bvalue-layer-vs">
+            <strong>vs 评价/榜单</strong>
+            评价：个体主观，易刷<br>
+            榜单：周期性，覆盖窄<br>
+            食单信号：群体行为，难伪造
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 3: 关系 -->
+      <div class="bvalue-layer bvalue-layer-3">
+        <div class="bvalue-layer-tag">第三层<br>关系</div>
+        <div class="bvalue-layer-body">
+          <div class="bvalue-layer-headline">商家-用户关系重构</div>
+          <div class="bvalue-layer-detail">
+            传统：商家→平台→用户（间接，商家不知道谁在推自己）<br>
+            食单：<strong>商家可以看见"谁把我放进了食单"</strong> → 识别自己的"布道者"。<br>
+            新CRM维度：食单布道者 = 最高价值用户分群（复购率最高+传播力最强）。<br>
+            商家可以针对性运营：给布道者专属权益 → 激励持续推荐 → 飞轮加速。
+          </div>
+          <div class="bvalue-layer-vs">
+            <strong>vs 现有CRM</strong>
+            现有：基于消费频次/金额<br>
+            食单CRM：基于"是否主动推荐"<br>
+            = 传播力维度，全新分群
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部飞轮 -->
+    <div class="bvalue-flywheel">
+      <div class="bvalue-fw-title">飞轮闭环 · 三层价值如何互相加速</div>
+      <div class="bvalue-fw-flow">
+        <div class="bvalue-fw-node c">C端消费<br>生成食单</div>
+        <div class="bvalue-fw-arrow">→</div>
+        <div class="bvalue-fw-node b1">第一层<br>零成本获客</div>
+        <div class="bvalue-fw-arrow">→</div>
+        <div class="bvalue-fw-node b2">第二层<br>质量信号反哺</div>
+        <div class="bvalue-fw-arrow">→</div>
+        <div class="bvalue-fw-node b3">第三层<br>布道者CRM</div>
+        <div class="bvalue-fw-arrow">→</div>
+        <div class="bvalue-fw-node c">商家激励布道者<br>更多食单产出</div>
+      </div>
+      <div class="bvalue-fw-loop"><span>飞轮逻辑</span>：获客降本 → 信号反哺提升排名/推荐 → 商家识别布道者并激励 → 布道者产出更多食单 → 更多获客</div>
+    </div>
+  </div>
+
+  <!-- ===== Diagram 5: 冷启动实战路径 ===== -->
+  <div class="diagram-section">
+    <div class="diagram-title">图5 · 冷启动实战路径：三个假设，逐层验证</div>
+    <div class="diagram-subtitle">食单冷启动的独特优势：不需要从零生产内容（消费数据已有），真正要验证的是三个递进假设——拥有感、分享欲、转化力</div>
+
+    <!-- 核心洞察 -->
+    <div class="cs-insight">
+      <strong>核心洞察：</strong>大多数UGC产品冷启动是"没内容→没用户→没内容"的死循环。食单不存在这个问题——内容=消费数据，已经存在。真正的冷启动挑战是三个递进假设：<strong>H1 用户会编辑食单吗？（拥有感）→ H2 用户会分享食单吗？（社交货币）→ H3 接收方会因食单进店吗？（信任转化）</strong>。每个假设必须独立验证，前一个不成立，后面的没有意义。
+    </div>
+
+    <!-- Phase 0: 基础设施 -->
+    <div class="cs-phases">
+      <div class="cs-phase">
+        <div class="cs-phase-bar cs-phase-bar-0">
+          <div class="cs-phase-label">PHASE 0</div>
+          <div class="cs-phase-name">基础设施</div>
+          <div class="cs-phase-time">2-3周 · 上线前</div>
+        </div>
+        <div class="cs-phase-content">
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">要建什么</div>
+            <div class="cs-phase-block-body">
+              <strong>消费数据聚合引擎</strong>：不是全量流水，而是按场景智能分组（如"你常去的粉店""周末聚餐精选""公司附近午餐"）<br>
+              <strong>食单草稿生成算法</strong>：从交易记录中筛选+分组+自动命名<br>
+              <strong>编辑工具</strong>：增删/排序/备注/封面图/食单命名<br>
+              <strong>分享链路</strong>：生成分享卡片→接收页→转化追踪埋点
+            </div>
+          </div>
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">关键设计原则</div>
+            <div class="cs-phase-block-body">
+              草稿不能是全量交易记录堆砌——那叫流水账不叫食单<br>
+              分组逻辑要让用户看到时觉得"哦这确实是我"<br>
+              编辑工具要轻：一步就能删/加店，两步就能写备注<br>
+              <strong>没有编辑工具 = 食单=推荐流 = 项目失败</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 1: 拥有感验证 -->
+      <div class="cs-phase">
+        <div class="cs-phase-bar cs-phase-bar-1">
+          <div class="cs-phase-label">PHASE 1</div>
+          <div class="cs-phase-name">拥有感验证</div>
+          <div class="cs-phase-time">2城市 · 3-4周</div>
+        </div>
+        <div class="cs-phase-content">
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">核心假设 H1</div>
+            <div class="cs-hypothesis">用户会编辑系统生成的食单草稿，产生"这是我的"拥有感</div>
+            <div class="cs-phase-block-body">
+              <strong>用户策略：</strong>高频交易用户优先（top 20%）<br>
+              <strong>触发机制：</strong>消费后push"你的食单已更新" + 主动入口"我的食单"<br>
+              <strong>城市选择：</strong>长沙/成都（年轻+高频+社交活跃）
+            </div>
+          </div>
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">指标 & 失败信号</div>
+            <div class="cs-phase-block-body">
+              <span class="cs-metric">食单打开率</span>
+              <span class="cs-metric">编辑率（至少增删/排序/备注一项）</span>
+              <span class="cs-metric">编辑深度（平均编辑动作数）</span>
+              <span class="cs-metric">二次打开率</span>
+              <div class="cs-fail"><strong>失败信号：</strong>打开率高但编辑率<5% → 用户觉得"看看就行"，没有拥有感。此时分享和转化都不用验证了——地基没立住。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2: 分享验证 -->
+      <div class="cs-phase">
+        <div class="cs-phase-bar cs-phase-bar-2">
+          <div class="cs-phase-label">PHASE 2</div>
+          <div class="cs-phase-name">分享验证</div>
+          <div class="cs-phase-time">同2城市 · 3周</div>
+        </div>
+        <div class="cs-phase-content">
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">核心假设 H2</div>
+            <div class="cs-hypothesis">用户愿意把食单作为社交货币分享出去</div>
+            <div class="cs-phase-block-body">
+              <strong>前提：</strong>Phase 1编辑率达标<br>
+              <strong>分享场景设计（不在通用入口放按钮，场景化触发）：</strong><br>
+              · 朋友问"附近有什么好吃的" → 推荐分享食单<br>
+              · 周末/节假日 → "把你的美食地图分享给朋友"<br>
+              · 朋友来访 → "为朋友生成一份你的城市食单"<br>
+              <strong>分享物：</strong>卡片+"已验证"标识+食单个性摘要
+            </div>
+          </div>
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">指标 & 失败信号</div>
+            <div class="cs-phase-block-body">
+              <span class="cs-metric">分享率（已编辑食单中分享占比）</span>
+              <span class="cs-metric">分享后打开率</span>
+              <span class="cs-metric">分享场景触发率</span>
+              <div class="cs-fail"><strong>失败信号：</strong>分享率<2% → 食单不具有社交货币属性。调整方向：降低分享门槛（一键分享）或增强食单的"可炫耀性"（如生成"我的年度美食报告"式卡片）。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3: 转化验证 -->
+      <div class="cs-phase">
+        <div class="cs-phase-bar cs-phase-bar-3">
+          <div class="cs-phase-label">PHASE 3</div>
+          <div class="cs-phase-name">转化验证</div>
+          <div class="cs-phase-time">同2城市 · 3周</div>
+        </div>
+        <div class="cs-phase-content">
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">核心假设 H3</div>
+            <div class="cs-hypothesis">接收方会因为食单（而非其他原因）进店消费</div>
+            <div class="cs-phase-block-body">
+              <strong>前提：</strong>Phase 2分享率达标<br>
+              <strong>转化路径优化：</strong>食单分享页→店铺详情→下单<br>
+              <strong>信任展示：</strong>突出"X人已验证""基于真实消费"<br>
+              <strong>对照实验：</strong>A/B Test — 食单进店vs推荐流进店，对比转化率和客单价
+            </div>
+          </div>
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">指标 & 失败信号</div>
+            <div class="cs-phase-block-body">
+              <span class="cs-metric">食单页→店铺详情转化率</span>
+              <span class="cs-metric">食单→下单转化率</span>
+              <span class="cs-metric">vs 推荐流转化率差异</span>
+              <span class="cs-metric">长尾店食单转化vs头部店</span>
+              <div class="cs-fail"><strong>失败信号：</strong>转化率≤推荐流 → 食单信任没有产生决策价值。核心问题可能在：食单展示不够吸引/接收方不认识分享者/食单中的店距离太远。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 4: 激励验证 -->
+      <div class="cs-phase">
+        <div class="cs-phase-bar cs-phase-bar-4">
+          <div class="cs-phase-label">PHASE 4</div>
+          <div class="cs-phase-name">激励验证</div>
+          <div class="cs-phase-time">同2城市 · 2周</div>
+        </div>
+        <div class="cs-phase-content">
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">核心假设 H4</div>
+            <div class="cs-hypothesis">优质食单激励能放大飞轮，而非制造垃圾内容</div>
+            <div class="cs-phase-block-body">
+              <strong>前提：</strong>H1-H3全部验证<br>
+              <strong>激励设计：</strong>不是人人激励，是<strong>转化率top 20%的食单</strong>获得券/流量<br>
+              <strong>激励对象：</strong>高编辑深度+高转化率的食单创作者<br>
+              <strong>防垃圾：</strong>激励基于转化结果而非创建行为——只有别人真的因为你的食单进了店，你才拿奖励
+            </div>
+          </div>
+          <div class="cs-phase-block">
+            <div class="cs-phase-block-title">指标 & 失败信号</div>
+            <div class="cs-phase-block-body">
+              <span class="cs-metric">激励后分享率提升幅度</span>
+              <span class="cs-metric">激励食单二次传播率</span>
+              <span class="cs-metric">低质食单占比（防垃圾）</span>
+              <div class="cs-fail"><strong>失败信号：</strong>低质食单占比>30% → 激励被刷。调整：提高激励门槛（需3次以上转化才激励）或改为平台邀请制（只邀请高质食单创作者）。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 决策门 -->
+    <div class="cs-gate">
+      <div class="cs-gate-title">扩量决策门</div>
+      <div class="cs-gate-lights">
+        <div class="cs-gate-light cs-gate-green">
+          <strong>绿灯 · 扩量</strong>
+          <div class="cs-gate-light-body">H1-H3全部验证 + H4激励有效 → 扩展至5-8城市，增加品类覆盖</div>
+        </div>
+        <div class="cs-gate-light cs-gate-yellow">
+          <strong>黄灯 · 修复</strong>
+          <div class="cs-gate-light-body">部分假设验证 → 针对失败假设做产品修复（如编辑门槛/分享场景/转化路径），重验一轮</div>
+        </div>
+        <div class="cs-gate-light cs-gate-red">
+          <strong>红灯 · 回退</strong>
+          <div class="cs-gate-light-body">H1失败（用户不编辑）→ 根本性回退：用户是否真的需要"食单"这个形态？回到需求验证</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

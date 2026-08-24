@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食单命名方案 · 全量参考</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    padding: 40px 20px;
+    min-width: 1100px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1a1d28, #1e2230);
+    border-radius: 16px;
+    padding: 40px 44px;
+    margin-bottom: 36px;
+    border: 1px solid #2a2d3a;
+  }
+  .hero h1 { font-size: 28px; color: #7eb8ff; margin-bottom: 8px; }
+  .hero p { font-size: 15px; color: #999; line-height: 1.7; max-width: 800px; }
+  .hero .meta { margin-top: 16px; font-size: 13px; color: #666; }
+
+  /* Category Section */
+  .cat-section {
+    background: #1a1d28;
+    border-radius: 14px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    border: 1px solid #2a2d3a;
+  }
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .cat-num {
+    background: #2a3a5a;
+    color: #7eb8ff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 6px;
+  }
+  .cat-title { font-size: 20px; font-weight: 700; color: #ddd; }
+  .cat-desc { font-size: 14px; color: #777; margin-bottom: 24px; line-height: 1.6; }
+
+  /* Name Grid */
+  .name-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .name-card {
+    background: #222531;
+    border-radius: 10px;
+    padding: 16px 20px;
+    border: 1px solid #2a2d3a;
+    transition: border-color 0.2s;
+  }
+  .name-card.best {
+    border-color: #5fd47e;
+    background: #1a2a1e;
+  }
+  .name-card.top {
+    border-color: #f0a04b;
+    background: #2a2418;
+    box-shadow: 0 0 0 1px #f0a04b33;
+  }
+  .name-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .name-text { font-size: 18px; font-weight: 700; color: #fff; }
+  .name-card.best .name-text { color: #5fd47e; }
+  .name-card.top .name-text { color: #f0a04b; }
+  .name-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .badge-best { background: #1a4a2a; color: #5fd47e; }
+  .badge-top { background: #4a3a1a; color: #f0a04b; }
+  .name-pinyin { font-size: 12px; color: #666; margin-left: auto; }
+  .name-reason { font-size: 13px; color: #bbb; line-height: 1.6; margin-bottom: 6px; }
+  .name-reason strong { color: #ddd; }
+  .name-allusion { font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 6px; font-style: italic; }
+  .name-pros-cons { display: flex; gap: 12px; font-size: 12px; line-height: 1.5; }
+  .name-pros { color: #7fdb9e; flex: 1; }
+  .name-cons { color: #e08080; flex: 1; }
+  .name-pros::before { content: "✓ "; }
+  .name-cons::before { content: "✗ "; }
+
+  /* Category Best */
+  .cat-best {
+    margin-top: 20px;
+    padding: 14px 20px;
+    background: #15171f;
+    border-radius: 8px;
+    border-left: 3px solid #5fd47e;
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.7;
+  }
+  .cat-best strong { color: #5fd47e; }
+
+  /* Final Section */
+  .final-section {
+    background: linear-gradient(135deg, #1e2230, #1a2030);
+    border-radius: 16px;
+    padding: 40px 44px;
+    margin-top: 36px;
+    border: 2px solid #f0a04b;
+  }
+  .final-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #f0a04b;
+    margin-bottom: 8px;
+  }
+  .final-subtitle { font-size: 14px; color: #888; margin-bottom: 28px; }
+  .final-cards {
+    display: flex;
+    gap: 20px;
+  }
+  .final-card {
+    flex: 1;
+    background: #222531;
+    border-radius: 12px;
+    padding: 28px 24px;
+    border: 1px solid #3a3d4a;
+    position: relative;
+  }
+  .final-card.gold { border-color: #f0a04b; }
+  .final-card.silver { border-color: #7eb8ff; }
+  .final-rank {
+    position: absolute;
+    top: -12px;
+    left: 24px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 12px;
+  }
+  .final-card.gold .final-rank { background: #f0a04b; color: #1a1d28; }
+  .final-card.silver .final-rank { background: #7eb8ff; color: #1a1d28; }
+  .final-name { font-size: 32px; font-weight: 700; margin-bottom: 8px; margin-top: 8px; }
+  .final-card.gold .final-name { color: #f0a04b; }
+  .final-card.silver .final-name { color: #7eb8ff; }
+  .final-pinyin { font-size: 14px; color: #666; margin-bottom: 16px; }
+  .final-reason { font-size: 14px; color: #ccc; line-height: 1.8; margin-bottom: 12px; }
+  .final-reason strong { color: #ddd; }
+  .final-why {
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.7;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+  }
+  .final-why strong { color: #ddd; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>「食单」命名全量参考</h1>
+    <p>产品本质：基于真实消费数据的个人美食策展，可编辑、可分享、可拥有。核心价值不是"记录"而是"身份投射"——我是什么样的人，看我吃过什么。</p>
+    <p>命名要求：互联网感、年轻态、不old，能承载"消费证据+策展+社交货币"三重含义。</p>
+    <div class="meta">10个分类 · 89个候选 · 每类精选1-3个 · 最终推荐2个</div>
+  </div>
+
+  <!-- ========== Category 1 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">01</span><span class="cat-title">单字极简类</span></div>
+    <div class="cat-desc">互联网产品命名的高级打法——一个字扛住整个产品。如抖音的"抖"、得物的"得"、知乎的"知"。单字命名的前提是字义足够丰富、能被产品重新定义。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">谱</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">pǔ</span>
+        </div>
+        <div class="name-reason"><strong>重构"食谱"的谱。</strong>从名词变为动词——"谱"出你的味道。既呼应食单的"单"（谱=列表），又暗示个性光谱（spectrum）。</div>
+        <div class="name-allusion">典故：食谱、棋谱、乐谱、家谱。谱=系统化的记录与传承，暗含权威性与个人脉络。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">单字高级感强；字义丰富可延展；"我的谱"口语自然；可做动词"谱一下"</div>
+          <div class="name-cons">需要市场教育（用户第一眼不一定联想到吃）；搜索SEO不友好</div>
+        </div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">迹</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">jì</span>
+        </div>
+        <div class="name-reason"><strong>消费足迹的"迹"。</strong>强调"我去过"的证据性，直接命中交易信任地基。你的味道轨迹=你的食单。</div>
+        <div class="name-allusion">典故：足迹、痕迹、奇迹、踪迹。迹=留下的不可磨灭的证明。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">天然携带"证据"含义；画面感强（脚步/印记）；年轻态不old</div>
+          <div class="name-cons">不直接关联食物；可能与运动类产品混淆</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">藏</span><span class="name-pinyin">cáng/zàng</span></div>
+        <div class="name-reason">收藏的藏，私藏好店。双关：珍藏（珍视）+西藏（神秘感）。</div>
+        <div class="name-allusion">典故：私藏、珍藏、藏宝图。</div>
+        <div class="name-pros-cons"><div class="name-pros">有私密度和专属感</div><div class="name-cons">偏静态，缺乏策展动感；太像收藏夹</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">鲜</span><span class="name-pinyin">xiān</span></div>
+        <div class="name-reason">尝鲜的鲜。双关：新鲜+鲜美。强调发现感。</div>
+        <div class="name-allusion">典故：尝鲜、鲜美、鲜美无比。</div>
+        <div class="name-pros-cons"><div class="name-pros">食物关联度高；有发现感</div><div class="name-cons">偏品质评价，不承载身份投射；易与生鲜电商混淆</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">馋</span><span class="name-pinyin">chán</span></div>
+        <div class="name-reason">嘴馋的馋。情绪化、年轻态，自嘲式表达。</div>
+        <div class="name-allusion">典故：馋嘴、眼馋、解馋。</div>
+        <div class="name-pros-cons"><div class="name-pros">情绪感染力强；年轻用户好感度高</div><div class="name-cons">偏欲望驱动，不承载策展和信任含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">鉴</span><span class="name-pinyin">jiàn</span></div>
+        <div class="name-reason">鉴赏的鉴。品鉴+鉴定，强调专业性和判断力。</div>
+        <div class="name-allusion">典故：鉴赏、鉴定、年鉴、图鉴。</div>
+        <div class="name-pros-cons"><div class="name-pros">有权威感和专业感；"味鉴"可延展</div><div class="name-cons">过于严肃，年轻态不足</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">选</span><span class="name-pinyin">xuǎn</span></div>
+        <div class="name-reason">精选的选。强调策展动作——我选的。</div>
+        <div class="name-allusion">典故：精选、挑选、选集。</div>
+        <div class="name-pros-cons"><div class="name-pros">策展含义明确；有主动感</div><div class="name-cons">过于泛化，不关联食物；品牌辨识度低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味</span><span class="name-pinyin">wèi</span></div>
+        <div class="name-reason">味道的味。最直接的味觉关联，"品味"双关。</div>
+        <div class="name-allusion">典故：味道、品味、回味、意味。</div>
+        <div class="name-pros-cons"><div class="name-pros">食物关联直接；"品味"双关有层次</div><div class="name-cons">太泛化，味可以是任何味；品牌保护难</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>谱 · 迹。"谱"的可延展性最强（动词化、spectrum含义），"迹"的证据性最直接命中交易信任。两者都年轻态、不old。</div>
+  </div>
+
+  <!-- ========== Category 2 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">02</span><span class="cat-title">双字互联网感</span></div>
+    <div class="cat-desc">对标得物、知乎、闲鱼这类"双字+互联网重构"的命名范式。关键不在于字面意思，而在于用熟悉的字造出陌生的产品感。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">知味</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">zhī wèi</span>
+        </div>
+        <div class="name-reason"><strong>"知乎"知道知识，"知味"知道味道。</strong>结构完全对标知乎，用户秒懂产品调性。知=认知+体验，味=味道+品味。</div>
+        <div class="name-allusion">典故："知味停车"（《洛阳伽蓝记》），形容美食之名让人慕名而来。知味观（杭州百年老字号）也用此词，但互联网语境下可重新定义。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">知乎体互联网感强；"知味停车"典故极贴切（慕名而来=食单分享转化）；双关品味</div>
+          <div class="name-cons">知味观商标可能冲突；需要确认注册可行性</div>
+        </div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">得食</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">dé shí</span>
+        </div>
+        <div class="name-reason"><strong>"得物"得到好物，"得食"得到好食。</strong>结构对标得物，强调"获得感"。你的消费记录=你得到的美食，食单是这些获得的策展。</div>
+        <div class="name-allusion">典故：得食=粤语"有得食"（有好处/有口福）。民间口语"不得食"=混不好。互联网语境重构为"得到美食体验"。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">得物体互联网感强；粤语有天然亲切感；"得"有获得感</div>
+          <div class="name-cons">南方色彩偏重；需要确认商标</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食验</span><span class="name-pinyin">shí yàn</span></div>
+        <div class="name-reason">食物+实验/经验。双关：你的美食实验，你的品尝经验。</div>
+        <div class="name-allusion">典故：实验、经验、体验。谐音"实验"有探索感。</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音有趣；有探索和证据双重含义</div><div class="name-cons">"实验"可能暗示不确定性；偏个人化，社交属性弱</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食光</span><span class="name-pinyin">shí guāng</span></div>
+        <div class="name-reason">谐音"时光"。你的食光=你的美食时光=你的消费记忆。</div>
+        <div class="name-allusion">典故：时光、食光。谐音造词。</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音优美；有回忆感和温度</div><div class="name-cons">偏文艺/怀旧，缺乏策展和信任含义；过于柔软</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味记</span><span class="name-pinyin">wèi jì</span></div>
+        <div class="name-reason">味道+记忆。你的味道记忆，也是"味精"的谐音（反差趣味）。</div>
+        <div class="name-allusion">典故：记忆、日记、笔记。</div>
+        <div class="name-pros-cons"><div class="name-pros">有记录感；"味记"="日记"结构</div><div class="name-cons">味精谐音可能有负面联想；偏静态记录</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食录</span><span class="name-pinyin">shí lù</span></div>
+        <div class="name-reason">食物记录。简洁直白，类似"语录""日记"的结构。</div>
+        <div class="name-allusion">典故：语录、记录、备忘录。</div>
+        <div class="name-pros-cons"><div class="name-pros">结构清晰；有书卷气</div><div class="name-cons">太像工具，缺乏社交和身份属性；偏记录不偏策展</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">有食</span><span class="name-pinyin">yǒu shí</span></div>
+        <div class="name-reason">对标"有货"。你有过的美食，你的美食资产。</div>
+        <div class="name-allusion">典故：有货、有事。</div>
+        <div class="name-pros-cons"><div class="name-pros">有货体互联网感</div><div class="name-cons">口语化不够自然；含义模糊</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">尝鲜</span><span class="name-pinyin">cháng xiān</span></div>
+        <div class="name-reason">品尝新鲜。强调发现和探索。</div>
+        <div class="name-allusion">典故：尝鲜、抢鲜。</div>
+        <div class="name-pros-cons"><div class="name-pros">有发现感；口语自然</div><div class="name-cons">只覆盖"新店"，不包含复访老店；与食单的"沉淀"矛盾</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>知味 · 得食。两者都是成熟的互联网命名范式（知乎体/得物体），用户感知成本低。"知味"的典故"知味停车"完美匹配食单分享场景。</div>
+  </div>
+
+  <!-- ========== Category 3 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">03</span><span class="cat-title">动作驱动类</span></div>
+    <div class="cat-desc">以动词为核心，强调用户行为——不是"你有什么"，而是"你做了什么"。适合工具属性强的产品，但食单的身份属性可能被弱化。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">挑食</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">tiāo shí</span>
+        </div>
+        <div class="name-reason"><strong>双关炸裂。</strong>本义"挑食"（偏食，贬义童年标签）→重构为"挑选美食"（主动策展，褒义）。把一个缺点变成一种态度——"我挑食，因为我有标准"。</div>
+        <div class="name-allusion">典故：挑食（偏食），互联网语境重构为"挑剔的美食选择者"。类比"奇葩"从贬义到中性化。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">双关极强，记忆点炸裂；态度鲜明（有标准=有品味）；口语自然；年轻态</div>
+          <div class="name-cons">贬义初始联想需市场教育；可能被家长群体误解</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">带吃</span><span class="name-pinyin">dài chī</span></div>
+        <div class="name-reason">带你吃。强调分享和社交——我带你去吃我吃过的好店。</div>
+        <div class="name-allusion">典故：带飞、带带我。互联网"带X"句式。</div>
+        <div class="name-pros-cons"><div class="name-pros">社交属性强；口语化；有带动感</div><div class="name-cons">偏分享场景，自用属性弱；不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">圈味</span><span class="name-pinyin">quān wèi</span></div>
+        <div class="name-reason">圈出你的味道。圈=标记+社交圈。</div>
+        <div class="name-allusion">典故：画圈、朋友圈、圈层。</div>
+        <div class="name-pros-cons"><div class="name-pros">有标记动作+社交圈双义</div><div class="name-cons">发音不够响亮；"圈"字偏工具化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">寻味</span><span class="name-pinyin">xún wèi</span></div>
+        <div class="name-reason">寻找味道。有探索感和旅程感。</div>
+        <div class="name-allusion">典故：寻味顺德（《舌尖上的中国》纪录片名）。</div>
+        <div class="name-pros-cons"><div class="name-pros">有探索感；舌尖IP已有认知基础</div><div class="name-cons">偏发现不偏沉淀；与食单"已有消费记录"矛盾</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">种味</span><span class="name-pinyin">zhòng wèi</span></div>
+        <div class="name-reason">种下味道。对标"种草"——种草是想去，种味是去过。</div>
+        <div class="name-allusion">典故：种草、种树。</div>
+        <div class="name-pros-cons"><div class="name-pros">对标种草有认知基础</div><div class="name-cons">种=未来导向，与食单的"已验证"矛盾</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">标食</span><span class="name-pinyin">biāo shí</span></div>
+        <div class="name-reason">标记美食。标签+标记。</div>
+        <div class="name-allusion">典故：标记、标签。</div>
+        <div class="name-pros-cons"><div class="name-pros">有标记动作</div><div class="name-cons">太工具化；缺乏情感和社交属性</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">开吃</span><span class="name-pinyin">kāi chī</span></div>
+        <div class="name-reason">开始吃。简单粗暴，行动驱动。</div>
+        <div class="name-allusion">典故：开吃、开喝。</div>
+        <div class="name-pros-cons"><div class="name-pros">极简口语化；有仪式感</div><div class="name-cons">太口语，不够品牌化；不承载策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">约饭</span><span class="name-pinyin">yuē fàn</span></div>
+        <div class="name-reason">约人吃饭。社交驱动。</div>
+        <div class="name-allusion">典故：约饭、约局。</div>
+        <div class="name-pros-cons"><div class="name-pros">社交场景明确</div><div class="name-cons">偏约人工具，不承载食单策展；已有竞品使用</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>挑食。双关的爆发力是所有89个候选中最强的——把"挑食"从缺点变成态度，一句话讲完产品理念。</div>
+  </div>
+
+  <!-- ========== Category 4 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">04</span><span class="cat-title">身份人格类</span></div>
+    <div class="cat-desc">直接绑定用户身份——"你的味道就是你"。食单的核心价值是身份投射，这类命名最直接地表达"这不是工具，这是你"。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">吃相</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">chī xiàng</span>
+        </div>
+        <div class="name-reason"><strong>双关：吃相（进食姿态）+吃相（人品/格局）。</strong>"看一个人吃什么就知道他是什么人"——吃相=你的美食人格。互联网语境下，"吃相难看"已被重构为调侃词，"吃相"本身可被重新定义为"你的进食风格"。</div>
+        <div class="name-allusion">典故："吃相"民间俗语，指吃饭的姿态，引申为做事的格局。互联网语境："吃相难看"=做事不体面。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">双关极强（姿态+人格）；有态度有记忆点；年轻态；"你的吃相"=你的食单</div>
+          <div class="name-cons">负面初始联想（吃相难看）；需要品牌重新定义</div>
+        </div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食性</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí xìng</span>
+        </div>
+        <div class="name-reason"><strong>饮食本性。</strong>对标"天性""本性"——你的食性就是你的一部分。双关"食性"（饮食习性）+谐音"实性"（真实的本性）。食单是你食性的具象化。</div>
+        <div class="name-allusion">典故：食性（生物学/饮食学用语），指动物的饮食习性。引申为人的饮食偏好本性。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">身份感极强（本性=不可改变的特质）；有学术感但不old；"你的食性"口语自然</div>
+          <div class="name-cons">"性"字可能引发联想；需要品牌语境消解</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">胃口</span><span class="name-pinyin">wèi kǒu</span></div>
+        <div class="name-reason">你的胃口=你的食欲+你的品味。双关：胃口好（食欲）+胃口大（野心）。</div>
+        <div class="name-allusion">典故：胃口、对胃口（合得来）。</div>
+        <div class="name-pros-cons"><div class="name-pros">"对胃口"有社交匹配含义；口语自然</div><div class="name-cons">偏食欲不偏策展；不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味蕾</span><span class="name-pinyin">wèi lěi</span></div>
+        <div class="name-reason">味觉受体。你的味蕾=你的品味传感器。</div>
+        <div class="name-allusion">典故：味蕾（生理学名词）。</div>
+        <div class="name-pros-cons"><div class="name-pros">有感官体验感；文艺范</div><div class="name-cons">偏生理词汇，不够互联网；缺乏策展和社交属性</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">舌尖</span><span class="name-pinyin">shé jiān</span></div>
+        <div class="name-reason">舌尖上的记忆。舌尖IP已有认知。</div>
+        <div class="name-allusion">典故：《舌尖上的中国》。</div>
+        <div class="name-pros-cons"><div class="name-pros">认知度极高</div><div class="name-cons">舌尖IP太强，品牌会被压制；不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食商</span><span class="name-pinyin">shí shāng</span></div>
+        <div class="name-reason">饮食智商。对标情商、智商——你选择食物的判断力。</div>
+        <div class="name-allusion">典故：情商、智商、财商。</div>
+        <div class="name-pros-cons"><div class="name-pros">有量化感；"商"字有比较性</div><div class="name-cons">偏评价不偏策展；过于理性，缺乏情感</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">口味</span><span class="name-pinyin">kǒu wèi</span></div>
+        <div class="name-reason">你的口味偏好。最日常的表达。</div>
+        <div class="name-allusion">典故：口味、对口味。</div>
+        <div class="name-pros-cons"><div class="name-pros">极口语化</div><div class="name-cons">太日常，不够品牌化；不承载策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">胃记</span><span class="name-pinyin">wèi jì</span></div>
+        <div class="name-reason">胃的记忆。你的胃记得你去过的每一家店。</div>
+        <div class="name-allusion">典故：胃+记忆，造词。</div>
+        <div class="name-pros-cons"><div class="name-pros">有温度；有身体记忆感</div><div class="name-cons">造词认知成本高；不够响亮</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>吃相 · 食性。"吃相"的双关（姿态+人格）爆发力强，"食性"的身份绑定最深入（本性=不可改变）。两者都把食单从"工具"提升为"你的一部分"。</div>
+  </div>
+
+  <!-- ========== Category 5 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">05</span><span class="cat-title">空间地图类</span></div>
+    <div class="cat-desc">以空间/地图为核心隐喻——你的美食版图。食单不只是列表，是你用消费"占领"的美食领地。适合强调发现感和探索感。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食图</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí tú</span>
+        </div>
+        <div class="name-reason"><strong>你的美食地图+你的食物版图。</strong>双关"图"：地图（空间）+版图（领地）+意图（plan）。你的食图=你用消费占领的美食领地。</div>
+        <div class="name-allusion">典故：地图、版图、蓝图、意图。"版图"引申为个人领地。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">三重含义（地图+版图+意图）；画面感强；口语自然；可延展（食图标记/食图解锁）</div>
+          <div class="name-cons">"图"字偏空间，可能被理解为地图工具</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味图</span><span class="name-pinyin">wèi tú</span></div>
+        <div class="name-reason">味道地图。你的味道版图。</div>
+        <div class="name-allusion">典故：味觉地图（舌头的味觉分布图）。</div>
+        <div class="name-pros-cons"><div class="name-pros">有感官+空间双义</div><div class="name-cons">发音偏软；不如"食图"响亮</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食圈</span><span class="name-pinyin">shí quān</span></div>
+        <div class="name-reason">你的美食圈。双关：朋友圈的圈+圈地的圈。</div>
+        <div class="name-allusion">典故：朋友圈、圈层、圈地。</div>
+        <div class="name-pros-cons"><div class="name-pros">社交属性强；有圈层感</div><div class="name-cons">与朋友圈太像；不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食界</span><span class="name-pinyin">shí jiè</span></div>
+        <div class="name-reason">你的美食世界。双关：世界+界线。</div>
+        <div class="name-allusion">典故：世界、边界。</div>
+        <div class="name-pros-cons"><div class="name-pros">有宏大感</div><div class="name-cons">过于宏大，不够个人化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味境</span><span class="name-pinyin">wèi jìng</span></div>
+        <div class="name-reason">味道境界。你的味觉疆域。</div>
+        <div class="name-allusion">典故：境界、意境。</div>
+        <div class="name-pros-cons"><div class="name-pros">有境界感和文艺感</div><div class="name-cons">过于文艺；不够互联网</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">饭图</span><span class="name-pinyin">fàn tú</span></div>
+        <div class="name-reason">吃饭地图。口语化版"食图"。</div>
+        <div class="name-allusion">典故：饭+地图。</div>
+        <div class="name-pros-cons"><div class="name-pros">更口语更接地气</div><div class="name-cons">"饭"字偏正餐，不覆盖下午茶/夜宵</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食域</span><span class="name-pinyin">shí yù</span></div>
+        <div class="name-reason">美食领域。你的美食疆域。</div>
+        <div class="name-allusion">典故：领域、疆域。</div>
+        <div class="name-pros-cons"><div class="name-pros">有领地感</div><div class="name-cons">发音不够响亮；偏正式</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">寻图</span><span class="name-pinyin">xún tú</span></div>
+        <div class="name-reason">寻味地图。探索+地图。</div>
+        <div class="name-allusion">典故：寻+图。</div>
+        <div class="name-pros-cons"><div class="name-pros">有探索感</div><div class="name-cons">偏发现不偏沉淀；不够独特</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>食图。三重含义（地图/版图/意图）是最大优势——它不只是空间，还有"占有"和"计划"的含义，与食单的策展+前瞻性高度匹配。</div>
+  </div>
+
+  <!-- ========== Category 6 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">06</span><span class="cat-title">集藏策展类</span></div>
+    <div class="cat-desc">强调"策展"动作——不是被动记录，是主动选择和编排。食单的本质是策展品，这类命名直接命中产品核心行为。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食集</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí jí</span>
+        </div>
+        <div class="name-reason"><strong>美食集合+美食集册。</strong>双关"集"：集合（动词，收集）+文集/集册（名词，策展品）。你的食集=你策展的美食集册。结构对标"文集""诗集"，有文化质感但不old。</div>
+        <div name-allusion">典故：文集、诗集、选集、集大成。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">双关精准（收集+集册）；有策展质感；口语自然；"我的食集"有拥有感</div>
+          <div class="name-cons">"集"字偏静态；需要品牌注入动感</div>
+        </div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食选</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí xuǎn</span>
+        </div>
+        <div class="name-reason"><strong>美食精选+我选的食。</strong>双关"选"：精选（质量筛选）+选择（个人意志）。食单的核心差异是"用户编辑=施加意志"，"选"直接命中这个动作。</div>
+        <div class="name-allusion">典故：精选、选集、文选。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">策展含义最直接；有主动选择感；口语自然</div>
+          <div class="name-cons">偏功能名，品牌辨识度中等；不如"食集"有文化感</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食藏</span><span class="name-pinyin">shí cáng</span></div>
+        <div class="name-reason">美食珍藏。私藏好店。</div>
+        <div class="name-allusion">典故：珍藏、私藏、藏宝。</div>
+        <div class="name-pros-cons"><div class="name-pros">有私密感和珍藏感</div><div class="name-cons">"藏"偏静态；与收藏夹混淆</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味集</span><span class="name-pinyin">wèi jí</span></div>
+        <div class="name-reason">味道集合。结构与"食集"类似，但用"味"。</div>
+        <div class="name-allusion">典故：文集→味集。</div>
+        <div class="name-pros-cons"><div class="name-pros">有策展感</div><div class="name-cons">不如"食集"响亮；"味"字不够具体</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食册</span><span class="name-pinyin">shí cè</span></div>
+        <div class="name-reason">美食册子。有实体感和策展感。</div>
+        <div class="name-allusion">典故：手册、纪念册、花名册。</div>
+        <div class="name-pros-cons"><div class="name-pros">有策展和实体感</div><div class="name-cons">偏传统，互联网感不足</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食志</span><span class="name-pinyin">shí zhì</span></div>
+        <div class="name-reason">美食志。记录+志向双关。</div>
+        <div name-allusion>典故：杂志、日志、志向。</div>
+        <div class="name-pros-cons"><div class="name-pros">有记录+志向双义</div><div class="name-cons">偏记录工具；不够年轻</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">精食</span><span class="name-pinyin">jīng shí</span></div>
+        <div class="name-reason">精选美食。强调质量筛选。</div>
+        <div name-allusion>典故：精食（古语，精美食物）。</div>
+        <div class="name-pros-cons"><div class="name-pros">有品质感</div><div class="name-cons">谐音"精食"=精细食物，偏品质评价不偏策展</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">藏味</span><span class="name-pinyin">cáng wèi</span></div>
+        <div class="name-reason">藏起来的味道。私藏好味道。</div>
+        <div class="name-allusion">典故：藏+味。</div>
+        <div class="name-pros-cons"><div class="name-pros">有私密度</div><div class="name-cons">发音不够响亮；偏静态</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>食集 · 食选。"食集"的文化策展感最强（对标文集/诗集），"食选"的策展动作最直接（选=施加意志）。</div>
+  </div>
+
+  <!-- ========== Category 7 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">07</span><span class="cat-title">凭证印记类</span></div>
+    <div class="cat-desc">直接命中食单最独特的差异化——交易证据。不是"我想去"，是"我去过"的不可伪造印记。这类命名强调信任地基。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食迹</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí jì</span>
+        </div>
+        <div class="name-reason"><strong>美食足迹。</strong>迹=不可磨灭的证明。你的食迹=你用交易留下的消费印记。直接命中"交易证据"信任地基，且"足迹"有旅程感和个人脉络感。</div>
+        <div class="name-allusion">典故：足迹、痕迹、奇迹、踪迹。迹=留下的、不可伪造的证明。</div>
+        <div name-pros-cons">
+          <div class="name-pros">证据含义最直接；有旅程感（足迹=走过的路）；口语自然（"我的食迹"）；年轻态</div>
+          <div class="name-cons">与运动类产品可能混淆（足迹/步数）；需要食物语境消解</div>
+        </div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食印</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí yìn</span>
+        </div>
+        <div class="name-reason"><strong>美食印记。</strong>印=盖章=认证。每消费一家店=盖一个印。"已验证"标识=食单的信任印章。双关：印记（记忆）+印章（凭证）。</div>
+        <div class="name-allusion">典故：印章、印记、印象、印鉴。印=权威认证+不可磨灭的痕迹。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">凭证感最强（印章=认证）；有"盖章打卡"的游戏感；"已验证"标识天然匹配</div>
+          <div class="name-cons">发音偏短促；可能被理解为"食物印子"（污渍）</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味迹</span><span class="name-pinyin">wèi jì</span></div>
+        <div class="name-reason">味道足迹。结构与"食迹"类似。</div>
+        <div class="name-allusion">典故：足迹→味迹。</div>
+        <div class="name-pros-cons"><div class="name-pros">有证据感</div><div class="name-cons">不如"食迹"直接；"味"偏抽象</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食证</span><span class="name-pinyin">shí zhèng</span></div>
+        <div class="name-reason">美食证据。直接点明交易证据。</div>
+        <div class="name-allusion">典故：证据、证实、凭证。</div>
+        <div class="name-pros-cons"><div class="name-pros">证据含义最直白</div><div class="name-cons">过于直白，缺乏美感；谐音"实证"太学术</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食痕</span><span class="name-pinyin">shí hén</span></div>
+        <div class="name-reason">美食痕迹。消费留下的痕迹。</div>
+        <div class="name-allusion">典故：痕迹、伤痕、弹痕。</div>
+        <div class="name-pros-cons"><div class="name-pros">有"留下痕迹"的证据感</div><div class="name-cons">"痕"字偏负面（伤痕）；不够明亮</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">验食</span><span class="name-pinyin">yàn shí</span></div>
+        <div class="name-reason">验证美食。你验证过的美食。</div>
+        <div class="name-allusion">典故：验证、验货。</div>
+        <div class="name-pros-cons"><div class="name-pros">验证含义直接</div><div class="name-cons">偏质检感，不够情感化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">印食</span><span class="name-pinyin">yìn shí</span></div>
+        <div class="name-reason">印记美食。倒装"食印"。</div>
+        <div class="name-allusion">典故：印+食。</div>
+        <div class="name-pros-cons"><div class="name-pros">有印记感</div><div class="name-cons">不如"食印"自然；发音模糊</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">尝证</span><span class="name-pinyin">cháng zhèng</span></div>
+        <div class="name-reason">品尝验证。你亲自尝过=你的验证。</div>
+        <div class="name-allusion">典故：品尝+验证。</div>
+        <div class="name-pros-cons"><div class="name-pros">有体验+证据双义</div><div class="name-cons">造词感强，不够自然</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>食迹 · 食印。"食迹"的证据+旅程感最完整，"食印"的凭证+游戏感（盖章）最独特。两者都直接命中食单的核心壁垒——交易证据。</div>
+  </div>
+
+  <!-- ========== Category 8 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">08</span><span class="cat-title">社交货币类</span></div>
+    <div class="cat-desc">强调食单的分享和社交属性——分享食单=递出你的美食名片。这类命名适合以分享驱动的增长模式。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食荐</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí jiàn</span>
+        </div>
+        <div class="name-reason"><strong>美食推荐+美食鉴荐。</strong>双关"荐"：推荐（社交分享）+鉴荐（品鉴后推荐，有门槛）。不是随便推荐，是吃过验证后的推荐。谐音"实践"——你的美食实践。</div>
+        <div class="name-allusion">典故：推荐、鉴荐、举荐。荐=有依据的推荐，不是随便说说。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">社交属性直接（推荐）；有门槛感（鉴荐=品鉴后推）；谐音"实践"有消费证据含义</div>
+          <div class="name-cons">偏推荐工具，自用属性弱；"荐"字稍正式</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食名片</span><span class="name-pinyin">shí míng piàn</span></div>
+        <div class="name-reason">你的美食名片。分享食单=递名片。</div>
+        <div class="name-allusion">典故：名片（身份卡）。</div>
+        <div class="name-pros-cons"><div class="name-pros">社交货币含义直白</div><div class="name-cons">三字不够简洁；偏商务感</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食享</span><span class="name-pinyin">shí xiǎng</span></div>
+        <div class="name-reason">美食分享。双关：分享+享受。</div>
+        <div class="name-allusion">典故：分享、享受。</div>
+        <div class="name-pros-cons"><div class="name-pros">双关（分享+享受）</div><div class="name-cons">过于泛化；品牌辨识度低</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食卡</span><span class="name-pinyin">shí kǎ</span></div>
+        <div class="name-reason">美食卡片。分享食单=发一张美食卡。</div>
+        <div class="name-allusion">典故：名片卡、贺卡、打卡。</div>
+        <div class="name-pros-cons"><div class="name-pros">有分享物形态（卡片）</div><div class="name-cons">偏功能形态，不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">分味</span><span class="name-pinyin">fēn wèi</span></div>
+        <div class="name-reason">分享味道。把你的味道分给别人。</div>
+        <div class="name-allusion">典故：分享+味道。</div>
+        <div class="name-pros-cons"><div class="name-pros">有分享动作</div><div class="name-cons">发音不够响亮；造词感强</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">带路</span><span class="name-pinyin">dài lù</span></div>
+        <div class="name-reason">带路美食。我带你去吃。</div>
+        <div class="name-allusion">典故：带路、引路。</div>
+        <div class="name-pros-cons"><div class="name-pros">有引导感</div><div class="name-cons">过于口语；不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食票</span><span class="name-pinyin">shí piào</span></div>
+        <div class="name-reason">美食票据。你的消费凭证=你的美食选票。</div>
+        <div class="name-allusion">典故：票据、选票、发票。</div>
+        <div class="name-pros-cons"><div class="name-pros">有凭证+投票双义</div><div class="name-cons">"票"字偏交易感，缺乏情感</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">荐味</span><span class="name-pinyin">jiàn wèi</span></div>
+        <div class="name-reason">推荐味道。倒装"味荐"。</div>
+        <div class="name-allusion">典故：推荐+味道。</div>
+        <div class="name-pros-cons"><div class="name-pros">有推荐感</div><div class="name-cons">不如"食荐"响亮；偏推荐工具</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>食荐。双关（推荐+鉴荐）精准——不是随便推荐，是品鉴后的推荐。谐音"实践"暗含消费证据含义。社交属性+信任门槛一步到位。</div>
+  </div>
+
+  <!-- ========== Category 9 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">09</span><span class="cat-title">自然意境类</span></div>
+    <div class="cat-desc">从自然意象中借喻，给产品注入温度和画面感。适合走情感路线，但可能牺牲功能指向性。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">觅食</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">mì shí</span>
+        </div>
+        <div class="name-reason"><strong>觅食=寻找食物的本能行为。</strong>既是动物本能（生动），又是人类日常（亲切）。你的觅食记录=你的食单。有探索感但不old。</div>
+        <div class="name-allusion">典故：觅食（动物学/生物学用语，foraging）。鸟类觅食、蜜蜂觅食——本能的、有策略的寻找。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">画面感强（动物觅食画面）；本能感=不需教育的自然行为；口语自然（"出去觅食"=出去找吃的）</div>
+          <div class="name-cons">偏发现不偏沉淀；可能与"找吃的"工具混淆</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食光</span><span class="name-pinyin">shí guāng</span></div>
+        <div class="name-reason">谐音时光。美食时光。</div>
+        <div class="name-allusion">典故：时光→食光。</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音优美；有温度</div><div class="name-cons">偏怀旧；缺乏策展和信任含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味脉</span><span class="name-pinyin">wèi mài</span></div>
+        <div class="name-reason">味道脉络。你的味道血脉。</div>
+        <div class="name-allusion">典故：血脉、脉络、山脉。</div>
+        <div class="name-pros-cons"><div class="name-pros">有脉络感和延续感</div><div class="name-cons">过于文艺；不够互联网</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食野</span><span class="name-pinyin">shí yě</span></div>
+        <div class="name-reason">野外觅食。有探索和野趣感。</div>
+        <div class="name-allusion">典故："食野之苹"（《诗经·鹿鸣》）。</div>
+        <div class="name-pros-cons"><div class="name-pros">有诗经典故；有野趣</div><div class="name-cons">过于文艺；"野"可能暗示不卫生</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食栖</span><span class="name-pinyin">shí qī</span></div>
+        <div class="name-reason">美食栖息地。你常去的店=你的美食栖息地。</div>
+        <div class="name-allusion">典故：栖息、栖息地。</div>
+        <div class="name-pros-cons"><div class="name-pros">有归属感</div><div class="name-cons">发音不响亮；过于文艺</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食林</span><span class="name-pinyin">shí lín</span></div>
+        <div class="name-reason">美食森林。你的美食版图如林。</div>
+        <div class="name-allusion">典故：森林、碑林。</div>
+        <div class="name-pros-cons"><div class="name-pros">有版图感</div><div class="name-cons">过于泛化；不够独特</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食源</span><span class="name-pinyin">shí yuán</span></div>
+        <div class="name-reason">美食源头。你的美食来源。</div>
+        <div class="name-allusion">典故：源头、源泉。</div>
+        <div class="name-pros-cons"><div class="name-pros">有源头感</div><div class="name-cons">偏供应链词汇；不够情感化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味径</span><span class="name-pinyin">wèi jìng</span></div>
+        <div class="name-reason">味道路径。你的味道探索之路。</div>
+        <div class="name-allusion">典故：路径、捷径、曲径通幽。</div>
+        <div class="name-pros-cons"><div class="name-pros">有路径感</div><div class="name-cons">过于文艺；不够响亮</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>觅食。画面感最强、口语最自然（"出去觅食"本就是年轻人常用语），本能行为=不需要教育的产品概念。</div>
+  </div>
+
+  <!-- ========== Category 10 ========== -->
+  <div class="cat-section">
+    <div class="cat-header"><span class="cat-num">10</span><span class="cat-title">年轻态·造词·谐音类</span></div>
+    <div class="cat-desc">Z世代语言风格，靠谐音、造词、反差制造记忆点。最不"old"，但也最需要市场教育。</div>
+    <div class="name-grid">
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">食力</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">shí lì</span>
+        </div>
+        <div class="name-reason"><strong>谐音"实力"。</strong>你的食力=你的美食实力。把消费经验量化为"实力"，有竞技感和社交比较性。"食力值"天然可做用户等级体系。</div>
+        <div class="name-allusion">典故：实力→食力。谐音造词，互联网常见手法（如"食力派""食力担当"）。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">谐音记忆点强；有竞技/等级感（食力值）；年轻态；社交比较天然嵌入</div>
+          <div class="name-cons">偏能力评价，不承载策展含义；可能偏游戏化</div>
+        </div>
+      </div>
+      <div class="name-card best">
+        <div class="name-header">
+          <span class="name-text">有味</span>
+          <span class="name-badge badge-best">类最佳</span>
+          <span class="name-pinyin">yǒu wèi</span>
+        </div>
+        <div class="name-reason"><strong>双关：有味道+有趣。</strong>"这个人很有味"=有趣/有品味。你的食单=你有味。口语化、年轻态、不需要教育。</div>
+        <div class="name-allusion">典故：有味（口语，"有意思/有趣"）+有味道。方言中"有味"=有趣/有劲。</div>
+        <div class="name-pros-cons">
+          <div class="name-pros">双关极自然（有趣+有味道）；口语化；年轻态；"你有味"=你有品味</div>
+          <div class="name-cons">过于口语化，品牌感偏弱；"有"字开头品牌保护难</div>
+        </div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食代</span><span class="name-pinyin">shí dài</span></div>
+        <div class="name-reason">谐音"时代"。你的食代=你的美食时代。</div>
+        <div class="name-allusion">典故：时代→食代。</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音有记忆点</div><div class="name-cons">过于宏大；不承载个人策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">味来</span><span class="name-pinyin">wèi lái</span></div>
+        <div class="name-reason">谐音"未来"。你的味道未来。</div>
+        <div class="name-allusion">典故：未来→味来。</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音有记忆点；有前瞻感</div><div class="name-cons">偏未来导向，与"已验证"矛盾；不够响亮</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">干饭</span><span class="name-pinyin">gàn fàn</span></div>
+        <div class="name-reason">干饭人干饭魂。Z世代吃饭黑话。</div>
+        <div class="name-allusion">典故：干饭（网络流行语，认真吃饭）。</div>
+        <div class="name-pros-cons"><div class="name-pros">Z世代认知度极高</div><div class="name-cons">过于泛化；已被大量使用；不承载策展含义</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食在</span><span class="name-pinyin">shí zài</span></div>
+        <div class="name-reason">谐音"实在"。你的美食实在体验。</div>
+        <div class="name-allusion">典故：实在→食在。"食在广州"也有此结构。</div>
+        <div class="name-pros-cons"><div class="name-pros">谐音有记忆点；"食在广州"有文化根基</div><div class="name-cons">偏地域色彩；不够品牌化</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">食验室</span><span class="name-pinyin">shí yàn shì</span></div>
+        <div class="name-reason">食物实验室。谐音"实验室"。</div>
+        <div class="name-allusion">典故：实验室→食验室。</div>
+        <div class="name-pros-cons"><div class="name-pros">有探索感；三字有品牌辨识度</div><div class="name-cons">偏实验室感，不够日常；三字偏长</div></div>
+      </div>
+      <div class="name-card">
+        <div class="name-header"><span class="name-text">好吃鬼</span><span class="name-pinyin">hǎo chī guǐ</span></div>
+        <div class="name-reason">自嘲式身份标签。好吃鬼=爱吃的人。</div>
+        <div class="name-allusion">典故：好吃鬼（民间俗语）。</div>
+        <div class="name-pros-cons"><div class="name-pros">自嘲有趣味</div><div class="name-cons">三字偏长；过于口语；不够品牌化</div></div>
+      </div>
+    </div>
+    <div class="cat-best"><strong>本类精选：</strong>食力 · 有味。"食力"的谐音+等级体系延展性最强（食力值/食力榜），"有味"的双关最自然（有趣+有味道），口语化且年轻。</div>
+  </div>
+
+  <!-- ========== Final Recommendation ========== -->
+  <div class="final-section">
+    <div class="final-title">最终推荐 · TOP 2</div>
+    <div class="final-subtitle">从10个类别89个候选中，综合考虑产品匹配度、品牌延展性、年轻态、口语自然度、商标可行性后选出</div>
+    <div class="final-cards">
+      <div class="final-card gold">
+        <div class="final-rank">★ 首推</div>
+        <div class="final-name">食迹</div>
+        <div class="final-pinyin">shí jì</div>
+        <div class="final-reason">
+          <strong>一句话：</strong>你的美食足迹——用消费留下的不可伪造的印记。
+          <br><br>
+          <strong>为什么首推：</strong>食单的核心壁垒是交易证据，"迹"是所有候选中最直接、最优雅地表达"证据"的字。足迹=走过的路，有旅程感和个人脉络感；痕迹=留下的证明，有不可伪造性。而且"食迹"口语自然（"我的食迹"），年轻态（不old），两个字简洁有力，品牌辨识度高。
+          <br><br>
+          <strong>品牌延展：</strong>食迹地图 · 食迹解锁 · 食迹分享 · 食迹认证 · 食迹榜
+        </div>
+        <div class="final-why">
+          <strong>胜出理由：</strong>在"证据性"这个食单最核心的差异化上，"食迹"是最精准的表达。同时它不牺牲年轻态和口语自然度。比"食印"更柔和（印偏正式），比"食证"更感性（证偏冷硬），比"食单"更现代（单偏传统）。如果只能选一个，选它。
+        </div>
+      </div>
+      <div class="final-card silver">
+        <div class="final-rank">☆ 次推</div>
+        <div class="final-name">食集</div>
+        <div class="final-pinyin">shí jí</div>
+        <div class="final-reason">
+          <strong>一句话：</strong>你策展的美食集册——你的消费，你的选择，你的食集。
+          <br><br>
+          <strong>为什么次推：</strong>食单的另一个核心是策展——不是被动记录，是主动选择和编排。"食集"的双关（集合+集册）精准命中策展动作。对标"文集""诗集"，有文化策展感但不old。"我的食集"口语自然，有拥有感。
+          <br><br>
+          <strong>品牌延展：</strong>食集编辑 · 食集分享 · 食集策展人 · 食集精选 · 食集专栏
+        </div>
+        <div class="final-why">
+          <strong>胜出理由：</strong>如果产品重心更偏"策展和身份投射"而非"交易证据"，"食集"比"食迹"更合适。它弱化了证据感，强化了策展感和文化感，适合走"每个人都有自己的美食文集"的路线。两者可以组合使用：食迹是底层数据（消费足迹），食集是上层表达（策展集册）。
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
