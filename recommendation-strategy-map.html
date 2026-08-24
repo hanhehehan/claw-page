@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>推荐策略与内容生态战略大图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #0a0e1a;
+    color: #e0e6f0;
+    min-height: 100vh;
+    overflow-x: auto;
+  }
+  .canvas {
+    min-width: 1600px;
+    padding: 40px 60px 60px;
+    position: relative;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .header .tag {
+    display: inline-block;
+    background: linear-gradient(90deg, #1a3a6a, #2d5a9a);
+    color: #7ab8ff;
+    font-size: 12px;
+    padding: 4px 16px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 14px;
+    color: #8892b0;
+  }
+  .header .north-star {
+    margin-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(96, 165, 250, 0.08);
+    border: 1px solid rgba(96, 165, 250, 0.25);
+    border-radius: 8px;
+    padding: 10px 24px;
+  }
+  .north-star .label {
+    color: #60a5fa;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .north-star .formula {
+    font-size: 15px;
+    color: #e0e6f0;
+  }
+  .north-star .formula .op { color: #f472b6; margin: 0 6px; }
+
+  /* ===== Flywheel Center ===== */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
+    position: relative;
+  }
+
+  /* ===== Pillar Cards ===== */
+  .pillar {
+    background: linear-gradient(160deg, rgba(26, 35, 64, 0.6), rgba(15, 20, 40, 0.8));
+    border: 1px solid rgba(100, 130, 200, 0.15);
+    border-radius: 14px;
+    padding: 20px 18px;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .pillar:hover { transform: translateY(-2px); border-color: rgba(100, 130, 200, 0.4); }
+
+  .pillar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(100, 130, 200, 0.12);
+  }
+  .pillar-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .pillar-title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .pillar-subtitle {
+    font-size: 11px;
+    color: #6b7a99;
+    margin-top: 2px;
+  }
+
+  .pillar-1 .pillar-icon { background: rgba(34, 197, 94, 0.15); }
+  .pillar-1 .pillar-title { color: #4ade80; }
+  .pillar-1 { border-top: 2px solid rgba(34, 197, 94, 0.3); }
+
+  .pillar-2 .pillar-icon { background: rgba(168, 85, 247, 0.15); }
+  .pillar-2 .pillar-title { color: #c084fc; }
+  .pillar-2 { border-top: 2px solid rgba(168, 85, 247, 0.3); }
+
+  .pillar-3 .pillar-icon { background: rgba(59, 130, 246, 0.15); }
+  .pillar-3 .pillar-title { color: #60a5fa; }
+  .pillar-3 { border-top: 2px solid rgba(59, 130, 246, 0.3); }
+
+  .pillar-4 .pillar-icon { background: rgba(251, 146, 60, 0.15); }
+  .pillar-4 .pillar-title { color: #fb923c; }
+  .pillar-4 { border-top: 2px solid rgba(251, 146, 60, 0.3); }
+
+  /* ===== Module Items ===== */
+  .module {
+    margin-bottom: 14px;
+  }
+  .module-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #a0aec0;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .module-title::before {
+    content: '';
+    width: 3px; height: 12px;
+    border-radius: 2px;
+  }
+  .pillar-1 .module-title::before { background: #4ade80; }
+  .pillar-2 .module-title::before { background: #c084fc; }
+  .pillar-3 .module-title::before { background: #60a5fa; }
+  .pillar-4 .module-title::before { background: #fb923c; }
+
+  .item-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .item {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #b0bec5;
+    white-space: nowrap;
+  }
+  .item.highlight {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.2);
+    color: #93c5fd;
+  }
+
+  /* ===== Flywheel Section ===== */
+  .flywheel-section {
+    margin-top: 28px;
+    background: linear-gradient(135deg, rgba(20, 30, 60, 0.5), rgba(30, 20, 50, 0.5));
+    border: 1px solid rgba(100, 130, 200, 0.12);
+    border-radius: 14px;
+    padding: 24px 30px;
+  }
+  .flywheel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e0e6f0;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flywheel-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #4ade80, #60a5fa, #c084fc);
+  }
+  .flywheel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  .flywheel-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .flywheel-card .fw-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .fw-chain {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .fw-step {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #c0cad8;
+  }
+  .fw-arrow {
+    color: #4a5568;
+    font-size: 12px;
+  }
+  .fw-1 .fw-name { color: #4ade80; }
+  .fw-2 .fw-name { color: #60a5fa; }
+  .fw-3 .fw-name { color: #c084fc; }
+  .fw-1 .fw-step { border-left: 2px solid rgba(34, 197, 94, 0.3); }
+  .fw-2 .fw-step { border-left: 2px solid rgba(59, 130, 246, 0.3); }
+  .fw-3 .fw-step { border-left: 2px solid rgba(168, 85, 247, 0.3); }
+
+  /* ===== Initiatives Section ===== */
+  .initiatives-section {
+    margin-top: 28px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .num {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: #fff;
+  }
+
+  .init-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .init-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+  }
+  .init-card .init-id {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 10px;
+    color: #4a5568;
+  }
+  .init-card .init-name {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    padding-right: 30px;
+  }
+  .init-card .init-desc {
+    font-size: 11px;
+    color: #8892b0;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .init-card .init-kpi {
+    font-size: 10px;
+    color: #6b7a99;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 6px;
+  }
+  .init-card .init-kpi span { color: #60a5fa; }
+
+  .init-card.g1 { border-left: 3px solid #4ade80; }
+  .init-card.g1 .init-name { color: #4ade80; }
+  .init-card.g2 { border-left: 3px solid #c084fc; }
+  .init-card.g2 .init-name { color: #c084fc; }
+  .init-card.g3 { border-left: 3px solid #60a5fa; }
+  .init-card.g3 .init-name { color: #60a5fa; }
+  .init-card.g4 { border-left: 3px solid #fb923c; }
+  .init-card.g4 .init-name { color: #fb923c; }
+
+  /* ===== Metrics Section ===== */
+  .metrics-section {
+    margin-top: 28px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    padding: 24px 30px;
+  }
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .metric-box {
+    text-align: center;
+    padding: 14px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  .metric-box .m-icon { font-size: 20px; margin-bottom: 6px; }
+  .metric-box .m-label { font-size: 11px; color: #6b7a99; margin-bottom: 4px; }
+  .metric-box .m-value { font-size: 13px; font-weight: 700; color: #e0e6f0; }
+  .metric-box .m-desc { font-size: 10px; color: #4a5568; margin-top: 2px; }
+
+  /* ===== Connection Arrows ===== */
+  .connect-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin: 20px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: 1px dashed rgba(100, 130, 200, 0.15);
+  }
+  .connect-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #6b7a99;
+  }
+  .connect-item .arrow { color: #60a5fa; }
+
+  /* ===== Priority Matrix ===== */
+  .priority-section {
+    margin-top: 28px;
+  }
+  .priority-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .priority-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .priority-card .p-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .priority-card .p-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .priority-card .p-title {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .priority-card .p-body {
+    font-size: 11px;
+    color: #8892b0;
+    line-height: 1.7;
+  }
+  .priority-card .p-body strong { color: #c0cad8; }
+  .p-urgent .p-badge { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+  .p-important .p-badge { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+  .p-strategic .p-badge { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+  .p-explore .p-badge { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+  /* ===== Footer ===== */
+  .footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 11px;
+    color: #4a5568;
+    padding-top: 20px;
+    border-top: 1px solid rgba(100, 130, 200, 0.08);
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ========== HEADER ========== -->
+  <div class="header">
+    <div class="tag">VP视角 · 推荐策略与内容生态</div>
+    <h1>内容推荐生态战略大图</h1>
+    <div class="subtitle">从供给到分发到反馈的自循环增长系统</div>
+    <div class="north-star">
+      <span class="label">北极星</span>
+      <span class="formula">内容消费价值 <span class="op">=</span> 用户满意度 <span class="op">×</span> 生态健康度 <span class="op">×</span> 商业效率</span>
+    </div>
+  </div>
+
+  <!-- ========== CONNECT BAR ========== -->
+  <div class="connect-bar">
+    <div class="connect-item"><span>供给端</span><span class="arrow">→</span><span>分发端</span><span class="arrow">→</span><span>消费端</span><span class="arrow">→</span><span>反馈端</span><span class="arrow">↻</span><span>供给端</span></div>
+  </div>
+
+  <!-- ========== FOUR PILLARS ========== -->
+  <div class="main-grid">
+
+    <!-- Pillar 1: Content Supply -->
+    <div class="pillar pillar-1">
+      <div class="pillar-header">
+        <div class="pillar-icon">📦</div>
+        <div>
+          <div class="pillar-title">内容供给引擎</div>
+          <div class="pillar-subtitle">Content Supply Engine</div>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">内容品类矩阵</div>
+        <div class="item-list">
+          <span class="item">品类覆盖度</span>
+          <span class="item">品类深度</span>
+          <span class="item">交叉品类</span>
+          <span class="item">品类GAP分析</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">内容质量分层</div>
+        <div class="item-list">
+          <span class="item highlight">S/A/B/C/D 五级模型</span>
+          <span class="item">多模态质量评估</span>
+          <span class="item">劣质内容治理</span>
+          <span class="item">质量红线机制</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">内容生命周期</div>
+        <div class="item-list">
+          <span class="item">生产 → 冷启</span>
+          <span class="item">成长 → 成熟</span>
+          <span class="item">衰退 → 长尾</span>
+          <span class="item">新鲜度衰减模型</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">内容理解</div>
+        <div class="item-list">
+          <span class="item highlight">多模态标签体系</span>
+          <span class="item">语义向量化</span>
+          <span class="item">内容 embedding</span>
+          <span class="item">知识图谱</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pillar 2: Creator Ecosystem -->
+    <div class="pillar pillar-2">
+      <div class="pillar-header">
+        <div class="pillar-icon">👥</div>
+        <div>
+          <div class="pillar-title">创作者生态</div>
+          <div class="pillar-subtitle">Creator Ecosystem</div>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">创作者分层</div>
+        <div class="item-list">
+          <span class="item">头部 KOL</span>
+          <span class="item">腰部 KOC</span>
+          <span class="item">尾部普通</span>
+          <span class="item highlight">潜力新人</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">成长路径设计</div>
+        <div class="item-list">
+          <span class="item highlight">冷启流量包</span>
+          <span class="item">能力培养体系</span>
+          <span class="item">流量加速通道</span>
+          <span class="item">变现闭环</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">激励体系</div>
+        <div class="item-list">
+          <span class="item">流量激励</span>
+          <span class="item">经济激励</span>
+          <span class="item">荣誉激励</span>
+          <span class="item">能力激励</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">留存与防流失</div>
+        <div class="item-list">
+          <span class="item highlight">流失预警模型</span>
+          <span class="item">活跃度维护</span>
+          <span class="item">召回机制</span>
+          <span class="item">忠诚度建设</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pillar 3: Intelligent Distribution -->
+    <div class="pillar pillar-3">
+      <div class="pillar-header">
+        <div class="pillar-icon">⚙️</div>
+        <div>
+          <div class="pillar-title">智能分发引擎</div>
+          <div class="pillar-subtitle">Intelligent Distribution</div>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">召回层</div>
+        <div class="item-list">
+          <span class="item">兴趣召回</span>
+          <span class="item">社交召回</span>
+          <span class="item">场景召回</span>
+          <span class="item">热点召回</span>
+          <span class="item highlight">长尾召回</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">排序层</div>
+        <div class="item-list">
+          <span class="item highlight">多目标融合</span>
+          <span class="item">CTR预估</span>
+          <span class="item">停留时长</span>
+          <span class="item">互动率</span>
+          <span class="item">长期价值</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">重排与调控</div>
+        <div class="item-list">
+          <span class="item highlight">多样性保障</span>
+          <span class="item">生态平衡</span>
+          <span class="item">流量公平性</span>
+          <span class="item">商业插入</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">EE策略</div>
+        <div class="item-list">
+          <span class="item">兴趣探索</span>
+          <span class="item">破圈推荐</span>
+          <span class="item">Bandit策略</span>
+          <span class="item">冷启保障</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pillar 4: Data Intelligence -->
+    <div class="pillar pillar-4">
+      <div class="pillar-header">
+        <div class="pillar-icon">📊</div>
+        <div>
+          <div class="pillar-title">数据智能基座</div>
+          <div class="pillar-subtitle">Data Intelligence Foundation</div>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">数据采集</div>
+        <div class="item-list">
+          <span class="item">行为日志</span>
+          <span class="item">内容特征</span>
+          <span class="item">作者画像</span>
+          <span class="item">场景上下文</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">特征工程</div>
+        <div class="item-list">
+          <span class="item highlight">实时特征计算</span>
+          <span class="item">离线特征</span>
+          <span class="item">联合特征</span>
+          <span class="item">特征超市</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">实验体系</div>
+        <div class="item-list">
+          <span class="item">ABTest平台</span>
+          <span class="item">假设检验</span>
+          <span class="item highlight">因果推断</span>
+          <span class="item">长期效果评估</span>
+        </div>
+      </div>
+
+      <div class="module">
+        <div class="module-title">指标与治理</div>
+        <div class="item-list">
+          <span class="item">北极星指标</span>
+          <span class="item">过程指标</span>
+          <span class="item">健康度指标</span>
+          <span class="item">公平性度量</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FLYWHEEL ========== -->
+  <div class="flywheel-section">
+    <div class="flywheel-title">
+      <span class="dot"></span>
+      三重飞轮：生态自循环增长引擎
+    </div>
+    <div class="flywheel-grid">
+      <div class="flywheel-card fw-1">
+        <div class="fw-name">🔄 内容飞轮</div>
+        <div class="fw-chain">
+          <span class="fw-step">优质内容生产</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">精准分发匹配</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">用户消费体验↑</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">作者回报↑</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">更多优质内容</span>
+          <span class="fw-arrow">↻</span>
+        </div>
+      </div>
+      <div class="flywheel-card fw-2">
+        <div class="fw-name">📈 数据飞轮</div>
+        <div class="fw-chain">
+          <span class="fw-step">更多行为数据</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">更精准模型</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">更好推荐效果</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">更高满意度</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">更多行为数据</span>
+          <span class="fw-arrow">↻</span>
+        </div>
+      </div>
+      <div class="flywheel-card fw-3">
+        <div class="fw-name">🌐 生态飞轮</div>
+        <div class="fw-chain">
+          <span class="fw-step">健康生态</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">吸引优质创作者</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">优质内容供给↑</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">分发效率↑</span>
+          <span class="fw-arrow">→</span>
+          <span class="fw-step">生态更健康</span>
+          <span class="fw-arrow">↻</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== KEY INITIATIVES ========== -->
+  <div class="initiatives-section">
+    <div class="section-title">
+      <span class="num">A</span>
+      核心举措矩阵（12项关键行动）
+    </div>
+    <div class="init-grid">
+
+      <!-- Supply Initiatives -->
+      <div class="init-card g1">
+        <div class="init-id">#01</div>
+        <div class="init-name">内容质量评分模型</div>
+        <div class="init-desc">构建多模态+人工规则融合的内容质量评分体系，实现S/A/B/C/D五级自动分级，驱动差异化分发策略</div>
+        <div class="init-kpi">KPI: <span>S/A级内容占比↑15%</span></div>
+      </div>
+      <div class="init-card g1">
+        <div class="init-id">#02</div>
+        <div class="init-name">品类覆盖GAP补齐</div>
+        <div class="init-desc">分析品类覆盖度与用户需求匹配度，定向招募和激励高GAP品类创作者，补齐内容供给短板</div>
+        <div class="init-kpi">KPI: <span>品类覆盖率↑至95%</span></div>
+      </div>
+      <div class="init-card g1">
+        <div class="init-id">#03</div>
+        <div class="init-name">长尾内容激活计划</div>
+        <div class="init-desc">对低曝光优质长尾内容实施流量兜底机制，通过标签优化和向量召回提升长尾内容触达率</div>
+        <div class="init-kpi">KPI: <span>长尾内容曝光占比↑8%</span></div>
+      </div>
+
+      <!-- Creator Initiatives -->
+      <div class="init-card g2">
+        <div class="init-id">#04</div>
+        <div class="init-name">新作者"破冰"计划</div>
+        <div class="init-desc">为新创作者提供冷启动流量包+内容指导+成长路径设计，降低创作门槛，提升首月留存率</div>
+        <div class="init-kpi">KPI: <span>新作者30日留存↑20%</span></div>
+      </div>
+      <div class="init-card g2">
+        <div class="init-id">#05</div>
+        <div class="init-name">中腰部加速器</div>
+        <div class="init-desc">针对腰部创作者实施专属运营（训练营+流量倾斜+商单匹配），打造头部后备军梯队</div>
+        <div class="init-kpi">KPI: <span>腰部→头部转化率↑10%</span></div>
+      </div>
+      <div class="init-card g2">
+        <div class="init-id">#06</div>
+        <div class="init-name">作者变现通路</div>
+        <div class="init-desc">搭建商单匹配平台+打赏体系+付费内容能力，打通创作者经济闭环，以收入驱动长期留存</div>
+        <div class="init-kpi">KPI: <span>作者月均收入↑30%</span></div>
+      </div>
+
+      <!-- Distribution Initiatives -->
+      <div class="init-card g3">
+        <div class="init-id">#07</div>
+        <div class="init-name">多目标排序升级</div>
+        <div class="init-desc">在CTR基础上引入满意度指标和长期用户价值，从短期点击优化升级为长期消费价值优化</div>
+        <div class="init-kpi">KPI: <span>人均消费时长↑12%</span></div>
+      </div>
+      <div class="init-card g3">
+        <div class="init-id">#08</div>
+        <div class="init-name">多样性保障机制</div>
+        <div class="init-desc">在重排层引入品类散度+作者散度+时效散度约束，防止信息茧房，保障内容消费多样性</div>
+        <div class="init-kpi">KPI: <span>内容品类熵↑0.15</span></div>
+      </div>
+      <div class="init-card g3">
+        <div class="init-id">#09</div>
+        <div class="init-name">生态公平性调控</div>
+        <div class="init-desc">建立流量分布健康度监控体系，对头部过度集中实施动态调控，保障中长尾创作者的合理曝光</div>
+        <div class="init-kpi">KPI: <span>流量基尼系数↓0.05</span></div>
+      </div>
+
+      <!-- Data Initiatives -->
+      <div class="init-card g4">
+        <div class="init-id">#10</div>
+        <div class="init-name">实时特征计算平台</div>
+        <div class="init-desc">建设毫秒级实时特征计算平台，支持用户实时行为感知和推荐策略动态调整</div>
+        <div class="init-kpi">KPI: <span>特征延迟↓至200ms</span></div>
+      </div>
+      <div class="init-card g4">
+        <div class="init-id">#11</div>
+        <div class="init-name">内容理解引擎升级</div>
+        <div class="init-desc">升级多模态内容理解能力（NLP+CV+音频），实现内容深度语义向量化，驱动语义召回</div>
+        <div class="init-kpi">KPI: <span>语义召回占比↑25%</span></div>
+      </div>
+      <div class="init-card g4">
+        <div class="init-id">#12</div>
+        <div class="init-name">生态健康度仪表盘</div>
+        <div class="init-desc">构建涵盖供给、消费、分发、创作者四维度的生态健康度实时监控体系，实现异常预警和归因</div>
+        <div class="init-kpi">KPI: <span>异常发现时效↓至5min</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PRIORITY MATRIX ========== -->
+  <div class="priority-section">
+    <div class="section-title">
+      <span class="num">B</span>
+      落地优先级矩阵
+    </div>
+    <div class="priority-grid">
+      <div class="priority-card p-urgent">
+        <div class="p-header">
+          <span class="p-badge">P0 紧急且重要</span>
+          <span class="p-title">立即启动 · 0-3个月</span>
+        </div>
+        <div class="p-body">
+          <strong>#01 内容质量评分模型</strong>——这是整个分发策略的基础，没有质量分级就无法实现差异化分发。<strong>#07 多目标排序升级</strong>——直接影响用户体验核心指标。<strong>#10 实时特征平台</strong>——所有实时策略的数据底座。<strong>#12 生态健康度仪表盘</strong>——没有度量就没有管理。
+        </div>
+      </div>
+      <div class="priority-card p-important">
+        <div class="p-header">
+          <span class="p-badge">P1 重要不紧急</span>
+          <span class="p-title">重点投入 · 3-6个月</span>
+        </div>
+        <div class="p-body">
+          <strong>#04 新作者破冰计划</strong>——供给端增量来源。<strong>#08 多样性保障机制</strong>——防信息茧房是长期健康的关键。<strong>#09 生态公平性调控</strong>——流量分配决定生态走向。<strong>#11 内容理解引擎升级</strong>——语义理解能力决定推荐天花板。
+        </div>
+      </div>
+      <div class="priority-card p-strategic">
+        <div class="p-header">
+          <span class="p-badge">P2 战略性投入</span>
+          <span class="p-title">中期布局 · 6-12个月</span>
+        </div>
+        <div class="p-body">
+          <strong>#05 中腰部加速器</strong>——头部后备军建设需要周期。<strong>#02 品类GAP补齐</strong>——需要定向招募和培育。<strong>#03 长尾内容激活</strong>——依赖召回和排序能力到位后才能见效。<strong>#06 作者变现通路</strong>——商业闭环建设需生态成熟度支撑。
+        </div>
+      </div>
+      <div class="priority-card p-explore">
+        <div class="p-header">
+          <span class="p-badge">P3 探索性方向</span>
+          <span class="p-title">持续探索 · 12个月+</span>
+        </div>
+        <div class="p-body">
+          <strong>AIGC内容策略</strong>——AI生成内容的质量标准、分发策略和标识体系。<strong>跨场景推荐</strong>——搜索+推荐+社交的统一内容分发架构。<strong>创作者AI助手</strong>——为创作者提供AI辅助创作和数据分析工具。<strong>内容知识产权保护</strong>——原创保护与内容溯源体系。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CORE METRICS ========== -->
+  <div class="metrics-section">
+    <div class="section-title">
+      <span class="num">C</span>
+      核心度量体系
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-box">
+        <div class="m-icon">🎯</div>
+        <div class="m-label">北极星</div>
+        <div class="m-value">人均消费价值</div>
+        <div class="m-desc">时长×互动×满意度</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-icon">📦</div>
+        <div class="m-label">供给健康</div>
+        <div class="m-value">优质内容供给率</div>
+        <div class="m-desc">S/A级内容占比</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-icon">👥</div>
+        <div class="m-label">作者健康</div>
+        <div class="m-value">活跃作者留存</div>
+        <div class="m-desc">30/90日留存率</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-icon">⚖️</div>
+        <div class="m-label">分发公平</div>
+        <div class="m-value">流量基尼系数</div>
+        <div class="m-desc">头部集中度度量</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-icon">🌐</div>
+        <div class="m-label">生态多样性</div>
+        <div class="m-value">内容品类熵</div>
+        <div class="m-desc">消费品类分布</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <div class="footer">
+    推荐策略与内容生态战略大图 · VP视角 · 供给→分发→消费→反馈 自循环系统
+  </div>
+
+</div>
+</body>
+</html>
