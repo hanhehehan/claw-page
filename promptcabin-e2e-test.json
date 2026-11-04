@@ -1,5 +1,5 @@
 {
- "rev": 106,
+ "rev": 109,
  "notes": [
   {
    "id": "seed1",
@@ -67,7 +67,18 @@
    "rev": 1,
    "createdAt": 1793790760034,
    "updatedAt": 1793790760034
+  },
+  {
+   "id": "p_mw20pjlr8s4ks",
+   "title": "B端第二轮新增",
+   "content": "双向验证正文",
+   "plain": "双向验证正文",
+   "tags": [],
+   "pinned": false,
+   "rev": 2,
+   "createdAt": 1793790769023,
+   "updatedAt": 1793790769960
   }
  ],
- "updatedAt": 1793790765141
+ "updatedAt": 1793790775724
 }
