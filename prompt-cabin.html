@@ -97,22 +97,24 @@ button{cursor:pointer;border:none;background:none}
 @keyframes pulse{50%{opacity:.35}}
 
 /* ============ 主布局 ============ */
-.layout{display:grid;grid-template-columns:296px minmax(0,1fr) 396px;height:calc(100vh - 56px);height:calc(100dvh - 56px)}
-.layout.no-ai{grid-template-columns:296px minmax(0,1fr)}
+.layout{display:grid;grid-template-columns:276px minmax(0,1fr) 372px;height:calc(100vh - 56px);height:calc(100dvh - 56px)}
+.layout.no-ai{grid-template-columns:276px minmax(0,1fr)}
 .sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--bg-soft)}
 .side-head{padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between}
 .side-head h3{margin:0;font-size:12px;letter-spacing:.6px;color:var(--text-mute);font-weight:600}
+.side-add{width:22px;height:22px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--accent);font-size:14px;line-height:1;display:grid;place-items:center;transition:.13s}
+.side-add:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 .count-pill{font-size:11px;color:var(--text-mute);font-family:var(--mono);background:#fff;border:1px solid var(--line);padding:1px 7px;border-radius:20px}
-.tagbar{display:flex;flex-wrap:wrap;gap:6px;padding:2px 14px 11px;border-bottom:1px solid var(--line-soft)}
+.tagbar{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 9px;border-bottom:1px solid var(--line-soft)}
 .tagchip{
   font-size:11.5px;padding:3px 10px;border-radius:20px;border:1px solid var(--line);
   color:var(--text-dim);background:#fff;transition:.14s;
 }
 .tagchip:hover{border-color:#bdd6fb;color:var(--accent)}
 .tagchip.on{background:var(--accent-soft);border-color:#bcd8fc;color:var(--accent);font-weight:600}
-.note-list{flex:1;overflow-y:auto;padding:8px}
+.note-list{flex:1;overflow-y:auto;padding:6px}
 .note-item{
-  padding:10px 11px;border-radius:8px;border:1px solid transparent;margin-bottom:2px;
+  padding:8px 10px;border-radius:8px;border:1px solid transparent;margin-bottom:2px;
   cursor:pointer;transition:.13s;position:relative;
 }
 .note-item:hover{background:#fff;border-color:var(--line);box-shadow:var(--shadow-s)}
@@ -127,6 +129,12 @@ button{cursor:pointer;border:none;background:none}
 .note-item .nt .pin{color:var(--warn);font-size:10px}
 .note-item .nm{font-size:11px;color:var(--text-mute);display:flex;gap:7px;align-items:center;font-family:var(--mono)}
 .note-item .nm .tag{color:#3f7fd8;background:#eef4fd;padding:0 5px;border-radius:3px}
+.list-empty{padding:26px 14px;text-align:center;color:var(--text-mute);font-size:12px;line-height:2}
+.snip{font-size:11.5px;color:#7a8290;line-height:1.6;margin:2px 0 4px;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all}
+mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-weight:600}
+#editor mark.hl{background:#fff3c4}
+.search-meta{font-size:11px;color:var(--text-mute);margin-left:2px}
 .note-item .del{
   position:absolute;right:6px;top:8px;opacity:0;color:var(--text-mute);font-size:12px;
   padding:2px 5px;border-radius:5px;transition:.13s;background:#fff;
@@ -136,7 +144,7 @@ button{cursor:pointer;border:none;background:none}
 
 /* ============ 编辑器 ============ */
 .editor-area{display:flex;flex-direction:column;min-width:0;min-height:0;background:#fff}
-.editor-head{padding:16px 26px 10px}
+.editor-head{padding:12px 22px 8px}
 .title-row{display:flex;align-items:center;gap:10px}
 .title-input{
   flex:1;background:none;border:none;outline:none;font-size:20px;font-weight:600;letter-spacing:.2px;
@@ -160,7 +168,7 @@ button{cursor:pointer;border:none;background:none}
 .tag-input:focus{border-color:#9dc1f5;background:#fff;box-shadow:0 0 0 2px rgba(26,115,232,.08)}
 
 .toolbar{
-  display:flex;align-items:center;gap:2px;padding:7px 20px;border-top:1px solid var(--line-soft);
+  display:flex;align-items:center;gap:2px;padding:5px 16px;border-top:1px solid var(--line-soft);
   border-bottom:1px solid var(--line-soft);
   flex-wrap:wrap;background:#fbfcfd;
 }
@@ -184,9 +192,9 @@ button{cursor:pointer;border:none;background:none}
 .counter .hot{color:var(--accent-2);background:#e7f7f7;padding:1px 6px;border-radius:4px}
 
 .editor-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;background:#fff;display:flex;justify-content:center}
-.editor-wrap{width:100%;max-width:920px;padding:28px 32px 140px;min-height:100%;box-sizing:border-box}
+.editor-wrap{width:100%;max-width:920px;padding:18px 28px 96px;min-height:100%;box-sizing:border-box}
 #editor{
-  min-height:calc(100% - 4px);outline:none;line-height:1.9;font-size:15px;color:var(--text);
+  min-height:calc(100% - 4px);outline:none;line-height:1.8;font-size:15px;color:var(--text);
   overflow-wrap:anywhere;word-break:break-word;caret-color:var(--accent);
 }
 #editor>*:first-child{margin-top:0}
@@ -237,7 +245,7 @@ button{cursor:pointer;border:none;background:none}
   width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:11px;
   background:linear-gradient(135deg,#7c5cf0,#1a73e8);color:#fff;
 }
-.ai-body{flex:1;overflow-y:auto;padding:12px 14px 24px}
+.ai-body{flex:1;overflow-y:auto;padding:10px 12px 20px}
 .score-card{
   border:1px solid var(--line);border-radius:10px;padding:14px 15px;margin-bottom:12px;
   background:#fff;box-shadow:var(--shadow-s);
@@ -310,6 +318,14 @@ button{cursor:pointer;border:none;background:none}
 .tpl b{display:block;font-size:13px;margin-bottom:5px;font-weight:600;color:var(--text)}
 .tpl span{font-size:11.5px;color:var(--accent);line-height:1.6}
 .modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.form-grid{display:grid;grid-template-columns:120px 1fr;gap:9px 12px;align-items:center;margin-top:4px}
+.form-grid label{font-size:12px;color:var(--text-dim);text-align:right}
+.form-grid input{height:32px;border:1px solid var(--line);border-radius:6px;padding:0 10px;font-size:12.5px;outline:none;background:#fff;transition:.13s;width:100%}
+.form-grid input:focus{border-color:#9dc1f5;box-shadow:0 0 0 3px rgba(26,115,232,.08)}
+.cf-tip{margin-top:14px;font-size:11.5px;line-height:1.7;color:#8a6412;background:var(--warn-soft);border:1px solid #f6e0b0;border-radius:7px;padding:9px 11px}
+.cf-status{margin-top:10px;font-size:12px;min-height:18px;font-family:var(--mono)}
+.cf-status.ok{color:var(--green)}
+.cf-status.err{color:var(--danger)}
 
 .toast-wrap{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:200}
 .toast{
@@ -336,7 +352,7 @@ button{cursor:pointer;border:none;background:none}
   .layout{grid-template-columns:250px 1fr 340px}
 }
 @media(max-width:1180px){
-  .editor-wrap{padding:24px 24px 140px}
+  .editor-wrap{padding:18px 22px 110px}
 }
 @media(max-width:900px){
   .layout,.layout.no-ai{grid-template-columns:minmax(0,1fr)}
@@ -358,7 +374,7 @@ button{cursor:pointer;border:none;background:none}
   .toolbar::-webkit-scrollbar{display:none}
   .tb-seg{flex:0 0 auto}
   .counter{display:none}
-  .editor-wrap{padding:18px 16px 120px}
+  .editor-wrap{padding:14px 14px 100px}
   #editor{font-size:16px}
   .hint-conflict{margin:0 14px 8px}
   .statusbar{padding:0 12px;gap:10px}
@@ -378,7 +394,7 @@ button{cursor:pointer;border:none;background:none}
 
   <div class="search">
     <span class="ico">⌕</span>
-    <input id="searchInput" placeholder="搜索标题、正文、标签…" />
+    <input id="searchInput" placeholder="搜索标题 / 正文 / 标签（空格分隔多词）" />
     <kbd>⌘K</kbd>
   </div>
 
@@ -388,6 +404,7 @@ button{cursor:pointer;border:none;background:none}
     <span class="led"></span><span id="syncText">同步就绪</span>
   </div>
 
+  <button class="tb-btn" id="btnCloud" title="云端同步设置">☁ 同步</button>
   <button class="tb-btn" id="btnTemplates">✦ 模板库</button>
   <button class="tb-btn" id="btnExport">↓ 导出</button>
   <button class="tb-btn primary" id="btnNew">＋ 新建笔记</button>
@@ -397,8 +414,11 @@ button{cursor:pointer;border:none;background:none}
   <!-- ================= 侧栏 ================= -->
   <aside class="sidebar">
     <div class="side-head">
-      <h3>笔记列表</h3>
-      <span class="count-pill" id="listCount">0</span>
+      <h3>笔记</h3>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="count-pill" id="listCount">0</span>
+        <button class="side-add" id="btnNewSide" title="新建笔记 (⌘N)">＋</button>
+      </div>
     </div>
     <div class="tagbar" id="tagBar"></div>
     <div class="note-list" id="noteList"></div>
@@ -522,6 +542,35 @@ button{cursor:pointer;border:none;background:none}
     <div class="tpl-grid" id="tplGrid"></div>
     <div class="modal-foot">
       <button class="tb-btn" id="tplClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 云端同步设置 -->
+<div class="modal-mask" id="cloudMask">
+  <div class="modal" style="width:min(560px,94vw)">
+    <h2>云端同步设置</h2>
+    <p class="sub">用你自己的 GitHub 仓库做同步后端，多设备/多浏览器共享同一份笔记</p>
+    <div class="form-grid">
+      <label>GitHub 用户名</label>
+      <input id="cfOwner" placeholder="例如 hanhehehan" />
+      <label>仓库名</label>
+      <input id="cfRepo" placeholder="例如 claw-page（公开仓库，Pages 页面才能直接读写）" />
+      <label>分支</label>
+      <input id="cfBranch" placeholder="main" value="main" />
+      <label>数据文件路径</label>
+      <input id="cfPath" placeholder="promptcabin-data.json" value="promptcabin-data.json" />
+      <label>Personal Access Token</label>
+      <input id="cfToken" type="password" placeholder="github_pat_... （需 Contents: Read and write）" />
+    </div>
+    <div class="cf-tip">
+      ⚠ 公开仓库里的这个文件是<b>可以被人读到的</b>，只放笔记、不要放密码密钥。Token 只存在你本机浏览器。
+    </div>
+    <div id="cfStatus" class="cf-status"></div>
+    <div class="modal-foot">
+      <button class="tb-btn" id="cfClear">清除配置</button>
+      <button class="tb-btn" id="cfTest">测试连接</button>
+      <button class="tb-btn primary" id="cfSave">保存并立即同步</button>
     </div>
   </div>
 </div>
@@ -676,6 +725,187 @@ const Sync = {
 };
 
 /* =========================================================================
+   2.5 云端同步（GitHub 仓库作为存储后端）
+   -------------------------------------------------------------------------
+   设计要点：
+   - 同步配置（owner/repo/token/文件名）存本地，不随笔记数据外泄
+   - 上传：拉取远端 → 三方合并 → 单文件提交（带 sha 做乐观并发控制）
+   - 下载：拉取远端 → 与本地按 updatedAt 合并（新者胜，未同步的本地新增保留）
+   - 409 = 别人先提交了，自动重试（最多 3 次），避免互相覆盖
+   ========================================================================= */
+const Cloud = {
+  CFG_KEY: 'promptcabin:cloud',
+  cfg() {
+    try { return JSON.parse(localStorage.getItem(this.CFG_KEY) || 'null'); } catch { return null; }
+  },
+  setCfg(c) { localStorage.setItem(this.CFG_KEY, JSON.stringify(c)); },
+  clearCfg() { localStorage.removeItem(this.CFG_KEY); },
+  enabled() { const c = this.cfg(); return !!(c && c.owner && c.repo && c.token); },
+  path() { const c = this.cfg(); return c && c.path ? c.path : 'promptcabin-data.json'; },
+
+  _hdr() {
+    const c = this.cfg();
+    return {
+      'Authorization': 'Bearer ' + c.token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'prompt-cabin'
+    };
+  },
+  _api() {
+    const c = this.cfg();
+    const br = c.branch || 'main';
+    return `https://api.github.com/repos/${c.owner}/${c.repo}/contents/${encodeURIComponent(this.path())}?ref=${encodeURIComponent(br)}&t=${Date.now()}`;
+  },
+
+  /** 读取远端快照（走 commits+blob API，绕过 contents 接口的 CDN 缓存）；返回 {sha, db} 或 null */
+  async pull() {
+    const c = this.cfg();
+    const br = c.branch || 'main';
+    // 1) 拿该文件最新一次提交（这条接口没有 CDN 缓存，实时性最好）
+    const cApi = `https://api.github.com/repos/${c.owner}/${c.repo}/commits?path=${encodeURIComponent(this.path())}&sha=${encodeURIComponent(br)}&per_page=1&t=${Date.now()}`;
+    const rc = await fetch(cApi, { headers: this._hdr(), cache: 'no-store' });
+    if (rc.status === 409) return null;          // 空仓库（没有任何提交）
+    if (rc.status === 401) throw new Error('Token 无效或已过期');
+    if (rc.status === 403) throw new Error('Token 权限不足（需要 Contents: Read and write）');
+    if (!rc.ok) throw new Error('读取提交失败 HTTP ' + rc.status);
+    const commits = await rc.json();
+    if (!Array.isArray(commits) || !commits.length) return null;
+    const commit = commits[0];
+    // 2) 用提交的 tree sha 递归查文件 blob sha
+    const tApi = `https://api.github.com/repos/${c.owner}/${c.repo}/git/trees/${commit.sha}?recursive=1&t=${Date.now()}`;
+    const rt = await fetch(tApi, { headers: this._hdr(), cache: 'no-store' });
+    if (!rt.ok) throw new Error('读取 tree 失败 HTTP ' + rt.status);
+    const tree = await rt.json();
+    const entry = (tree.tree || []).find(x => x.path === this.path());
+    if (!entry) return null;
+    // 3) 取 blob 内容
+    const bApi = `https://api.github.com/repos/${c.owner}/${c.repo}/git/blobs/${entry.sha}?t=${Date.now()}`;
+    const rb = await fetch(bApi, { headers: this._hdr(), cache: 'no-store' });
+    if (rb.status === 404) return null;
+    if (!rb.ok) throw new Error('读取内容失败 HTTP ' + rb.status);
+    const bj = await rb.json();
+    const txt = decodeURIComponent(escape(atob((bj.content || '').replace(/\n/g, ''))));
+    let db;
+    try { db = JSON.parse(txt); } catch { throw new Error('云端数据格式损坏'); }
+    // push 用 contents API 需要 blob 的 path-sha（contents 接口的 sha），单独取一次
+    let pathSha = null;
+    try {
+      const rc2 = await fetch(this._api(), { headers: this._hdr(), cache: 'no-store' });
+      if (rc2.ok) pathSha = (await rc2.json()).sha;
+    } catch {}
+    return { sha: pathSha || entry.sha, db };
+  },
+
+  /** 写入远端；sha 为空则新建 */
+  async push(db, sha) {
+    const c = this.cfg();
+    const body = {
+      message: `sync: ${new Date().toISOString()} (${db.notes.length} notes, rev ${db.rev})`,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 1)))),
+      branch: c.branch || 'main'
+    };
+    if (sha) body.sha = sha;
+    const r = await fetch(this._api().split('?')[0], {
+      method: 'PUT', headers: this._hdr(), body: JSON.stringify(body)
+    });
+    if (r.status === 409 || r.status === 422) return { conflict: true };
+    if (r.status === 401) throw new Error('Token 无效或已过期');
+    if (r.status === 403) throw new Error('Token 权限不足（需要 Contents: Read and write）');
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error('上传失败 HTTP ' + r.status + ' ' + t.slice(0, 120));
+    }
+    const j = await r.json();
+    return { sha: j.content.sha };
+  },
+
+  /** 三方合并：以 note.id 为单位，updatedAt 新者胜（本地无 updatedAt 视为新本地条目） */
+  merge(localDb, remoteDb) {
+    const map = new Map();
+    const stamp = (n) => n.updatedAt || n.createdAt || 0;
+    let pulled = 0, pushed = 0;
+    (remoteDb.notes || []).forEach(rn => map.set(rn.id, rn));
+    (localDb.notes || []).forEach(ln => {
+      const rn = map.get(ln.id);
+      if (!rn) { map.set(ln.id, ln); pushed++; return; }        // 本地新增
+      if (stamp(ln) > stamp(rn)) { map.set(ln.id, ln); pushed++; return; }  // 本地更新
+      if (stamp(rn) > stamp(ln)) { pulled++; return; }           // 远端更新，保留远端
+      // 时间戳相同：内容不同则保留本地（pushed++），内容相同不计数
+      if (JSON.stringify(ln) !== JSON.stringify(rn)) { map.set(ln.id, ln); pushed++; }
+    });
+    const notes = [...map.values()];
+    return {
+      db: { rev: Math.max(localDb.rev || 0, remoteDb.rev || 0) + 1, notes, updatedAt: now() },
+      pulled, pushed
+    };
+  },
+
+  /** 完整同步：先拉后合再推，冲突自动重试 */
+  async sync(silent = false) {
+    if (!this.enabled()) { if (!silent) toast('还没配置云端同步', 'warn'); return false; }
+    setSyncState('syncing');
+    try {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const remote = await this.pull();
+        if (!remote) {
+          const r = await this.push(State.db, null);
+          if (r.conflict) continue;
+          setSyncState('ok', '已创建云端');
+          if (!silent) toast('已上传到云端');
+          return true;
+        }
+        const { db: merged, pulled, pushed } = this.merge(State.db, remote.db);
+        // 数据无差异就不再制造空提交
+        if (pulled === 0 && pushed === 0) {
+          State.db = { ...State.db, rev: Math.max(State.db.rev || 0, remote.db.rev || 0) };
+          setSyncState('ok', '已是最新');
+          if (!silent) toast('云端已是最新');
+          return true;
+        }
+        const r = await this.push(merged, remote.sha);
+        if (r.conflict) continue;   // 别人抢先提交，重新拉取合并
+        Storage.save(merged);
+        State.db = merged;
+        if (pulled > 0) State.lastRemoteRev = merged.rev;
+        const keepId = State.activeId;
+        if (!getNote(keepId)) State.activeId = sortNotes(merged.notes)[0]?.id || null;
+        renderAll();
+        renderEditor();
+        setSyncState('ok', `${fmtTime(now())} 已同步`);
+        if (!silent) toast(`同步完成：拉取 ${pulled} 条，上传 ${pushed} 条`);
+        return true;
+      }
+      setSyncState('err', '冲突重试失败');
+      if (!silent) toast('同步冲突，请稍后重试', 'err');
+      return false;
+    } catch (e) {
+      setSyncState('err', e.message || '同步失败');
+      if (!silent) toast('同步失败：' + (e.message || '网络错误'), 'err');
+      return false;
+    }
+  }
+};
+
+let syncTimer = null;
+function setSyncState(state, text) {
+  const badge = $('#syncBadge');
+  const txt = $('#syncText');
+  const st = $('#stSync');
+  badge.classList.remove('busy', 'off');
+  if (state === 'syncing') { badge.classList.add('busy'); txt.textContent = '同步中…'; if (st) st.textContent = '云端：上传中'; }
+  else if (state === 'ok') { txt.textContent = '已同步'; if (st) st.textContent = '云端：' + (text || '已同步'); }
+  else if (state === 'err') { badge.classList.add('off'); txt.textContent = '同步异常'; if (st) st.textContent = '云端：' + (text || '异常'); }
+  else { txt.textContent = text || '本地模式'; if (st) st.textContent = '云端：' + (text || '未配置'); }
+}
+/** 保存后延迟触发云端同步，避免每次敲键都发请求 */
+function scheduleCloudSync() {
+  if (!Cloud.enabled()) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => Cloud.sync(true), 2500);
+}
+
+/* =========================================================================
    3. 应用状态
    ========================================================================= */
 const State = {
@@ -701,38 +931,70 @@ function getNote(id) { return State.db.notes.find(n => n.id === id) || null; }
 /* =========================================================================
    4. 渲染
    ========================================================================= */
+/* ---------- 全文搜索：多关键词 AND + 片段高亮 ---------- */
+function tokenize(kw) {
+  return kw.toLowerCase().split(/\s+/).filter(Boolean);
+}
+function matchNote(n, terms) {
+  if (!terms.length) return true;
+  const hay = ((n.title || '') + ' \n ' + (n.plain || '') + ' \n ' + (n.tags || []).join(' ')).toLowerCase();
+  return terms.every(t => hay.includes(t));
+}
+function highlight(str, terms) {
+  let out = esc(str || '');
+  terms.forEach(t => {
+    if (!t) return;
+    const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    out = out.replace(re, '<mark class="hl">$1</mark>');
+  });
+  return out;
+}
+function snippet(n, terms) {
+  const body = n.plain || '';
+  if (!terms.length || !body) return '';
+  const low = body.toLowerCase();
+  let pos = -1, hit = '';
+  for (const t of terms) {
+    const i = low.indexOf(t);
+    if (i !== -1 && (pos === -1 || i < pos)) { pos = i; hit = t; }
+  }
+  if (pos === -1) return '';
+  const start = Math.max(0, pos - 24), end = Math.min(body.length, pos + hit.length + 46);
+  const seg = (start > 0 ? '…' : '') + body.slice(start, end) + (end < body.length ? '…' : '');
+  return highlight(seg, terms);
+}
+
 function renderList() {
   const box = $('#noteList');
-  const kw = State.keyword.toLowerCase();
+  const terms = tokenize(State.keyword);
   let list = sortNotes(State.db.notes);
 
   if (State.filterTag) list = list.filter(n => (n.tags || []).includes(State.filterTag));
-  if (kw) {
-    list = list.filter(n =>
-      (n.title || '').toLowerCase().includes(kw) ||
-      (n.plain || '').toLowerCase().includes(kw) ||
-      (n.tags || []).join(' ').toLowerCase().includes(kw)
-    );
-  }
+  if (terms.length) list = list.filter(n => matchNote(n, terms));
 
   $('#listCount').textContent = list.length;
+
   if (!list.length) {
-    box.innerHTML = `<div style="padding:28px 14px;text-align:center;color:var(--text-mute);font-size:12px;line-height:2">
-      ${State.db.notes.length ? '没有匹配的笔记' : '还没有笔记<br>点右上角「＋ 新建笔记」开始'}
+    box.innerHTML = `<div class="list-empty">
+      ${State.db.notes.length ? '没有匹配「' + esc(State.keyword) + '」的笔记' : '还没有笔记<br>点右上角「＋ 新建笔记」开始'}
     </div>`;
     return;
   }
 
-  box.innerHTML = list.map(n => `
+  box.innerHTML = list.map(n => {
+    const snip = terms.length ? snippet(n, terms) : '';
+    return `
     <div class="note-item ${n.id === State.activeId ? 'active' : ''}" data-id="${n.id}">
-      <div class="nt">${n.pinned ? '<span class="pin">📌</span>' : ''}${esc(n.title || '未命名')}</div>
+      <div class="nt">${n.pinned ? '<span class="pin">📌</span>' : ''}${terms.length ? highlight(n.title || '未命名', terms) : esc(n.title || '未命名')}</div>
+      ${snip ? `<div class="snip">${snip}</div>` : ''}
       <div class="nm">
         <span>${fmtTime(n.updatedAt || n.createdAt || 0)}</span>
         <span>· ${countWords(n.plain)} 字</span>
         ${(n.tags || []).length ? `<span class="tag">#${esc(n.tags[0])}</span>` : ''}
       </div>
       <button class="del" data-del="${n.id}" title="删除">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function renderTagBar() {
@@ -856,6 +1118,7 @@ function commitSave(reason = 'auto') {
       $('#metaTime').textContent = '更新于 ' + fmtTime(fresh.notes[idx].updatedAt);
       $('#metaWords').textContent = countWords(fresh.notes[idx].plain) + ' 字';
 
+      scheduleCloudSync();
       // 广播：带 noteId，其他页只在非编辑态时接受覆盖
       clearTimeout(broadcastTimer);
       broadcastTimer = setTimeout(() => {
@@ -967,6 +1230,7 @@ function createNote(seed = {}) {
   renderAll();
   Sync.post({ type: 'note-saved', noteId: n.id, rev: n.rev });
   setTimeout(() => Sync.setBusy(false), 150);
+  scheduleCloudSync();
   $('#titleInput').focus();
   $('#titleInput').select();
   return n;
@@ -989,6 +1253,7 @@ function deleteNote(id) {
   renderAll();
   Sync.post({ type: 'db-changed', rev: State.db.rev });
   setTimeout(() => Sync.setBusy(false), 150);
+  scheduleCloudSync();
   toast('已删除');
 }
 
@@ -1008,6 +1273,7 @@ function togglePin(id) {
   renderAll();
   Sync.post({ type: 'db-changed', rev: State.db.rev });
   setTimeout(() => Sync.setBusy(false), 150);
+  scheduleCloudSync();
 }
 
 /* =========================================================================
@@ -1143,6 +1409,7 @@ $('#tagBar').addEventListener('click', (e) => {
 });
 
 $('#btnNew').addEventListener('click', () => createNote());
+$('#btnNewSide').addEventListener('click', () => createNote());
 $('#btnPin').addEventListener('click', () => { if (State.activeId) { if (State.dirty) commitSave(); togglePin(State.activeId); } });
 $('#btnCopy').addEventListener('click', async () => {
   const n = getNote(State.activeId);
@@ -1591,6 +1858,77 @@ $('#tplGrid').addEventListener('click', (e) => {
   toast('已从模板创建');
 });
 
+/* =========================================================================
+   11.5 云端同步 UI 绑定
+   ========================================================================= */
+function openCloudModal() {
+  const c = Cloud.cfg() || {};
+  $('#cfOwner').value = c.owner || '';
+  $('#cfRepo').value = c.repo || '';
+  $('#cfBranch').value = c.branch || 'main';
+  $('#cfPath').value = c.path || 'promptcabin-data.json';
+  $('#cfToken').value = c.token || '';
+  const st = $('#cfStatus');
+  st.className = 'cf-status';
+  st.textContent = Cloud.enabled() ? '当前：已配置（' + c.owner + '/' + c.repo + '）' : '当前：未配置，数据只存在本机浏览器';
+  if (Cloud.enabled()) st.classList.add('ok');
+  $('#cloudMask').classList.add('open');
+}
+function readCloudForm() {
+  return {
+    owner: $('#cfOwner').value.trim(),
+    repo: $('#cfRepo').value.trim(),
+    branch: $('#cfBranch').value.trim() || 'main',
+    path: $('#cfPath').value.trim() || 'promptcabin-data.json',
+    token: $('#cfToken').value.trim()
+  };
+}
+$('#btnCloud').addEventListener('click', openCloudModal);
+$('#cfSave').addEventListener('click', async () => {
+  const c = readCloudForm();
+  if (!c.owner || !c.repo || !c.token) { toast('用户名、仓库、Token 都要填', 'warn'); return; }
+  Cloud.setCfg(c);
+  $('#cfStatus').className = 'cf-status';
+  $('#cfStatus').textContent = '正在验证并同步…';
+  const ok = await Cloud.sync(false);
+  $('#cfStatus').className = 'cf-status ' + (ok ? 'ok' : 'err');
+  $('#cfStatus').textContent = ok ? '✓ 同步成功，配置已保存' : '✗ 失败，请检查仓库/Token 权限';
+  if (ok) setTimeout(() => $('#cloudMask').classList.remove('open'), 900);
+});
+$('#cfTest').addEventListener('click', async () => {
+  const c = readCloudForm();
+  if (!c.owner || !c.repo || !c.token) { toast('请先填完整', 'warn'); return; }
+  const st = $('#cfStatus');
+  st.className = 'cf-status';
+  st.textContent = '测试中…';
+  try {
+    const r = await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}`, {
+      headers: { 'Authorization': 'Bearer ' + c.token, 'Accept': 'application/vnd.github+json', 'User-Agent': 'prompt-cabin' }
+    });
+    if (r.ok) {
+      const j = await r.json();
+      st.className = 'cf-status ok';
+      st.textContent = `✓ 连通正常（${j.full_name}，默认分支 ${j.default_branch}）`;
+    } else if (r.status === 401) {
+      st.className = 'cf-status err'; st.textContent = '✗ Token 无效或已过期';
+    } else if (r.status === 404) {
+      st.className = 'cf-status err'; st.textContent = '✗ 仓库不存在，或 Token 没授权这个仓库';
+    } else {
+      st.className = 'cf-status err'; st.textContent = '✗ HTTP ' + r.status;
+    }
+  } catch (e) {
+    st.className = 'cf-status err'; st.textContent = '✗ 网络错误：' + e.message;
+  }
+});
+$('#cfClear').addEventListener('click', () => {
+  if (!confirm('清除云端同步配置？（云端文件不会删除，本地笔记保留）')) return;
+  Cloud.clearCfg();
+  setSyncState('idle', '未配置');
+  $('#cloudMask').classList.remove('open');
+  toast('已清除同步配置');
+});
+$('#cloudMask').addEventListener('click', (e) => { if (e.target.id === 'cloudMask') $('#cloudMask').classList.remove('open'); });
+
 /* AI 面板收起 */
 $('#btnAiToggle').addEventListener('click', () => {
   const l = $('#layout');
@@ -1606,8 +1944,10 @@ function init() {
   State.db = Storage.load();
   State.lastRemoteRev = State.db.rev;
 
-  if (!State.db.notes.length) {
+  const FIRST_RUN = !localStorage.getItem('promptcabin:inited');
+  if (!State.db.notes.length && FIRST_RUN) {
     // 首次使用：播下示例
+    localStorage.setItem('promptcabin:inited', '1');
     const t = now();
     State.db.notes = [{
       id: uid('p'),
@@ -1619,6 +1959,8 @@ function init() {
     }];
     State.db.rev = 1;
     Storage.save(State.db);
+  } else if (FIRST_RUN) {
+    localStorage.setItem('promptcabin:inited', '1');
   }
   State.activeId = sortNotes(State.db.notes)[0].id;
   const n = getNote(State.activeId);
@@ -1626,6 +1968,13 @@ function init() {
 
   Sync.init();
   Sync.setBusy(false);
+  // 云端状态初始化
+  if (Cloud.enabled()) {
+    setSyncState('idle', '待同步');
+    setTimeout(() => Cloud.sync(true), 800);
+  } else {
+    setSyncState('idle', '未配置');
+  }
   refreshTabPeers();
   renderAll();
   renderEditor();
