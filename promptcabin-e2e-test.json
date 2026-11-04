@@ -1,5 +1,5 @@
 {
- "rev": 4,
+ "rev": 7,
  "notes": [
   {
    "id": "p_mw20bpvzvj9ss",
@@ -41,7 +41,18 @@
    "rev": 1,
    "createdAt": 1793790129884,
    "updatedAt": 1793790129884
+  },
+  {
+   "id": "p_mw20bz7kq0ma1",
+   "title": "B端新增的笔记",
+   "content": "写在B端",
+   "plain": "写在B端",
+   "tags": [],
+   "pinned": false,
+   "rev": 2,
+   "createdAt": 1793790136064,
+   "updatedAt": 1793790137003
   }
  ],
- "updatedAt": 1793790132121
+ "updatedAt": 1793790139628
 }
