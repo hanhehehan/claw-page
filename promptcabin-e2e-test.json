@@ -1,5 +1,5 @@
 {
- "rev": 102,
+ "rev": 105,
  "notes": [
   {
    "id": "seed1",
@@ -41,7 +41,18 @@
    "rev": 1,
    "createdAt": 1793790631824,
    "updatedAt": 1793790631824
+  },
+  {
+   "id": "p_mw20mus84r8du",
+   "title": "B端第二轮新增",
+   "content": "双向验证",
+   "plain": "双向验证",
+   "tags": [],
+   "pinned": false,
+   "rev": 2,
+   "createdAt": 1793790643544,
+   "updatedAt": 1793790644482
   }
  ],
- "updatedAt": 1793790639860
+ "updatedAt": 1793790651128
 }
