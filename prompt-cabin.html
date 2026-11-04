@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prompt 舱 · OPC 人机共创笔记</title>
+<style>
+:root{
+  --editor-max:920px;
+  /* 浅色调 · 参考腾讯文档 / 飞书 / 大象的克制蓝灰体系 */
+  --bg:#f5f7fa;          /* 页面底色 */
+  --bg-soft:#fafbfc;     /* 次级底色 */
+  --panel:#ffffff;       /* 卡片/面板 */
+  --panel-2:#f2f4f7;     /* hover 底色 */
+  --line:#e4e7ed;        /* 主分割线 */
+  --line-soft:#eef1f6;   /* 细分割线 */
+  --text:#1f2329;        /* 主文字 */
+  --text-dim:#555c66;    /* 次级文字 */
+  --text-mute:#8a919e;   /* 弱化文字 */
+  --accent:#1a73e8;      /* 主蓝（腾讯文档/飞书同族） */
+  --accent-soft:#e8f1fe;
+  --accent-2:#00a6a6;    /* 青 */
+  --green:#12b981;
+  --warn:#e5a008;
+  --warn-soft:#fef6e3;
+  --danger:#e5484d;
+  --danger-soft:#fdeeee;
+  --violet:#7c5cf0;
+  --radius:10px;
+  --shadow-s:0 1px 2px rgba(31,35,41,.04),0 1px 4px rgba(31,35,41,.04);
+  --shadow-m:0 4px 16px rgba(31,35,41,.08);
+  --shadow-l:0 16px 48px rgba(31,35,41,.16);
+  --mono:"JetBrains Mono","SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);
+  color:var(--text);font-family:var(--sans);font-size:14px;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#d7dce5;border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:#c2c9d6}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ============ 顶栏 ============ */
+.topbar{
+  height:56px;display:flex;align-items:center;gap:14px;padding:0 16px;
+  border-bottom:1px solid var(--line);background:#fff;
+  box-shadow:0 1px 3px rgba(31,35,41,.04);position:relative;z-index:20;
+}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600;letter-spacing:.2px;white-space:nowrap}
+.brand .dot{
+  width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:15px;
+  background:linear-gradient(135deg,#1a73e8,#00b3b3);color:#fff;font-weight:800;
+  box-shadow:0 2px 6px rgba(26,115,232,.28);
+}
+.brand>div{font-size:13.5px;line-height:1.25;color:var(--text)}
+.brand small{font-weight:400;color:var(--text-mute);font-size:10.5px;letter-spacing:0;display:block}
+.search{flex:1;max-width:400px;position:relative}
+.search input{
+  width:100%;height:34px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel-2);padding:0 44px 0 32px;outline:none;color:var(--text);
+  font-size:13px;transition:.15s;
+}
+.search input::placeholder{color:#a8aeb9}
+.search input:focus{border-color:#9dc1f5;background:#fff;box-shadow:0 0 0 3px rgba(26,115,232,.1)}
+.search .ico{position:absolute;left:11px;top:9px;color:var(--text-mute);font-size:13px}
+.search kbd{
+  position:absolute;right:8px;top:8px;font-size:10px;color:var(--text-mute);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-family:var(--mono);background:#fff;
+}
+.spacer{flex:1}
+.tb-btn{
+  height:32px;padding:0 12px;border-radius:7px;border:1px solid var(--line);
+  background:#fff;color:var(--text-dim);display:inline-flex;align-items:center;gap:6px;
+  transition:.15s;font-size:13px;white-space:nowrap;box-shadow:var(--shadow-s);
+}
+.tb-btn:hover{color:var(--accent);border-color:#bdd6fb;background:#f7faff}
+.tb-btn:active{transform:translateY(.5px)}
+.tb-btn.primary{
+  background:var(--accent);color:#fff;font-weight:600;border:1px solid var(--accent);
+  box-shadow:0 2px 6px rgba(26,115,232,.28);
+}
+.tb-btn.primary:hover{background:#1668d4;border-color:#1668d4;color:#fff}
+.sync-badge{
+  display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-dim);
+  border:1px solid var(--line);padding:5px 10px;border-radius:20px;background:#fbfcfd;white-space:nowrap;
+}
+.sync-badge .led{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(18,185,129,.14)}
+.sync-badge.busy .led{background:var(--warn);box-shadow:0 0 0 3px rgba(229,160,8,.16);animation:pulse 1s infinite}
+.sync-badge.off .led{background:var(--danger);box-shadow:0 0 0 3px rgba(229,72,77,.14)}
+@keyframes pulse{50%{opacity:.35}}
+
+/* ============ 主布局 ============ */
+.layout{display:grid;grid-template-columns:296px minmax(0,1fr) 396px;height:calc(100vh - 56px);height:calc(100dvh - 56px)}
+.layout.no-ai{grid-template-columns:296px minmax(0,1fr)}
+.sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--bg-soft)}
+.side-head{padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between}
+.side-head h3{margin:0;font-size:12px;letter-spacing:.6px;color:var(--text-mute);font-weight:600}
+.count-pill{font-size:11px;color:var(--text-mute);font-family:var(--mono);background:#fff;border:1px solid var(--line);padding:1px 7px;border-radius:20px}
+.tagbar{display:flex;flex-wrap:wrap;gap:6px;padding:2px 14px 11px;border-bottom:1px solid var(--line-soft)}
+.tagchip{
+  font-size:11.5px;padding:3px 10px;border-radius:20px;border:1px solid var(--line);
+  color:var(--text-dim);background:#fff;transition:.14s;
+}
+.tagchip:hover{border-color:#bdd6fb;color:var(--accent)}
+.tagchip.on{background:var(--accent-soft);border-color:#bcd8fc;color:var(--accent);font-weight:600}
+.note-list{flex:1;overflow-y:auto;padding:8px}
+.note-item{
+  padding:10px 11px;border-radius:8px;border:1px solid transparent;margin-bottom:2px;
+  cursor:pointer;transition:.13s;position:relative;
+}
+.note-item:hover{background:#fff;border-color:var(--line);box-shadow:var(--shadow-s)}
+.note-item.active{background:var(--accent-soft);border-color:#cfe2fd}
+.note-item.active .nt{color:var(--accent)}
+.note-item.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--accent);
+}
+.note-item .nt{font-weight:500;font-size:13px;margin-bottom:4px;display:flex;align-items:center;gap:5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.note-item .nt .pin{color:var(--warn);font-size:10px}
+.note-item .nm{font-size:11px;color:var(--text-mute);display:flex;gap:7px;align-items:center;font-family:var(--mono)}
+.note-item .nm .tag{color:#3f7fd8;background:#eef4fd;padding:0 5px;border-radius:3px}
+.note-item .del{
+  position:absolute;right:6px;top:8px;opacity:0;color:var(--text-mute);font-size:12px;
+  padding:2px 5px;border-radius:5px;transition:.13s;background:#fff;
+}
+.note-item:hover .del{opacity:1}
+.note-item .del:hover{color:var(--danger);background:var(--danger-soft)}
+
+/* ============ 编辑器 ============ */
+.editor-area{display:flex;flex-direction:column;min-width:0;min-height:0;background:#fff}
+.editor-head{padding:16px 26px 10px}
+.title-row{display:flex;align-items:center;gap:10px}
+.title-input{
+  flex:1;background:none;border:none;outline:none;font-size:20px;font-weight:600;letter-spacing:.2px;
+  padding:2px 0;color:var(--text);
+}
+.title-input::placeholder{color:#b8bec9;font-weight:500}
+.icon-btns{display:flex;gap:2px}
+.icon-btn{
+  width:30px;height:30px;border-radius:6px;display:grid;place-items:center;color:var(--text-mute);
+  border:1px solid transparent;transition:.13s;font-size:14px;
+}
+.icon-btn:hover{background:var(--panel-2);color:var(--text);border-color:var(--line)}
+.icon-btn.on{color:var(--warn);background:var(--warn-soft);border-color:#f6e3b4}
+.meta-row{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:11.5px;color:var(--text-mute);flex-wrap:wrap}
+.meta-row .sep{width:1px;height:11px;background:var(--line)}
+.tag-input{
+  background:transparent;border:1px solid transparent;border-radius:5px;padding:2px 6px;
+  font-size:11.5px;color:var(--text-dim);outline:none;width:180px;transition:.14s;
+}
+.tag-input:hover{background:var(--panel-2);border-color:var(--line)}
+.tag-input:focus{border-color:#9dc1f5;background:#fff;box-shadow:0 0 0 2px rgba(26,115,232,.08)}
+
+.toolbar{
+  display:flex;align-items:center;gap:2px;padding:7px 20px;border-top:1px solid var(--line-soft);
+  border-bottom:1px solid var(--line-soft);
+  flex-wrap:wrap;background:#fbfcfd;
+}
+.tb-seg{display:flex;align-items:center;gap:2px;padding-right:7px;margin-right:6px;border-right:1px solid var(--line)}
+.tb-seg:last-child{border-right:none}
+.tbtn{
+  min-width:28px;height:28px;padding:0 7px;border-radius:5px;color:var(--text-dim);
+  display:inline-flex;align-items:center;justify-content:center;font-size:13px;transition:.12s;
+}
+.tbtn:hover{background:#eceff4;color:var(--text)}
+.tbtn.active{background:var(--accent-soft);color:var(--accent)}
+.tbtn.wide{padding:0 9px;font-size:11.5px;gap:4px;font-family:var(--sans)}
+.tb-select{
+  height:27px;background:#fff;border:1px solid var(--line);border-radius:5px;
+  padding:0 4px;color:var(--text-dim);font-size:11.5px;outline:none;cursor:pointer;transition:.13s;
+}
+.tb-select:hover{border-color:#c6cdd9}
+.tb-select:focus{border-color:#9dc1f5}
+.tb-color{width:27px;height:27px;border-radius:5px;border:1px solid var(--line);background:#fff;padding:2px;cursor:pointer}
+.counter{margin-left:auto;font-size:11px;color:var(--text-mute);font-family:var(--mono);display:flex;gap:10px;align-items:center}
+.counter .hot{color:var(--accent-2);background:#e7f7f7;padding:1px 6px;border-radius:4px}
+
+.editor-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;background:#fff;display:flex;justify-content:center}
+.editor-wrap{width:100%;max-width:920px;padding:28px 32px 140px;min-height:100%;box-sizing:border-box}
+#editor{
+  min-height:calc(100% - 4px);outline:none;line-height:1.9;font-size:15px;color:var(--text);
+  overflow-wrap:anywhere;word-break:break-word;caret-color:var(--accent);
+}
+#editor>*:first-child{margin-top:0}
+#editor>*:last-child{margin-bottom:0}
+#editor:empty:before{
+  content:attr(data-placeholder);color:#b8bec9;pointer-events:none;
+}
+#editor h1{font-size:21px;margin:.2em 0 .55em;padding-bottom:8px;border-bottom:1px solid var(--line-soft);font-weight:600}
+#editor h2{font-size:17px;margin:1em 0 .4em;color:#1f2329;font-weight:600}
+#editor h3{font-size:15.5px;margin:.9em 0 .35em;font-weight:600}
+#editor blockquote{
+  margin:.6em 0;padding:9px 14px;border-left:3px solid #9dc1f5;
+  background:#f4f8fe;border-radius:0 6px 6px 0;color:#3a4658;
+}
+#editor pre,#editor code{
+  font-family:var(--mono);font-size:13px;background:#f6f8fa;border:1px solid var(--line);border-radius:5px;
+}
+#editor pre{padding:12px 14px;overflow-x:auto;white-space:pre-wrap;margin:.6em 0;color:#24292f}
+#editor code{padding:1px 5px;color:#c7254e;background:#f8f5f6}
+#editor pre code{border:none;background:none;padding:0;color:#24292f}
+#editor p,#editor div,#editor li,#editor blockquote,#editor h1,#editor h2,#editor h3{
+  overflow-wrap:anywhere;word-break:break-word;white-space:normal;
+}
+#editor pre{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
+#editor ul,#editor ol{padding-left:24px;margin:.4em 0}
+#editor li{margin:.2em 0}
+#editor a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+#editor mark{background:#fff3c4;color:inherit;padding:0 2px;border-radius:3px}
+#editor hr{border:none;border-top:1px solid var(--line);margin:1.2em 0}
+
+/* 底部状态条 */
+.statusbar{
+  height:26px;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;
+  padding:0 20px;font-size:11px;color:var(--text-mute);font-family:var(--mono);
+  background:var(--bg-soft);
+}
+.statusbar .ok{color:var(--green)}
+.statusbar .edit{color:var(--warn)}
+
+/* ============ AI 面板 ============ */
+.ai-panel{
+  border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;
+  background:var(--bg-soft);
+}
+.ai-head{padding:14px 16px 11px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;background:#fff}
+.ai-head h3{margin:0;font-size:13px;font-weight:600;letter-spacing:.2px}
+.ai-head .spark{
+  width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:11px;
+  background:linear-gradient(135deg,#7c5cf0,#1a73e8);color:#fff;
+}
+.ai-body{flex:1;overflow-y:auto;padding:12px 14px 24px}
+.score-card{
+  border:1px solid var(--line);border-radius:10px;padding:14px 15px;margin-bottom:12px;
+  background:#fff;box-shadow:var(--shadow-s);
+}
+.score-top{display:flex;align-items:baseline;gap:7px;margin-bottom:2px}
+.score-num{font-size:32px;font-weight:700;font-family:var(--mono);letter-spacing:-1.5px;line-height:1}
+.score-label{font-size:11px;color:var(--text-mute)}
+.grade-tag{margin-left:auto;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
+.bar-track{height:6px;border-radius:6px;background:#eef1f6;overflow:hidden;margin-top:10px}
+.bar-fill{height:100%;border-radius:6px;transition:width .45s cubic-bezier(.22,1,.36,1)}
+.dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;margin-top:13px}
+.dim{font-size:11px}
+.dim .dl{display:flex;justify-content:space-between;color:var(--text-mute);margin-bottom:4px}
+.dim .dl b{color:var(--text-dim);font-family:var(--mono);font-weight:600}
+.dim .dt{height:4px;border-radius:4px;background:#eef1f6;overflow:hidden}
+.dim .df{height:100%;border-radius:4px;transition:width .4s}
+
+.finding{
+  border:1px solid var(--line);border-radius:8px;
+  padding:11px 12px 11px 13px;margin-bottom:9px;background:#fff;transition:.15s;
+  box-shadow:var(--shadow-s);position:relative;overflow:hidden;
+}
+.finding::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--text-mute)}
+.finding:hover{box-shadow:var(--shadow-m);border-color:#d5dbe5}
+.finding.sev-high::before{background:var(--danger)}
+.finding.sev-mid::before{background:var(--warn)}
+.finding.sev-low::before{background:var(--accent)}
+.finding.sev-tip::before{background:var(--violet)}
+.f-head{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.f-cat{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--panel-2);color:var(--text-dim);font-family:var(--mono)}
+.f-sev{font-size:10px;font-family:var(--mono)}
+.f-sev.high{color:var(--danger)}.f-sev.mid{color:var(--warn)}.f-sev.low{color:var(--accent)}.f-sev.tip{color:var(--violet)}
+.f-title{font-size:12.5px;font-weight:600;margin-bottom:4px;line-height:1.55;color:var(--text)}
+.f-text{font-size:12px;color:var(--text-dim);line-height:1.7}
+.f-quote{
+  font-family:var(--sans);font-size:11.5px;color:#3f5068;background:#f8fafc;border:1px solid var(--line-soft);
+  border-radius:6px;padding:7px 9px;margin:7px 0 0;white-space:pre-wrap;word-break:break-word;max-height:92px;overflow:auto;line-height:1.65;
+}
+.f-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.f-btn{
+  font-size:11.5px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);
+  color:var(--text-dim);background:#fff;transition:.13s;
+}
+.f-btn:hover{color:var(--accent);border-color:#bdd6fb;background:#f7faff}
+.f-btn.run{border-color:var(--accent);color:#fff;background:var(--accent);font-weight:600;box-shadow:0 2px 6px rgba(26,115,232,.25)}
+.f-btn.run:hover{background:#1668d4;border-color:#1668d4;color:#fff}
+.empty-ai{padding:44px 22px;text-align:center;color:var(--text-mute);font-size:12.5px;line-height:2}
+.empty-ai .big{font-size:28px;margin-bottom:12px;opacity:.35;color:var(--violet)}
+
+/* 模板抽屉 / 弹层 */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(31,35,41,.42);backdrop-filter:blur(2px);
+  display:none;place-items:center;z-index:100;
+}
+.modal-mask.open{display:grid}
+.modal{
+  width:min(780px,92vw);max-height:80vh;overflow:auto;background:#fff;
+  border-radius:14px;padding:22px 24px;box-shadow:var(--shadow-l);
+  animation:pop .18s ease;
+}
+@keyframes pop{from{transform:scale(.97);opacity:0}}
+.modal h2{margin:0 0 4px;font-size:17px;font-weight:600}
+.modal p.sub{margin:0 0 18px;color:var(--text-mute);font-size:12.5px}
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tpl{
+  border:1px solid var(--line);border-radius:9px;padding:13px 15px;background:#fff;
+  cursor:pointer;transition:.14s;
+}
+.tpl:hover{border-color:#bdd6fb;background:#f7faff;transform:translateY(-1px);box-shadow:var(--shadow-m)}
+.tpl b{display:block;font-size:13px;margin-bottom:5px;font-weight:600;color:var(--text)}
+.tpl span{font-size:11.5px;color:var(--accent);line-height:1.6}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+
+.toast-wrap{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:200}
+.toast{
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--green);
+  padding:10px 15px;border-radius:8px;font-size:12.5px;box-shadow:var(--shadow-m);
+  animation:slidein .22s ease;max-width:340px;color:var(--text);
+}
+@keyframes slidein{from{transform:translateX(20px);opacity:0}}
+.toast.warn{border-left-color:var(--warn)}
+.toast.err{border-left-color:var(--danger)}
+
+.hint-conflict{
+  display:none;align-items:center;gap:10px;padding:9px 14px;margin:0 26px 10px;
+  border:1px solid #f6e0b0;background:var(--warn-soft);border-radius:7px;
+  font-size:12px;color:#8a6412;
+}
+.hint-conflict.show{display:flex}
+.hint-conflict button{
+  font-size:11.5px;padding:3px 10px;border-radius:5px;border:1px solid #eccb84;
+  color:#8a6412;margin-left:auto;background:#fff;transition:.13s;
+}
+.hint-conflict button:hover{background:#fdf0d8}
+@media(max-width:1180px){
+  .layout{grid-template-columns:250px 1fr 340px}
+}
+@media(max-width:1180px){
+  .editor-wrap{padding:24px 24px 140px}
+}
+@media(max-width:900px){
+  .layout,.layout.no-ai{grid-template-columns:minmax(0,1fr)}
+  .sidebar{display:none}
+  .ai-panel{display:none}
+  .topbar{gap:8px;padding:0 10px;height:52px;flex-wrap:nowrap}
+  .brand small{display:none}
+  .brand>div{font-size:13px}
+  .brand .dot{width:24px;height:24px}
+  .search{max-width:none;flex:1;min-width:0}
+  .search kbd{display:none}
+  .sync-badge{display:none}
+  .tb-btn{padding:0 10px;font-size:12px}
+  .tb-btn#btnTemplates,.tb-btn#btnExport{display:none}
+  .layout{height:calc(100vh - 52px);height:calc(100dvh - 52px)}
+  .editor-head{padding:14px 14px 8px}
+  .title-input{font-size:17px}
+  .toolbar{padding:6px 10px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+  .toolbar::-webkit-scrollbar{display:none}
+  .tb-seg{flex:0 0 auto}
+  .counter{display:none}
+  .editor-wrap{padding:18px 16px 120px}
+  #editor{font-size:16px}
+  .hint-conflict{margin:0 14px 8px}
+  .statusbar{padding:0 12px;gap:10px}
+  #stStorage{display:none}
+  .modal{width:94vw;padding:18px}
+  .tpl-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="dot">P</div>
+    <div>Prompt 舱<br><small>OPC 人机共创笔记</small></div>
+  </div>
+
+  <div class="search">
+    <span class="ico">⌕</span>
+    <input id="searchInput" placeholder="搜索标题、正文、标签…" />
+    <kbd>⌘K</kbd>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="sync-badge" id="syncBadge" title="多标签页同步状态">
+    <span class="led"></span><span id="syncText">同步就绪</span>
+  </div>
+
+  <button class="tb-btn" id="btnTemplates">✦ 模板库</button>
+  <button class="tb-btn" id="btnExport">↓ 导出</button>
+  <button class="tb-btn primary" id="btnNew">＋ 新建笔记</button>
+</div>
+
+<div class="layout" id="layout">
+  <!-- ================= 侧栏 ================= -->
+  <aside class="sidebar">
+    <div class="side-head">
+      <h3>笔记列表</h3>
+      <span class="count-pill" id="listCount">0</span>
+    </div>
+    <div class="tagbar" id="tagBar"></div>
+    <div class="note-list" id="noteList"></div>
+  </aside>
+
+  <!-- ================= 编辑器 ================= -->
+  <section class="editor-area">
+    <div class="editor-head">
+      <div class="title-row">
+        <input class="title-input" id="titleInput" placeholder="未命名 Prompt…" />
+        <div class="icon-btns">
+          <button class="icon-btn" id="btnPin" title="置顶">📌</button>
+          <button class="icon-btn" id="btnAnalyze" title="让 AI 批注这段 Prompt">⚡</button>
+          <button class="icon-btn" id="btnCopy" title="复制全文">⧉</button>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span id="metaTime">—</span>
+        <span class="sep"></span>
+        <span id="metaWords">0 字</span>
+        <span class="sep"></span>
+        <input class="tag-input" id="tagInput" placeholder="标签，逗号分隔" />
+        <span class="sep"></span>
+        <span id="metaId" style="font-family:var(--mono);opacity:.7"></span>
+      </div>
+    </div>
+
+    <div class="toolbar" id="toolbar">
+      <div class="tb-seg">
+        <select class="tb-select" id="fmtBlock" title="段落样式">
+          <option value="p">正文</option>
+          <option value="h1">标题 H1</option>
+          <option value="h2">标题 H2</option>
+          <option value="h3">标题 H3</option>
+          <option value="blockquote">引用块</option>
+          <option value="pre">代码块</option>
+        </select>
+      </div>
+      <div class="tb-seg">
+        <select class="tb-select" id="fmtFont" title="字体">
+          <option value="">默认字体</option>
+          <option value="var(--sans)">无衬线</option>
+          <option value="Georgia, serif">衬线 Georgia</option>
+          <option value="var(--mono)">等宽 Mono</option>
+          <option value="'Kaiti SC', 'KaiTi', serif">楷体</option>
+        </select>
+        <select class="tb-select" id="fmtSize" title="字号">
+          <option value="">字号</option>
+          <option value="12px">12</option><option value="14px">14</option>
+          <option value="15px">15</option><option value="16px">16</option>
+          <option value="18px">18</option><option value="20px">20</option>
+          <option value="24px">24</option><option value="28px">28</option>
+        </select>
+        <input type="color" class="tb-color" id="fmtColor" value="#1f2329" title="文字颜色" />
+        <input type="color" class="tb-color" id="fmtBg" value="#ffe58f" title="背景高亮" />
+      </div>
+      <div class="tb-seg">
+        <button class="tbtn" data-cmd="bold" title="加粗 ⌘B"><b>B</b></button>
+        <button class="tbtn" data-cmd="italic" title="斜体 ⌘I"><i>I</i></button>
+        <button class="tbtn" data-cmd="underline" title="下划线 ⌘U"><u>U</u></button>
+        <button class="tbtn" data-cmd="strikeThrough" title="删除线"><s>S</s></button>
+        <button class="tbtn" data-cmd="hiliteColor" data-val="#ffe58f" title="高亮">🖍</button>
+      </div>
+      <div class="tb-seg">
+        <button class="tbtn" data-cmd="insertUnorderedList" title="无序列表">• ≡</button>
+        <button class="tbtn" data-cmd="insertOrderedList" title="有序列表">1. ≡</button>
+        <button class="tbtn" id="btnQuote" title="引用块">❝</button>
+        <button class="tbtn" id="btnCode" title="代码块">{ }</button>
+      </div>
+      <div class="tb-seg">
+        <button class="tbtn wide" id="btnClearFmt" title="清除格式">清除格式</button>
+      </div>
+      <div class="counter">
+        <span id="wordCount">0 字</span>
+        <span class="hot" id="tokenEst">≈0 tokens</span>
+      </div>
+    </div>
+
+    <div class="hint-conflict" id="conflictHint">
+      <span>⚠ 其他标签页已修改这条笔记，你本地有未同步的改动。</span>
+      <button id="btnReload">载入远端版本</button>
+    </div>
+
+    <div class="editor-scroll" id="editorScroll">
+      <div class="editor-wrap">
+        <div id="editor" contenteditable="true" data-placeholder="在这里写你的 Prompt…（⌘S 保存，⌘K 搜索）"></div>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <span id="stSave" class="ok">● 已保存</span>
+      <span id="stSync">同步：空闲</span>
+      <span id="stTab">标签页：—</span>
+      <span style="margin-left:auto" id="stStorage">localStorage</span>
+    </div>
+  </section>
+
+  <!-- ================= AI 面板 ================= -->
+  <aside class="ai-panel" id="aiPanel">
+    <div class="ai-head">
+      <div class="spark">✦</div>
+      <h3>共创批注</h3>
+      <button class="icon-btn" id="btnAiToggle" title="收起/展开" style="margin-left:auto">⇥</button>
+    </div>
+    <div class="ai-body" id="aiBody">
+      <div class="empty-ai">
+        <div class="big">✦</div>
+        写下你的 Prompt，点右上角 ⚡<br />
+        我会按「目标清晰度 / 上下文 / 输出契约 / 约束 / 渠道裂变」五个维度给批注，<br />
+        并给出可一键应用的结构化改写。
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- 模板库 -->
+<div class="modal-mask" id="tplMask">
+  <div class="modal">
+    <h2>Prompt 模板库</h2>
+    <p class="sub">面向 OPC 全链路（产品 → 渠道 → 营销 → 流量 → 转化 → 变现）的结构化起手式</p>
+    <div class="tpl-grid" id="tplGrid"></div>
+    <div class="modal-foot">
+      <button class="tb-btn" id="tplClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* =========================================================================
+   0. 工具函数
+   ========================================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const uid = (p = 'p') => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const now = () => Date.now();
+const TAB_ID = uid('tab');
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const plain = (html) => {
+  const d = document.createElement('div');
+  d.innerHTML = html || '';
+  return (d.textContent || '').replace(/\s+/g, ' ').trim();
+};
+const countWords = (t) => (t || '').replace(/\s/g, '').length;
+const fmtTime = (ts) => {
+  const d = new Date(ts), n = new Date();
+  const p = (x) => String(x).padStart(2, '0');
+  const hm = p(d.getHours()) + ':' + p(d.getMinutes());
+  if (d.toDateString() === n.toDateString()) return '今天 ' + hm;
+  if (d.getFullYear() === n.getFullYear()) return `${d.getMonth() + 1}/${d.getDate()} ${hm}`;
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+};
+function toast(msg, type = '') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  $('#toastWrap').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '.3s'; setTimeout(() => el.remove(), 320); }, 2200);
+}
+
+/* =========================================================================
+   1. 存储层：localStorage 持久化 + 写锁
+   ========================================================================= */
+const LS_KEY = 'promptcabin:db:v1';
+const LOCK_KEY = 'promptcabin:lock';
+const LOCK_TTL = 4000;   // 写锁租约 4s
+const STALE_MS = 6000;
+
+const Storage = {
+  _cache: null,
+  load() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return { rev: 0, notes: [], updatedAt: 0 };
+      const d = JSON.parse(raw);
+      return { rev: d.rev || 0, notes: d.notes || [], updatedAt: d.updatedAt || 0 };
+    } catch (e) {
+      console.warn('[store] 解析失败，回退空库', e);
+      return { rev: 0, notes: [], updatedAt: 0 };
+    }
+  },
+  save(db) {
+    db.updatedAt = now();
+    localStorage.setItem(LS_KEY, JSON.stringify(db));
+    this._cache = null;
+    return db;
+  },
+  peekRev() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '{}').rev || 0; } catch { return 0; }
+  }
+};
+
+/** 跨标签页互斥锁：避免两个页面同时写 localStorage 造成条目丢失 */
+const Lock = {
+  _token: null,
+  acquire() {
+    const tryOnce = () => {
+      const cur = this._read();
+      if (!cur || cur.expire < now()) {
+        const me = { owner: TAB_ID, token: uid('lk'), expire: now() + LOCK_TTL };
+        localStorage.setItem(LOCK_KEY, JSON.stringify(me));
+        // 二次确认，规避同时写入的竞争窗口
+        const check = this._read();
+        if (check && check.token === me.token) { this._token = me.token; return true; }
+      }
+      return false;
+    };
+    if (tryOnce()) return true;
+    // 自旋重试（同步阻塞，最多 ~40ms）
+    for (let i = 0; i < 20; i++) {
+      const cur = this._read();
+      if (!cur || cur.expire < now()) { if (tryOnce()) return true; }
+    }
+    return false;
+  },
+  _read() {
+    try { return JSON.parse(localStorage.getItem(LOCK_KEY) || 'null'); } catch { return null; }
+  },
+  release() {
+    const cur = this._read();
+    if (cur && cur.token === this._token) localStorage.removeItem(LOCK_KEY);
+    this._token = null;
+  },
+  /** 带锁执行写事务；拿不到锁则退化为“读取-合并-写入”的乐观写 */
+  run(fn) {
+    const ok = this.acquire();
+    try {
+      return fn(ok);
+    } finally {
+      if (ok) this.release();
+    }
+  }
+};
+
+/* =========================================================================
+   2. 同步层：BroadcastChannel 广播 + storage 事件兜底
+   ========================================================================= */
+const Sync = {
+  ch: null,
+  busy: false,
+  listeners: [],
+  init() {
+    if ('BroadcastChannel' in window) {
+      try {
+        this.ch = new BroadcastChannel('promptcabin');
+        this.ch.onmessage = (e) => this._onMsg(e.data);
+      } catch (e) { console.warn('[sync] BroadcastChannel 不可用', e); }
+    }
+    // 兜底：其他标签页写 localStorage 时也会触发
+    window.addEventListener('storage', (e) => {
+      if (e.key === LS_KEY) this._onMsg({ type: 'db-changed', rev: Storage.peekRev(), from: 'storage-event' });
+    });
+    this.hello();
+  },
+  post(msg) {
+    if (!this.ch) return;
+    try { this.ch.postMessage({ ...msg, from: TAB_ID, at: now() }); } catch (e) { }
+  },
+  hello() { this.post({ type: 'hello' }); },
+  bye() { this.post({ type: 'bye' }); },
+  _onMsg(m) {
+    if (!m || m.from === TAB_ID) return;
+    this.listeners.forEach(fn => { try { fn(m); } catch (e) { console.warn(e); } });
+    if (m.type === 'hello' || m.type === 'bye') refreshTabPeers();
+  },
+  onChange(fn) { this.listeners.push(fn); },
+  setBusy(b) {
+    this.busy = b;
+    const badge = $('#syncBadge');
+    badge.classList.toggle('busy', b);
+    $('#syncText').textContent = b ? '同步中…' : '同步就绪';
+    $('#stSync').textContent = '同步：' + (b ? '写入中' : '空闲');
+  }
+};
+
+/* =========================================================================
+   3. 应用状态
+   ========================================================================= */
+const State = {
+  db: { rev: 0, notes: [], updatedAt: 0 },
+  activeId: null,
+  filterTag: null,
+  keyword: '',
+  dirty: false,
+  lastRemoteRev: 0,
+  typing: false,
+  canBroadcastEdit: false,
+  editingNoteRev: 0
+};
+
+function sortNotes(notes) {
+  return notes.slice().sort((a, b) => {
+    if (!!b.pinned !== !!a.pinned) return b.pinned ? 1 : -1;
+    return (b.updatedAt || 0) - (a.updatedAt || 0);
+  });
+}
+function getNote(id) { return State.db.notes.find(n => n.id === id) || null; }
+
+/* =========================================================================
+   4. 渲染
+   ========================================================================= */
+function renderList() {
+  const box = $('#noteList');
+  const kw = State.keyword.toLowerCase();
+  let list = sortNotes(State.db.notes);
+
+  if (State.filterTag) list = list.filter(n => (n.tags || []).includes(State.filterTag));
+  if (kw) {
+    list = list.filter(n =>
+      (n.title || '').toLowerCase().includes(kw) ||
+      (n.plain || '').toLowerCase().includes(kw) ||
+      (n.tags || []).join(' ').toLowerCase().includes(kw)
+    );
+  }
+
+  $('#listCount').textContent = list.length;
+  if (!list.length) {
+    box.innerHTML = `<div style="padding:28px 14px;text-align:center;color:var(--text-mute);font-size:12px;line-height:2">
+      ${State.db.notes.length ? '没有匹配的笔记' : '还没有笔记<br>点右上角「＋ 新建笔记」开始'}
+    </div>`;
+    return;
+  }
+
+  box.innerHTML = list.map(n => `
+    <div class="note-item ${n.id === State.activeId ? 'active' : ''}" data-id="${n.id}">
+      <div class="nt">${n.pinned ? '<span class="pin">📌</span>' : ''}${esc(n.title || '未命名')}</div>
+      <div class="nm">
+        <span>${fmtTime(n.updatedAt || n.createdAt || 0)}</span>
+        <span>· ${countWords(n.plain)} 字</span>
+        ${(n.tags || []).length ? `<span class="tag">#${esc(n.tags[0])}</span>` : ''}
+      </div>
+      <button class="del" data-del="${n.id}" title="删除">✕</button>
+    </div>`).join('');
+}
+
+function renderTagBar() {
+  const set = new Set();
+  State.db.notes.forEach(n => (n.tags || []).forEach(t => t && set.add(t)));
+  const tags = [...set].slice(0, 14);
+  $('#tagBar').innerHTML = [
+    `<button class="tagchip ${!State.filterTag ? 'on' : ''}" data-tag="">全部</button>`,
+    ...tags.map(t => `<button class="tagchip ${State.filterTag === t ? 'on' : ''}" data-tag="${esc(t)}">#${esc(t)}</button>`)
+  ].join('');
+}
+
+function renderEditor() {
+  const n = getNote(State.activeId);
+  const ed = $('#editor');
+  if (!n) {
+    ed.innerHTML = '';
+    $('#titleInput').value = '';
+    $('#tagInput').value = '';
+    $('#metaTime').textContent = '—';
+    $('#metaWords').textContent = '0 字';
+    $('#metaId').textContent = '';
+    $('#btnPin').classList.remove('on');
+    updateCounters('');
+    return;
+  }
+  if (ed.innerHTML !== (n.content || '')) ed.innerHTML = n.content || '';
+  $('#titleInput').value = n.title || '';
+  $('#tagInput').value = (n.tags || []).join(', ');
+  $('#metaTime').textContent = '更新于 ' + fmtTime(n.updatedAt || n.createdAt || 0);
+  $('#metaWords').textContent = countWords(n.plain) + ' 字';
+  $('#metaId').textContent = n.id;
+  $('#btnPin').classList.toggle('on', !!n.pinned);
+  $('#metaWords').textContent = countWords(n.plain) + ' 字';
+  updateCounters(n.plain || '');
+}
+
+function updateCounters(text) {
+  const w = countWords(text);
+  $('#wordCount').textContent = w + ' 字';
+  // 粗估：中文按 1 字≈1.5 token，英文单词按 1.3 token
+  const cjk = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+  const words = (text.replace(/[\u4e00-\u9fa5]/g, ' ').match(/[A-Za-z0-9_]+/g) || []).length;
+  const est = Math.round(cjk * 1.5 + words * 1.3);
+  $('#tokenEst').textContent = '≈' + est + ' tokens';
+  $('#metaWords').textContent = w + ' 字';
+}
+
+function refreshTabPeers() {
+  const el = $('#stTab');
+  el.textContent = '标签页：本页 ' + TAB_ID.slice(-4);
+}
+
+/* =========================================================================
+   5. 写入流程（防抖 + 锁 + 广播）
+   ========================================================================= */
+let saveTimer = null;
+let broadcastTimer = null;
+
+function markDirty() {
+  State.dirty = true;
+  $('#stSave').textContent = '○ 未保存';
+  $('#stSave').className = 'edit';
+}
+
+function scheduleSave(delay = 700) {
+  markDirty();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => commitSave('auto'), delay);
+}
+
+/** 提交保存：Scope 决定只改当前笔记，避免覆盖他页的改动 */
+function commitSave(reason = 'auto') {
+  const n = getNote(State.activeId);
+  if (!n) return;
+  const html = $('#editor').innerHTML;
+  const title = $('#titleInput').value.trim();
+  const tags = $('#tagInput').value.split(/[,，\s]+/).map(s => s.trim()).filter(Boolean).slice(0, 8);
+
+  Sync.setBusy(true);
+  try {
+    Lock.run((locked) => {
+      // 关键：加锁后重新读取最新库，只合并“当前这条笔记”
+      const fresh = Storage.load();
+      const idx = fresh.notes.findIndex(x => x.id === n.id);
+      if (idx === -1) {
+        // 已被其他标签页删除
+        if (reason !== 'auto') toast('这条笔记已被其他标签页删除', 'warn');
+        State.db = fresh;
+        State.activeId = fresh.notes[0] ? fresh.notes[0].id : null;
+        renderAll();
+        return;
+      }
+      const base = fresh.notes[idx];
+      const isConflict = base.rev !== State.editingNoteRev && reason === 'auto';
+
+      fresh.notes[idx] = {
+        ...base,
+        title: title || '未命名',
+        content: html,
+        plain: plain(html),
+        tags,
+        updatedAt: now(),
+        rev: (base.rev || 0) + 1
+      };
+      fresh.rev = (fresh.rev || 0) + 1;
+      Storage.save(fresh);
+      State.db = fresh;
+      State.editingNoteRev = fresh.notes[idx].rev;
+      State.lastRemoteRev = fresh.rev;
+      State.dirty = false;
+
+      $('#stSave').textContent = locked ? '● 已保存' : '● 已保存（乐观锁）';
+      $('#stSave').className = 'ok';
+
+      if (isConflict) showConflict();
+      else hideConflict();
+
+      renderList();
+      renderTagBar();
+      $('#metaTime').textContent = '更新于 ' + fmtTime(fresh.notes[idx].updatedAt);
+      $('#metaWords').textContent = countWords(fresh.notes[idx].plain) + ' 字';
+
+      // 广播：带 noteId，其他页只在非编辑态时接受覆盖
+      clearTimeout(broadcastTimer);
+      broadcastTimer = setTimeout(() => {
+        Sync.post({ type: 'note-saved', noteId: n.id, rev: fresh.rev, dbRev: fresh.rev, by: TAB_ID });
+      }, 60);
+    });
+  } finally {
+    setTimeout(() => Sync.setBusy(false), 180);
+  }
+}
+
+function showConflict() { $('#conflictHint').classList.add('show'); }
+function hideConflict() { $('#conflictHint').classList.remove('show'); }
+
+/* =========================================================================
+   6. 远端变更处理（核心：编辑中的笔记不被静默覆盖）
+   ========================================================================= */
+Sync.onChange((msg) => {
+  if (msg.type === 'note-saved' || msg.type === 'db-changed') {
+    const remote = Storage.load();
+    if (!remote.notes) return;
+    const incomingRev = msg.type === 'db-changed' ? Storage.peekRev() : msg.rev;
+    if (incomingRev && incomingRev === State.lastRemoteRev) return;
+    applyRemote(remote, msg);
+  }
+  if (msg.type === 'request-state') { Sync.post({ type: 'state-push', db: State.db }); }
+});
+
+function applyRemote(remote, msg) {
+  const editingId = State.activeId;
+  const editingNow = document.activeElement === $('#editor') || document.activeElement === $('#titleInput');
+  const remoteActive = remote.notes.find(n => n.id === editingId);
+
+  // 情况 A：正在编辑且他页改的正是当前笔记 → 保护本地，提示冲突
+  const touchedCurrent = msg && msg.noteId === editingId;
+  if (editingNow && (touchedCurrent || State.dirty)) {
+    State.lastRemoteRev = remote.rev;
+    // 其他笔记的变更仍然合并进来，保证列表不丢条目
+    const local = getNote(editingId);
+    const merged = remote.notes.map(rn => {
+      if (rn.id === editingId && local) return local; // 保留我这份
+      return rn;
+    });
+    State.db = { ...remote, notes: merged };
+    renderList(); renderTagBar();
+    showConflict();
+    return;
+  }
+
+  // 情况 B：空闲态 → 直接整体接受
+  State.db = remote;
+  State.lastRemoteRev = remote.rev;
+  if (remoteActive) State.editingNoteRev = remoteActive.rev;
+  if (!getNote(State.activeId)) State.activeId = remote.notes[0] ? remote.notes[0].id : null;
+  hideConflict();
+  renderAll(true);
+}
+
+/* =========================================================================
+   7. 笔记操作
+   ========================================================================= */
+function renderAll(skipEditor = false) {
+  renderList(); renderTagBar();
+  if (!skipEditor) renderEditor();
+  else {
+    const n = getNote(State.activeId);
+    if (n) {
+      $('#titleInput').value = n.title || '';
+      $('#tagInput').value = (n.tags || []).join(', ');
+      $('#metaTime').textContent = '更新于 ' + fmtTime(n.updatedAt);
+      $('#metaId').textContent = n.id;
+      $('#btnPin').classList.toggle('on', !!n.pinned);
+      if (document.activeElement !== $('#editor') && $('#editor').innerHTML !== (n.content || '')) {
+        $('#editor').innerHTML = n.content || '';
+        updateCounters(n.plain || '');
+      }
+    }
+  }
+  restorePanel();
+}
+
+function createNote(seed = {}) {
+  const t = now();
+  const n = {
+    id: uid('p'),
+    title: seed.title || '未命名 Prompt',
+    content: seed.content || '',
+    plain: plain(seed.content || ''),
+    tags: seed.tags || [],
+    pinned: false,
+    rev: 1,
+    createdAt: t,
+    updatedAt: t
+  };
+  Sync.setBusy(true);
+  Lock.run(() => {
+    const fresh = Storage.load();
+    fresh.notes.unshift(n);
+    fresh.rev = (fresh.rev || 0) + 1;
+    Storage.save(fresh);
+    State.db = fresh;
+    State.lastRemoteRev = fresh.rev;
+    State.editingNoteRev = 1;
+  });
+  State.activeId = n.id;
+  State.filterTag = null;
+  State.keyword = '';
+  $('#searchInput').value = '';
+  renderAll();
+  Sync.post({ type: 'note-saved', noteId: n.id, rev: n.rev });
+  setTimeout(() => Sync.setBusy(false), 150);
+  $('#titleInput').focus();
+  $('#titleInput').select();
+  return n;
+}
+
+function deleteNote(id) {
+  const n = getNote(id);
+  if (!n) return;
+  if (!confirm(`删除「${n.title || '未命名'}」？此操作不可撤销。`)) return;
+  Sync.setBusy(true);
+  Lock.run(() => {
+    const fresh = Storage.load();
+    fresh.notes = fresh.notes.filter(x => x.id !== id);
+    fresh.rev = (fresh.rev || 0) + 1;
+    Storage.save(fresh);
+    State.db = fresh;
+    State.lastRemoteRev = fresh.rev;
+  });
+  if (State.activeId === id) State.activeId = State.db.notes[0] ? State.db.notes[0].id : null;
+  renderAll();
+  Sync.post({ type: 'db-changed', rev: State.db.rev });
+  setTimeout(() => Sync.setBusy(false), 150);
+  toast('已删除');
+}
+
+function togglePin(id) {
+  Sync.setBusy(true);
+  Lock.run(() => {
+    const fresh = Storage.load();
+    const idx = fresh.notes.findIndex(x => x.id === id);
+    if (idx === -1) return;
+    fresh.notes[idx].pinned = !fresh.notes[idx].pinned;
+    fresh.notes[idx].updatedAt = now();
+    fresh.rev++;
+    Storage.save(fresh);
+    State.db = fresh;
+    State.lastRemoteRev = fresh.rev;
+  });
+  renderAll();
+  Sync.post({ type: 'db-changed', rev: State.db.rev });
+  setTimeout(() => Sync.setBusy(false), 150);
+}
+
+/* =========================================================================
+   8. 富文本编辑命令
+   ========================================================================= */
+function exec(cmd, val = null) {
+  $('#editor').focus();
+  document.execCommand(cmd, false, val);
+  scheduleSave();
+  syncToolbarState();
+}
+function syncToolbarState() {
+  ['bold', 'italic', 'underline', 'strikeThrough', 'insertUnorderedList', 'insertOrderedList'].forEach(c => {
+    const btn = $(`.tbtn[data-cmd="${c}"]`);
+    if (!btn) return;
+    try { btn.classList.toggle('active', document.queryCommandState(c)); } catch { }
+  });
+}
+document.addEventListener('selectionchange', () => {
+  const sel = window.getSelection();
+  if (sel && sel.anchorNode && $('#editor').contains(sel.anchorNode)) syncToolbarState();
+});
+
+$('#toolbar').addEventListener('mousedown', (e) => {
+  // 防止点工具栏时丢失选区
+  if (e.target.closest('.tbtn')) e.preventDefault();
+});
+$$('.tbtn[data-cmd]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cmd = btn.dataset.cmd;
+    const val = btn.dataset.val || null;
+    if (cmd === 'hiliteColor' && val) {
+      // 已高亮则取消
+      let cur = '';
+      try { cur = document.queryCommandValue('hiliteColor') || ''; } catch { }
+      exec(cmd, /rgba?\(/.test(cur) && cur !== 'rgba(0, 0, 0, 0)' ? 'transparent' : val);
+    } else exec(cmd);
+  });
+});
+$('#fmtBlock').addEventListener('change', (e) => {
+  const v = e.target.value;
+  exec('formatBlock', '<' + v + '>');
+  e.target.value = 'p';
+});
+$('#fmtFont').addEventListener('change', (e) => {
+  if (e.target.value) exec('fontName', e.target.value);
+  e.target.value = '';
+});
+$('#fmtSize').addEventListener('change', (e) => {
+  const v = e.target.value;
+  if (!v) return;
+  $('#editor').focus();
+  document.execCommand('fontSize', false, '7');
+  $$('#editor font[size="7"]').forEach(f => {
+    const span = document.createElement('span');
+    span.style.fontSize = v;
+    span.innerHTML = f.innerHTML;
+    f.replaceWith(span);
+  });
+  scheduleSave();
+  e.target.value = '';
+});
+$('#fmtColor').addEventListener('input', (e) => { exec('foreColor', e.target.value); });
+$('#fmtBg').addEventListener('input', (e) => { exec('hiliteColor', e.target.value); });
+$('#btnQuote').addEventListener('click', () => exec('formatBlock', '<blockquote>'));
+$('#btnCode').addEventListener('click', () => {
+  const sel = window.getSelection();
+  const text = sel ? sel.toString() : '';
+  if (!text) return exec('formatBlock', '<pre>');
+  document.execCommand('insertHTML', false, `<pre><code>${esc(text)}</code></pre><p><br></p>`);
+  scheduleSave();
+});
+$('#btnClearFmt').addEventListener('click', () => {
+  exec('removeFormat');
+  exec('formatBlock', '<p>');
+  toast('已清除格式');
+});
+
+$('#editor').addEventListener('input', () => {
+  scheduleSave();
+  State.typing = true;
+  clearTimeout(State._typeTimer);
+  State._typeTimer = setTimeout(() => { State.typing = false; }, 900);
+  updateCounters(plain($('#editor').innerHTML));
+});
+$('#editor').addEventListener('blur', () => { if (State.dirty) commitSave('blur'); });
+$('#editor').addEventListener('paste', (e) => {
+  // 粘贴为纯文本，避免带入外部样式
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+  document.execCommand('insertText', false, text);
+  scheduleSave();
+});
+$('#editor').addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); commitSave('manual'); toast('已保存'); }
+  if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '  '); }
+});
+
+$('#titleInput').addEventListener('input', () => { scheduleSave(600); });
+$('#tagInput').addEventListener('input', () => { scheduleSave(800); });
+$('#titleInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); $('#editor').focus(); }
+});
+
+/* =========================================================================
+   9. 事件绑定
+   ========================================================================= */
+$('#noteList').addEventListener('click', (e) => {
+  const del = e.target.closest('[data-del]');
+  if (del) { e.stopPropagation(); deleteNote(del.dataset.del); return; }
+  const item = e.target.closest('.note-item');
+  if (!item) return;
+  if (State.dirty) commitSave('switch');
+  switchNote(item.dataset.id);
+});
+
+function switchNote(id) {
+  if (id === State.activeId) return;
+  State.activeId = id;
+  const n = getNote(id);
+  State.editingNoteRev = n ? n.rev : 0;
+  hideConflict();
+  renderAll();
+  renderEditor();
+  restorePanel();
+}
+
+$('#tagBar').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tag]');
+  if (!b) return;
+  State.filterTag = b.dataset.tag || null;
+  renderList(); renderTagBar();
+});
+
+$('#btnNew').addEventListener('click', () => createNote());
+$('#btnPin').addEventListener('click', () => { if (State.activeId) { if (State.dirty) commitSave(); togglePin(State.activeId); } });
+$('#btnCopy').addEventListener('click', async () => {
+  const n = getNote(State.activeId);
+  if (!n) return;
+  try {
+    await navigator.clipboard.writeText(plain(n.content) ? n.content.replace(/<[^>]+>/g, '') : '');
+    toast('已复制到剪贴板');
+  } catch { toast('复制失败，请手动选择', 'warn'); }
+});
+$('#btnReload').addEventListener('click', () => {
+  const remote = Storage.load();
+  State.db = remote;
+  const n = getNote(State.activeId);
+  State.editingNoteRev = n ? n.rev : 0;
+  State.dirty = false;
+  hideConflict();
+  renderAll();
+  renderEditor();
+  toast('已载入其他标签页的最新版本');
+});
+$('#btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(State.db, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `prompt-cabin-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  toast('已导出 JSON 备份');
+});
+
+$('#searchInput').addEventListener('input', (e) => {
+  State.keyword = e.target.value.trim();
+  renderList();
+});
+
+document.addEventListener('keydown', (e) => {
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); $('#searchInput').select(); }
+  if (mod && e.key.toLowerCase() === 'n') { e.preventDefault(); createNote(); }
+  if (e.key === 'Escape' && document.activeElement === $('#searchInput')) {
+    $('#searchInput').value = ''; State.keyword = ''; renderList(); $('#searchInput').blur();
+  }
+});
+
+window.addEventListener('beforeunload', (e) => {
+  if (State.dirty) { commitSave('unload'); }
+  Sync.bye();
+});
+
+/* =========================================================================
+   10. AI 批注引擎（本地规则 + 可选真实 LLM）
+   ========================================================================= */
+const RULES = {
+  // ---- 维度 1：目标清晰度 ----
+  goal: [
+    {
+      id: 'no-verb', test: (t) => t.length > 20 && !/(请|帮我|生成|输出|设计|分析|写|列出|创建|改|优化|拆解|给出|制定|评估|compare|write|generate|design|list|create)/i.test(t),
+      cat: '目标', sev: 'high', title: '缺少明确的动作指令',
+      text: '模型不知道该「做什么」。开篇用「请你…」「帮我输出…」这类祈使句定调，比抛出背景更有效。',
+      fix: '在开头补一句动词明确的任务指令，例如：请你输出一份可执行的冷启动计划。'
+    },
+    {
+      id: 'vague', test: (t) => /(一些|若干|大概|差不多|之类的|等等|随便|尽量|相关|合适|好一点|更好|优化一下)/.test(t),
+      cat: '目标', sev: 'mid', title: '存在模糊量词，模型只能猜',
+      text: '「一些 / 更好 / 优化一下」无法被验证。把模糊词换成数量、指标或判定标准，输出稳定性会显著提升。',
+      fix: '把所有模糊表述替换为可量化约束，例如「一些选题」→「10 个选题，每个 ≤15 字，含 1 个反常识钩子」。'
+    },
+    {
+      id: 'no-role', test: (t) => t.length > 120 && !/(你是|作为一名|扮演|角色|身份|You are|Act as)/i.test(t),
+      cat: '目标', sev: 'mid', title: '未设定角色，专业度不稳定',
+      text: 'OPC 场景下，给模型一个具体身份（增长架构师 / 独立游戏制作人 / 投放操盘手）能显著收敛它的话语体系和判断标准。',
+      fix: '开头加：你是一名有 10 年经验的 OPC 增长架构师，擅长用零预算跑通冷启动。'
+    }
+  ],
+
+  // ---- 维度 2：上下文 ----
+  context: [
+    {
+      id: 'no-bg', test: (t) => t.length > 60 && !/(背景|现状|我们|我是|目前|当前|现在|已有|条件|资源|context)/i.test(t),
+      cat: '上下文', sev: 'mid', title: '缺少业务背景与资源约束',
+      text: '模型不知道你的起点：预算、人力、已有素材、时间窗口。缺这些，产出的方案会默认「大厂配置」。',
+      fix: '补一段背景：我是一人公司 / 月预算 ≤500 元 / 有 X 素材 / 目标是 30 天内上线 MVP。'
+    },
+    {
+      id: 'no-audience', test: (t) => /(推广|投放|裂变|营销|引流|传播|种草|内容)/.test(t) && !/(用户|人群|受众|客户|玩家|画像|年龄|性别|下沉|Z世代|白领|宝妈)/.test(t),
+      cat: '上下文', sev: 'high', title: '涉投放/裂变却未定义受众',
+      text: '渠道与钩子强依赖人群画像。同一个工具，卖给「宝妈」和「独立开发者」，钩子文案完全不同。',
+      fix: '补上目标人群：年龄段 + 场景 + 当前用什么替代方案 + 最痛的一件事。'
+    },
+    {
+      id: 'no-asset', test: (t) => /(开发|上线|APP|应用|工具|游戏|产品)/.test(t) && !/(技术栈|框架|人天|工时|工期|预算|团队|一个人|单人|外包)/.test(t),
+      cat: '上下文', sev: 'mid', title: '未声明开发约束',
+      text: '「开发一个工具」的答案在「3 天做完」和「3 个月做完」之间差异巨大。声明工时上限，方案才会收敛到真正可执行。',
+      fix: '补一句：单人开发，单个环节工时 ≤3 人日，优先用现成 SaaS/低代码。'
+    }
+  ],
+
+  // ---- 维度 3：输出契约 ----
+  output: [
+    {
+      id: 'no-format', test: (t) => t.length > 80 && !/(表格|列表|JSON|Markdown|格式|结构|分点|编号|要点|返回|输出为)/i.test(t),
+      cat: '输出', sev: 'mid', title: '未指定输出格式',
+      text: '不给格式，模型会自由发挥成一大段散文。指定「表格 / 分点 / JSON」能让结果直接可复制进你的工具。',
+      fix: '补输出契约：用 Markdown 表格输出，列固定为「方案 | 成本 | 变现能力 | 裂变系数 | 落地步骤」。'
+    },
+    {
+      id: 'no-length', test: (t) => t.length > 150 && !/(字|词|行|条|个|页|篇幅|以内|不超过|最多|至少|brief|详细)/.test(t),
+      cat: '输出', sev: 'low', title: '未约束篇幅',
+      text: '篇幅不设限时，模型倾向于越长越好，反而稀释重点。',
+      fix: '补：总篇幅 ≤800 字，每点不超过 3 行。'
+    },
+    {
+      id: 'no-example', test: (t) => /(风格|语气|文案|标题|脚本|口播|笔记)/.test(t) && !/(例如|示例|参考|风格是|像这样|例子|---)/.test(t),
+      cat: '输出', sev: 'mid', title: '内容类任务缺少示例（Few-shot）',
+      text: '文案、脚本、标题这类主观任务，给 1~2 个「像这样」的样本，比写 10 条形容词管用。',
+      fix: '补 1 个示例：例如 —— "我把 3 个 AI 工具塞进 1 个网页，每天省 2 小时"。'
+    }
+  ],
+
+  // ---- 维度 4：约束与护栏 ----
+  constraint: [
+    {
+      id: 'no-constraint', test: (t) => t.length > 120 && !/(不要|禁止|避免|限制|必须|只能|不允许|约束|红线|除外|except)/.test(t),
+      cat: '约束', sev: 'mid', title: '没有「不要做什么」的护栏',
+      text: '正向要求容易生效，负向禁令同样重要。缺护栏时模型会输出泛泛而谈的通用建议。',
+      fix: '补约束：不要输出空泛的方法论；不要出现「根据实际情况」这类免责句；禁止推荐付费投放。'
+    },
+    {
+      id: 'no-output-check', test: (t) => !/(自检|检查|验证|确认|核对|打分|评分|verify|check)/i.test(t),
+      cat: '约束', sev: 'low', title: '缺少自检环节',
+      text: '让模型在输出后自查一遍（是否满足每条约束、是否遗漏），可以明显降低幻觉与漏项。',
+      fix: '末尾追加：输出完成后，先逐条核对是否满足上述约束，用 ✓/✗ 标注，不满足的重新生成。'
+    }
+  ],
+
+  // ---- 维度 5：OPC 全链路专项 ----
+  opc: [
+    {
+      id: 'no-northstar', test: (t) => /(增长|投放|流量|转化|变现|变现|裂变|营销)/.test(t) && !/(北极星|指标|KPI|ROI|留存|LTV|CAC|转化率|DAU|GMV|数据)/i.test(t),
+      cat: 'OPC', sev: 'high', title: '全链路缺可衡量指标',
+      text: '产品-渠道-营销-流量-转化-变现，每一环都要有可读数的指标，否则无法判断哪一环断了。',
+      fix: '补：为每个环节定义 1 个指标（如 曝光→CTR、落地页→注册率、注册→付费率），并给出本周目标值。'
+    },
+    {
+      id: 'no-viral-hook', test: (t) => /(裂变|病毒|传播|分享|社交|自媒体|小红书|抖音)/.test(t) && !/(钩子|hook|分享动机|社交货币|攀比|炫耀|利他|身份认同|机制)/.test(t),
+      cat: 'OPC', sev: 'high', title: '提到裂变但未设计传播钩子',
+      text: '裂变的本质是「用户为什么愿意转」。缺钩子设计的裂变方案，基本等于「让用户帮你发广告」。',
+      fix: '补：明确分享动机——社交货币（晒成果）/ 利他（帮朋友省钱）/ 攀比（排行榜）/ 身份（圈子归属），并各配 1 句分享文案。'
+    },
+    {
+      id: 'no-mvp-scope', test: (t) => /(开发|上线|MVP|产品|APP)/.test(t) && !/(最小可行|MVP|砍掉|先做|核心功能|不做|范围|V1|第一版)/.test(t),
+      cat: 'OPC', sev: 'mid', title: '未切分 MVP 范围',
+      text: '一人公司最大的死因是范围失控。让模型先帮你砍功能，再谈怎么做。',
+      fix: '补：先列出 V1 只做的 3 个核心功能，以及明确「这一版不做」清单。'
+    },
+    {
+      id: 'no-channel-spec', test: (t) => /(渠道|投放|分发|平台)/.test(t) && !/(小红书|抖音|公众号|视频号|B站|知乎|Twitter|Product Hunt|贴吧|论坛|社群|垂直)/.test(t),
+      cat: 'OPC', sev: 'mid', title: '渠道未落到具体平台',
+      text: '「多渠道分发」等于没有渠道。指名到具体平台，才能产出可执行的内容日历。',
+      fix: '补：把渠道锁定为 2 个具体平台（如小红书 + Product Hunt），并给出各自的内容形态。'
+    },
+    {
+      id: 'no-conversion', test: (t) => /(产品|工具|APP|游戏)/.test(t) && !/(付费|定价|订阅|广告|变现|收入|转化|内购|付费墙)/.test(t),
+      cat: 'OPC', sev: 'mid', title: '变现路径未定义',
+      text: '开发前先想清楚钱从哪来，会反向决定功能设计与渠道选择。',
+      fix: '补：变现方式（订阅 / 一次性买断 / 广告 / 联盟分佣）+ 预期单价 + 转化率假设。'
+    }
+  ]
+};
+
+const DIMENS = [
+  { key: 'goal', name: '目标清晰度', color: '#6ee7b7' },
+  { key: 'context', name: '上下文充分性', color: '#38bdf8' },
+  { key: 'output', name: '输出契约', color: '#a78bfa' },
+  { key: 'constraint', name: '约束与护栏', color: '#fbbf24' },
+  { key: 'opc', name: 'OPC 全链路', color: '#fb7185' }
+];
+
+function analyze(text) {
+  const t = text || '';
+  const findings = [];
+  Object.entries(RULES).forEach(([dim, rules]) => {
+    rules.forEach(r => {
+      let hit = false;
+      try { hit = r.test(t); } catch (e) { }
+      if (hit) findings.push({ ...r, dim });
+    });
+  });
+
+  // 加分项
+  const bonus = [];
+  if (/(你是|作为一名|角色)/.test(t)) bonus.push('已设定角色');
+  if (/(表格|JSON|Markdown|分点)/.test(t)) bonus.push('已指定输出格式');
+  if (/(不要|禁止|避免)/.test(t)) bonus.push('已设负向约束');
+  if (/(例如|示例|像这样)/.test(t)) bonus.push('含示例');
+  if (/(指标|KPI|北极星|ROI)/.test(t)) bonus.push('含可衡量指标');
+  if (/(钩子|社交货币|分享动机)/.test(t)) bonus.push('含裂变钩子设计');
+
+  const penalty = findings.reduce((s, f) => s + ({ high: 14, mid: 8, low: 4, tip: 2 }[f.sev] || 4), 0);
+  const base = Math.min(92, 34 + bonus.length * 7 + Math.min(countWords(t) / 12, 14));
+  const score = Math.max(8, Math.min(97, Math.round(base - penalty * 0.75)));
+
+  const dims = DIMENS.map(d => {
+    const cnt = findings.filter(f => f.dim === d.key).length;
+    const hi = findings.filter(f => f.dim === d.key && f.sev === 'high').length;
+    const val = Math.max(10, 100 - cnt * 22 - hi * 8 + (bonus.length * 3));
+    return { ...d, value: Math.min(100, Math.round(val)), issues: cnt };
+  });
+
+  return { score, findings, bonus, dims, words: countWords(t) };
+}
+
+function gradeOf(s) {
+  if (s >= 85) return { g: 'A', label: '可直接投产', color: '#6ee7b7' };
+  if (s >= 70) return { g: 'B', label: '小幅补强', color: '#38bdf8' };
+  if (s >= 55) return { g: 'C', label: '需要补全', color: '#fbbf24' };
+  if (s >= 35) return { g: 'D', label: '信息不足', color: '#fb7185' };
+  return { g: 'E', label: '几乎是半句话', color: '#f87171' };
+}
+
+/* 结构化改写：把规则建议合成为一份增强版 Prompt */
+function buildImproved(text) {
+  const note = getNote(State.activeId);
+  const title = (note && note.title) || '未命名任务';
+  const body = (text || '').trim();
+  const has = (re) => re.test(body);
+  const lines = [];
+
+  lines.push(`# 角色`);
+  if (has(/(你是|作为一名|角色)/)) {
+    lines.push(body.split('\n').find(l => /(你是|作为一名)/.test(l)) || '你是一名资深顾问。');
+  } else {
+    lines.push('你是一名 OPC（一人公司）增长架构师，同时具备产品设计、内容投放与数据分析能力。');
+  }
+  lines.push('');
+  lines.push(`# 背景与目标`);
+  lines.push(body || '（在此补充你的原始需求）');
+  if (!has(/(预算|工时|人天|一个人|单人|时间)/)) lines.push('约束条件：单人执行，单个环节工时 ≤3 人日，零付费投放预算。');
+  lines.push('');
+  lines.push(`# 任务`);
+  lines.push('请基于上述背景，输出一份可执行的作战方案，跑通「产品 → 渠道 → 营销 → 流量 → 转化 → 变现」全链路。');
+  lines.push('');
+  lines.push(`# 输出要求`);
+  lines.push('1. 用 Markdown 表格输出，列固定为：方案 | 核心动作 | 成本/工时 | 变现能力 | 裂变系数 | 风险');
+  lines.push('2. 给出 3 个候选方向，按「开发成本 / 变现能力 / 裂变系数」三维打分排序');
+  lines.push('3. 每个方向配 1 句可直接发布的社媒钩子文案（含社交货币或利他动机）');
+  lines.push('4. 结尾给一张指标看板：北极星指标 + 3 个护栏指标，并标注本周目标值');
+  lines.push('');
+  lines.push(`# 约束`);
+  lines.push('- 不要输出空泛的方法论，每条建议必须落到可执行动作');
+  lines.push('- 不要出现「根据实际情况调整」这类免责表述');
+  lines.push('- 明确标出 V1 不做的功能清单，防止范围膨胀');
+  lines.push('- 总篇幅 ≤900 字');
+  lines.push('');
+  lines.push(`# 自检`);
+  lines.push('输出完成后，逐条核对是否满足上述每一条约束，用 ✓ / ✗ 标注，不满足的部分重新生成。');
+  return lines.join('\n');
+}
+
+let lastAnalysis = null;
+
+function runAnalyze() {
+  const text = plain($('#editor').innerHTML);
+  const body = $('#aiBody');
+  if (!text || text.length < 4) {
+    body.innerHTML = `<div class="empty-ai"><div class="big">✎</div>还没有内容可以批注。<br>先写下 2~3 句你的原始 Prompt 吧。</div>`;
+    return;
+  }
+  const r = analyze(text);
+  lastAnalysis = r;
+  const gd = gradeOf(r.score);
+
+  const findingsHtml = r.findings.length ? r.findings.map((f, i) => `
+    <div class="finding sev-${f.sev}">
+      <div class="f-head">
+        <span class="f-cat">${f.cat}</span>
+        <span class="f-sev ${f.sev}">${({ high: '● 高优先', mid: '● 建议改', low: '○ 可优化', tip: '◇ 提示' })[f.sev]}</span>
+      </div>
+      <div class="f-title">${esc(f.title)}</div>
+      <div class="f-text">${esc(f.text)}</div>
+      ${f.fix ? `<div class="f-quote">▸ ${esc(f.fix)}</div>` : ''}
+      <div class="f-actions">
+        <button class="f-btn" data-append="${i}">追加到笔记末尾</button>
+        ${f.cat === 'OPC' ? `<button class="f-btn" data-search="${encodeURIComponent(f.title)}">找同类笔记</button>` : ''}
+      </div>
+    </div>`).join('')
+    : `<div class="finding" style="border-left-color:var(--accent)">
+        <div class="f-title" style="color:var(--accent)">✓ 结构完整，没有发现硬伤</div>
+        <div class="f-text">这份 Prompt 已经具备角色、上下文、输出契约与约束。可以再补 1~2 个具体示例，进一步锁定输出风格。</div>
+      </div>`;
+
+  body.innerHTML = `
+    <div class="score-card">
+      <div class="score-top">
+        <span class="score-num" style="color:${gd.color}">${r.score}</span>
+        <span class="score-label">/ 100 可执行度</span>
+        <span class="grade-tag" style="background:${gd.color}22;color:${gd.color};border:1px solid ${gd.color}55">${gd.g} · ${gd.label}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${r.score}%;background:linear-gradient(90deg,#fb7185,#fbbf24,#6ee7b7)"></div></div>
+      <div class="dim-grid">
+        ${r.dims.map(d => `
+          <div class="dim">
+            <div class="dl"><span>${d.name}</span><b>${d.value}</b></div>
+            <div class="dt"><div class="df" style="width:${d.value}%;background:${d.color}"></div></div>
+          </div>`).join('')}
+      </div>
+      ${r.bonus.length ? `<div style="margin-top:11px;font-size:11px;color:var(--text-mute);line-height:1.9">
+        已具备：${r.bonus.map(b => `<span style="color:#2b6cd4;background:#eef4fd;padding:1px 7px;border-radius:4px;margin-right:4px">${esc(b)}</span>`).join('')}
+      </div>` : ''}
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button class="f-btn run" id="btnApplyAll" style="flex:1;padding:8px;font-size:12px">⇪ 一键生成结构化改写版</button>
+      <button class="f-btn" id="btnReanalyze" style="padding:8px">↻</button>
+    </div>
+
+    <div style="font-size:11px;color:var(--text-mute);letter-spacing:1px;margin:4px 0 9px">
+      批注 ${r.findings.length} 条 · 共 ${r.words} 字
+    </div>
+    ${findingsHtml}
+  `;
+
+  // 绑定动态按钮
+  $$('[data-append]', body).forEach(b => {
+    b.addEventListener('click', () => {
+      const f = r.findings[+b.dataset.append];
+      const ed = $('#editor');
+      ed.innerHTML += `<blockquote><b>【AI 批注 · ${esc(f.cat)}】</b>${esc(f.title)}：${esc(f.text)}<br><b>建议</b>：${esc(f.fix || '')}</blockquote>`;
+      scheduleSave(200);
+      toast('已追加到笔记');
+    });
+  });
+  $$('[data-search]', body).forEach(b => {
+    b.addEventListener('click', () => {
+      $('#searchInput').value = decodeURIComponent(b.dataset.search);
+      State.keyword = $('#searchInput').value;
+      renderList();
+      toast('已在左侧筛选相关笔记');
+    });
+  });
+  const ap = $('#btnApplyAll');
+  if (ap) ap.addEventListener('click', () => {
+    const improved = buildImproved(text);
+    const ed = $('#editor');
+    const divider = `<hr><h2>—— 结构化改写版（AI 生成，可编辑）——</h2>`;
+    // 用纯文本注入，避免富文本错乱
+    ed.innerHTML += divider + `<pre><code>${esc(improved)}</code></pre>`;
+    scheduleSave(200);
+    toast('已生成改写版，可在正文下方继续调优');
+  });
+  const ra = $('#btnReanalyze');
+  if (ra) ra.addEventListener('click', runAnalyze);
+}
+
+function restorePanel() {
+  const n = getNote(State.activeId);
+  if (!n) {
+    $('#aiBody').innerHTML = `<div class="empty-ai"><div class="big">✦</div>写下你的 Prompt，点 ⚡ 获取批注。</div>`;
+    return;
+  }
+  if (n.lastAnalysis && n.lastAnalysis.html) {
+    $('#aiBody').innerHTML = n.lastAnalysis.html;
+    if ($('#btnApplyAll')) {
+      $('#btnApplyAll').addEventListener('click', () => {
+        const text = plain($('#editor').innerHTML);
+        const improved = buildImproved(text);
+        $('#editor').innerHTML += `<hr><h2>—— 结构化改写版 ——</h2><pre><code>${esc(improved)}</code></pre>`;
+        scheduleSave(200);
+      });
+    }
+    if ($('#btnReanalyze')) $('#btnReanalyze').addEventListener('click', runAnalyze);
+  }
+}
+
+$('#btnAnalyze').addEventListener('click', () => {
+  runAnalyze();
+  toast('批注已生成');
+});
+
+/* =========================================================================
+   11. 模板库
+   ========================================================================= */
+const TEMPLATES = [
+  {
+    title: '元 Prompt · OPC 全链路作战计划',
+    tags: ['元prompt', 'OPC', '全链路'],
+    content: `<h1>角色</h1><p>你是一名 OPC（One Person Company）增长架构师，同时具备产品设计、投放与数据分析能力。</p>
+<h1>背景</h1><p>我一个人运营一家公司，目标是在 4 周内从 0 上线一个工具/游戏类 APP，并跑通「产品 → 渠道 → 营销 → 流量 → 转化 → 变现」全链路。</p>
+<h1>任务</h1><ol><li>产品切入点的 3 个候选方向，按「开发成本 / 变现能力 / 裂变系数」打分排序</li><li>冷启动渠道清单，每个渠道给出首批内容选题与投放节奏</li><li>裂变机制设计，明确传播钩子与激励结构</li><li>关键指标看板（北极星指标 + 3 个护栏指标）</li></ol>
+<h1>约束</h1><ul><li>单人可执行，单个环节工时 ≤3 人日</li><li>不依赖付费投放，优先自然流量</li><li>不要输出空泛方法论，每条建议必须落到可执行动作</li></ul>`
+  },
+  {
+    title: '裂变钩子设计器',
+    tags: ['裂变', '增长', '社媒'],
+    content: `<p>你是社媒病毒传播策划。为以下产品设计 5 个裂变传播钩子。</p>
+<p><b>产品</b>：（填写）<br><b>目标人群</b>：（年龄段 + 场景 + 当前替代方案）<br><b>分享场景</b>：小红书 / 抖音 / 微信社群</p>
+<p>每个钩子包含：分享动机类型（社交货币 / 利他 / 攀比 / 身份认同）、一句话分享文案（≤20 字）、配套视觉建议、预期 CTR。</p>
+<p>用表格输出，禁止出现「根据实际情况」这类表述，总篇幅 ≤600 字。</p>`
+  },
+  {
+    title: '小红书爆款笔记生成',
+    tags: ['小红书', '内容', '种草'],
+    content: `<p>你是一名小红书爆款内容操盘手。为下面的产品生成 5 篇笔记。</p>
+<p>产品：（填写）<br>人群：（填写）<br>风格参考：例如「我把 3 个 AI 工具塞进 1 个网页，每天省 2 小时」</p>
+<p>每篇包含：标题（≤18 字，含 1 个反常识钩子）、正文（≤300 字，首句即冲突）、5 个标签、1 个互动引导问句。</p>
+<p>不要使用夸张营销词，不要出现绝对化用语。</p>`
+  },
+  {
+    title: 'MVP 范围裁剪',
+    tags: ['产品', 'MVP', '范围'],
+    content: `<p>你是一名独立产品经理。帮我为下面这个想法做 MVP 裁剪。</p>
+<p>想法：（填写）<br>约束：单人开发，工期 ≤14 人日，预算 ≤2000 元</p>
+<p>输出：<br>1. V1 只保留的 3 个核心功能（各说明解决谁的什么痛点）<br>2. 明确「这一版不做」清单，并说明理由<br>3. 可复用的现成 SaaS / 开源方案清单，含成本<br>4. 上线后第一周要验证的 1 个假设</p>`
+  },
+  {
+    title: '变现路径推演',
+    tags: ['变现', '定价', '转化'],
+    content: `<p>你是 SaaS 定价顾问。为下面的产品推演变现路径。</p>
+<p>产品：（填写）<br>用户规模预期：（填写）<br>成本结构：（填写）</p>
+<p>输出 3 套变现方案（订阅 / 买断 / 广告+联盟），每套给出：定价、转化率假设、月收入测算、失败风险。<br>用表格输出，并给出你推荐哪一套及理由（≤100 字）。</p>`
+  },
+  {
+    title: '竞品拆解与差异化',
+    tags: ['竞品', '定位', '差异化'],
+    content: `<p>你是产品分析师。拆解以下 3 个竞品，并给出我的差异化切入点。</p>
+<p>我的产品：（填写）<br>竞品 A/B/C：（填写）</p>
+<p>对每个竞品输出：核心用户、变现方式、获客渠道、最大弱点。<br>最后给 3 个差异化切口，每个切口配 1 句定位语和 1 个验证方法。</p>`
+  }
+];
+
+function renderTemplates() {
+  $('#tplGrid').innerHTML = TEMPLATES.map((t, i) => `
+    <div class="tpl" data-tpl="${i}">
+      <b>${esc(t.title)}</b>
+      <span>${esc(t.tags.map(x => '#' + x).join('  '))}</span>
+    </div>`).join('');
+}
+$('#btnTemplates').addEventListener('click', () => { renderTemplates(); $('#tplMask').classList.add('open'); });
+$('#tplClose').addEventListener('click', () => $('#tplMask').classList.remove('open'));
+$('#tplMask').addEventListener('click', (e) => { if (e.target.id === 'tplMask') $('#tplMask').classList.remove('open'); });
+$('#tplGrid').addEventListener('click', (e) => {
+  const el = e.target.closest('[data-tpl]');
+  if (!el) return;
+  const t = TEMPLATES[+el.dataset.tpl];
+  createNote({ title: t.title, content: t.content, tags: t.tags });
+  $('#tplMask').classList.remove('open');
+  toast('已从模板创建');
+});
+
+/* AI 面板收起 */
+$('#btnAiToggle').addEventListener('click', () => {
+  const l = $('#layout');
+  l.classList.toggle('no-ai');
+  $('#aiPanel').style.display = l.classList.contains('no-ai') ? 'none' : 'flex';
+  $('#btnAiToggle').textContent = l.classList.contains('no-ai') ? '⇤' : '⇥';
+});
+
+/* =========================================================================
+   12. 启动
+   ========================================================================= */
+function init() {
+  State.db = Storage.load();
+  State.lastRemoteRev = State.db.rev;
+
+  if (!State.db.notes.length) {
+    // 首次使用：播下示例
+    const t = now();
+    State.db.notes = [{
+      id: uid('p'),
+      title: TEMPLATES[0].title,
+      content: TEMPLATES[0].content,
+      plain: plain(TEMPLATES[0].content),
+      tags: TEMPLATES[0].tags,
+      pinned: true, rev: 1, createdAt: t, updatedAt: t
+    }];
+    State.db.rev = 1;
+    Storage.save(State.db);
+  }
+  State.activeId = sortNotes(State.db.notes)[0].id;
+  const n = getNote(State.activeId);
+  State.editingNoteRev = n ? n.rev : 0;
+
+  Sync.init();
+  Sync.setBusy(false);
+  refreshTabPeers();
+  renderAll();
+  renderEditor();
+  restorePanel();
+  setInterval(refreshTabPeers, 5000);
+}
+
+init();
+</script>
+</body>
+</html>
