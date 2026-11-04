@@ -1,5 +1,5 @@
 {
- "rev": 9,
+ "rev": 12,
  "notes": [
   {
    "id": "p_mw20bpvzvj9ss",
@@ -82,7 +82,18 @@
    "rev": 1,
    "createdAt": 1793790223605,
    "updatedAt": 1793790223605
+  },
+  {
+   "id": "p_mw20dzwmtswgn",
+   "title": "B端第二轮新增",
+   "content": "双向验证",
+   "plain": "双向验证",
+   "tags": [],
+   "pinned": false,
+   "rev": 2,
+   "createdAt": 1793790230278,
+   "updatedAt": 1793790231215
   }
  ],
- "updatedAt": 1793790226586
+ "updatedAt": 1793790234202
 }
