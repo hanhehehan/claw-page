@@ -6,7 +6,7 @@
 <title>Prompt 舱 · OPC 人机共创笔记</title>
 <style>
 :root{
-  --editor-max:920px;
+  --editor-max:1080px;
   --w-left:240px;
   --w-right:320px;
   /* 浅色调 · 参考腾讯文档 / 飞书 / 大象的克制蓝灰体系 */
@@ -51,10 +51,11 @@ button{cursor:pointer;border:none;background:none}
 
 /* ============ 顶栏 ============ */
 .topbar{
-  height:56px;display:flex;align-items:center;gap:14px;padding:0 16px;
+  height:56px;display:flex;align-items:center;gap:10px;padding:0 14px;
   border-bottom:1px solid var(--line);background:#fff;
-  box-shadow:0 1px 3px rgba(31,35,41,.04);position:relative;z-index:20;
+  box-shadow:0 1px 3px rgba(31,35,41,.04);position:relative;z-index:20;flex-wrap:nowrap;overflow:hidden;
 }
+.topbar .tb-btn{padding:0 10px;font-size:12.5px}
 .brand{display:flex;align-items:center;gap:9px;font-weight:600;letter-spacing:.2px;white-space:nowrap}
 .brand .dot{
   width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:15px;
@@ -116,8 +117,8 @@ button{cursor:pointer;border:none;background:none}
 .splitter:hover::after{width:2px;background:#9dc1f5}
 .splitter.dragging::after{width:2px;background:var(--accent)}
 .splitter .grip{
-  position:absolute;top:50%;transform:translateY(-50%);width:5px;height:34px;border-radius:3px;
-  background:#d7dce5;opacity:0;transition:.15s;
+  position:absolute;top:50%;transform:translateY(-50%);width:4px;height:30px;border-radius:3px;
+  background:#c9d2de;opacity:0;transition:.15s;
 }
 .splitter:hover .grip{opacity:1}
 body.resizing{cursor:col-resize;user-select:none}
@@ -236,7 +237,7 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
 .cp-custom input[type=color]{width:26px;height:24px;border:1px solid var(--line);border-radius:5px;padding:1px;cursor:pointer;background:#fff}
 .cp-none{margin-left:auto;font-size:11px;color:var(--text-dim);padding:2px 7px;border-radius:4px;border:1px solid var(--line)}
 .cp-none:hover{color:var(--danger);border-color:#f3c6c7;background:var(--danger-soft)}
-.counter{margin-left:auto;font-size:11px;color:var(--text-mute);font-family:var(--mono);display:flex;gap:10px;align-items:center}
+.counter{margin-left:auto;font-size:11px;color:var(--text-mute);font-family:var(--mono);display:flex;gap:10px;align-items:center;white-space:nowrap}
 .counter .hot{color:var(--accent-2);background:#e7f7f7;padding:1px 6px;border-radius:4px}
 
 .editor-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;background:#fff;display:flex;justify-content:center}
@@ -420,14 +421,21 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
   color:#8a6412;margin-left:auto;background:#fff;transition:.13s;
 }
 .hint-conflict button:hover{background:#fdf0d8}
-@media(max-width:1180px){
-  .layout{grid-template-columns:250px 1fr 340px}
+@media(max-width:1400px){
+  .counter{display:none}
+}
+@media(max-width:1320px){
+  .tb-select{max-width:74px}
+  .toolbar{gap:1px;padding:5px 10px}
+  .tb-seg{padding-right:5px;margin-right:4px}
+  #btnClearFmt{display:none}
 }
 @media(max-width:1180px){
   .editor-wrap{padding:18px 22px 110px}
 }
 @media(max-width:900px){
-  .layout,.layout.no-ai{grid-template-columns:minmax(0,1fr)}
+  .layout,.layout.no-ai{grid-template-columns:minmax(0,1fr);height:calc(100vh - 52px);height:calc(100dvh - 52px)}
+  .splitter{display:none}
   .sidebar{display:none}
   .ai-panel{display:none}
   .topbar{gap:8px;padding:0 10px;height:52px;flex-wrap:nowrap}
@@ -477,9 +485,9 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
   </div>
 
   <button class="tb-btn primary" id="btnSaveNow" title="保存并同步 (Ctrl/⌘+S)">⌘S 保存</button>
-  <button class="tb-btn" id="btnCloud" title="云端同步设置">☁ 同步</button>
-  <button class="tb-btn" id="btnTemplates">✦ 模板库</button>
-  <button class="tb-btn" id="btnExport" title="导出 / 导入 / 快照">⇅ 备份</button>
+  <button class="tb-btn" id="btnCloud" title="云端同步设置与跨设备链接">☁</button>
+  <button class="tb-btn" id="btnTemplates" title="Prompt 模板库">✦ 模板</button>
+  <button class="tb-btn" id="btnExport" title="导出 / 导入 / 快照恢复">⇅</button>
   <button class="tb-btn" id="btnNew">＋ 新建</button>
 </div>
 
@@ -593,7 +601,7 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
       </div>
       <div class="counter">
         <span id="wordCount">0 字</span>
-        <span class="hot" id="tokenEst">≈0 tokens</span>
+        <span class="hot" id="tokenEst" title="粗估 token 数">≈0 tok</span>
       </div>
     </div>
 
