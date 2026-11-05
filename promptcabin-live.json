@@ -1,5 +1,5 @@
 {
- "rev": 8,
+ "rev": 12,
  "notes": [
   {
    "id": "p_mw3f6spwdi1x0",
@@ -67,7 +67,18 @@
    "rev": 1,
    "createdAt": 1793875590115,
    "updatedAt": 1793875590115
+  },
+  {
+   "id": "p_mw3f7q9k6otj0",
+   "title": "A端CtrlS笔记",
+   "content": "A端内容",
+   "plain": "A端内容",
+   "tags": [],
+   "pinned": false,
+   "rev": 3,
+   "createdAt": 1793875598264,
+   "updatedAt": 1793875599481
   }
  ],
- "updatedAt": 1793875595337
+ "updatedAt": 1793875604051
 }
