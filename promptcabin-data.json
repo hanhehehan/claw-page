@@ -1,5 +1,5 @@
 {
- "rev": 1,
+ "rev": 5,
  "notes": [
   {
    "id": "p_mw3gkbk6mno96",
@@ -15,7 +15,18 @@
    "rev": 1,
    "createdAt": 1793877865350,
    "updatedAt": 1793877865350
+  },
+  {
+   "id": "p_mw3gkg4onehvu",
+   "title": "手机端应该看到这条",
+   "content": "这是电脑端写的内容，通过Ctrl+S上传到云端。",
+   "plain": "这是电脑端写的内容，通过Ctrl+S上传到云端。",
+   "tags": [],
+   "pinned": false,
+   "rev": 3,
+   "createdAt": 1793877871272,
+   "updatedAt": 1793877872572
   }
  ],
- "updatedAt": 1793877865350
+ "updatedAt": 1793877875909
 }
