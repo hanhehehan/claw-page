@@ -1,5 +1,5 @@
 {
- "rev": 7,
+ "rev": 11,
  "notes": [
   {
    "id": "p_mw3fep5885oj2",
@@ -41,7 +41,18 @@
    "rev": 1,
    "createdAt": 1793875937568,
    "updatedAt": 1793875937568
+  },
+  {
+   "id": "p_mw3ff56fvh97u",
+   "title": "B端笔记V2",
+   "content": "B端V2内容",
+   "plain": "B端V2内容",
+   "tags": [],
+   "pinned": false,
+   "rev": 3,
+   "createdAt": 1793875944183,
+   "updatedAt": 1793875945401
   }
  ],
- "updatedAt": 1793875941877
+ "updatedAt": 1793875949681
 }
