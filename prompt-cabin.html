@@ -188,6 +188,30 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
 .tb-select:hover{border-color:#c6cdd9}
 .tb-select:focus{border-color:#9dc1f5}
 .tb-color{width:27px;height:27px;border-radius:5px;border:1px solid var(--line);background:#fff;padding:2px;cursor:pointer}
+.color-picker{position:relative}
+.color-btn{position:relative;gap:0;padding:0 6px}
+.color-btn .cdot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:16px;height:3px;border-radius:2px}
+.color-btn .bg-ico{font-size:12px;margin-top:-2px}
+.color-pop{
+  display:none;position:absolute;top:32px;left:0;z-index:60;background:#fff;
+  border:1px solid var(--line);border-radius:9px;padding:10px;width:196px;box-shadow:var(--shadow-m);
+}
+.color-pop.open{display:block}
+.cp-title{font-size:11px;color:var(--text-mute);margin-bottom:8px}
+.cp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.cp-swatch{
+  width:100%;aspect-ratio:1/1;border-radius:5px;border:1px solid rgba(0,0,0,.08);cursor:pointer;
+  transition:.12s;position:relative;
+}
+.cp-swatch:hover{transform:scale(1.12);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.cp-swatch.on::after{
+  content:'✓';position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;
+  text-shadow:0 0 2px rgba(0,0,0,.5);
+}
+.cp-custom{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line-soft);font-size:11px;color:var(--text-mute)}
+.cp-custom input[type=color]{width:26px;height:24px;border:1px solid var(--line);border-radius:5px;padding:1px;cursor:pointer;background:#fff}
+.cp-none{margin-left:auto;font-size:11px;color:var(--text-dim);padding:2px 7px;border-radius:4px;border:1px solid var(--line)}
+.cp-none:hover{color:var(--danger);border-color:#f3c6c7;background:var(--danger-soft)}
 .counter{margin-left:auto;font-size:11px;color:var(--text-mute);font-family:var(--mono);display:flex;gap:10px;align-items:center}
 .counter .hot{color:var(--accent-2);background:#e7f7f7;padding:1px 6px;border-radius:4px}
 
@@ -326,6 +350,24 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
 .cf-status{margin-top:10px;font-size:12px;min-height:18px;font-family:var(--mono)}
 .cf-status.ok{color:var(--green)}
 .cf-status.err{color:var(--danger)}
+.sc-groups{display:grid;grid-template-columns:1fr 1fr;gap:18px 26px;margin-top:6px}
+.data-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.data-row>div{flex:1;min-width:0}
+.data-row b{display:block;font-size:12.5px;margin-bottom:3px}
+.data-row span{font-size:11.5px;color:var(--text-mute);line-height:1.6}
+.data-sec{font-size:11px;letter-spacing:1px;color:var(--text-mute);margin:16px 0 8px;font-weight:600}
+.snap-list{max-height:190px;overflow-y:auto;border:1px solid var(--line);border-radius:8px}
+.snap-item{display:flex;align-items:center;gap:10px;padding:7px 11px;font-size:11.5px;border-bottom:1px solid var(--line-soft)}
+.snap-item:last-child{border-bottom:none}
+.snap-time{font-family:var(--mono);color:var(--text-dim)}
+.snap-meta{color:var(--text-mute);margin-left:auto}
+.snap-empty{padding:16px;text-align:center;color:var(--text-mute);font-size:11.5px}
+.sc-group .sc-gt{font-size:11px;letter-spacing:1px;color:var(--accent);font-weight:600;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line-soft)}
+.sc-row{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:12px;color:var(--text-dim)}
+.sc-row kbd{
+  font-family:var(--mono);font-size:10.5px;background:#f6f8fa;border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:4px;padding:1px 6px;color:#414a58;white-space:nowrap;min-width:96px;text-align:center;
+}
 
 .toast-wrap{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:200}
 .toast{
@@ -406,7 +448,7 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
 
   <button class="tb-btn" id="btnCloud" title="云端同步设置">☁ 同步</button>
   <button class="tb-btn" id="btnTemplates">✦ 模板库</button>
-  <button class="tb-btn" id="btnExport">↓ 导出</button>
+  <button class="tb-btn" id="btnExport" title="导出 / 导入 / 快照">⇅ 备份</button>
   <button class="tb-btn primary" id="btnNew">＋ 新建笔记</button>
 </div>
 
@@ -472,8 +514,33 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
           <option value="18px">18</option><option value="20px">20</option>
           <option value="24px">24</option><option value="28px">28</option>
         </select>
-        <input type="color" class="tb-color" id="fmtColor" value="#1f2329" title="文字颜色" />
-        <input type="color" class="tb-color" id="fmtBg" value="#ffe58f" title="背景高亮" />
+        <div class="color-picker">
+          <button class="tbtn color-btn" id="btnTextColor" title="文字颜色">
+            <b>A</b><span class="cdot" id="cdotText" style="background:#1f2329"></span>
+          </button>
+          <div class="color-pop" id="popText">
+            <div class="cp-title">文字颜色</div>
+            <div class="cp-grid" id="gridText"></div>
+            <div class="cp-custom">
+              <input type="color" id="fmtColor" value="#1f2329" />
+              <span>自定义</span>
+            </div>
+          </div>
+        </div>
+        <div class="color-picker">
+          <button class="tbtn color-btn" id="btnBgColor" title="背景高亮">
+            <span class="bg-ico">🖍</span><span class="cdot" id="cdotBg" style="background:#ffe58f"></span>
+          </button>
+          <div class="color-pop" id="popBg">
+            <div class="cp-title">背景高亮</div>
+            <div class="cp-grid" id="gridBg"></div>
+            <div class="cp-custom">
+              <input type="color" id="fmtBg" value="#ffe58f" />
+              <span>自定义</span>
+              <button class="cp-none" id="btnBgNone">清除</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="tb-seg">
         <button class="tbtn" data-cmd="bold" title="加粗 ⌘B"><b>B</b></button>
@@ -617,8 +684,26 @@ const LOCK_KEY = 'promptcabin:lock';
 const LOCK_TTL = 4000;   // 写锁租约 4s
 const STALE_MS = 6000;
 
+const SNAP_KEY = 'promptcabin:snapshots';
+const MAX_SNAP = 12;
+
 const Storage = {
   _cache: null,
+  /** 每次保存前留一份快照，最多保留 12 份，用于误删/清缓存后恢复 */
+  snapshot(db) {
+    try {
+      const arr = JSON.parse(localStorage.getItem(SNAP_KEY) || '[]');
+      const now2 = now();
+      // 5 分钟内不重复快照
+      if (arr.length && now2 - arr[arr.length - 1].at < 5 * 60 * 1000) return;
+      arr.push({ at: now2, rev: db.rev, size: db.notes.length, db });
+      while (arr.length > MAX_SNAP) arr.shift();
+      localStorage.setItem(SNAP_KEY, JSON.stringify(arr));
+    } catch (e) { console.warn('[snapshot] 失败', e); }
+  },
+  snapshots() {
+    try { return JSON.parse(localStorage.getItem(SNAP_KEY) || '[]'); } catch { return []; }
+  },
   load() {
     try {
       const raw = localStorage.getItem(LS_KEY);
@@ -632,6 +717,7 @@ const Storage = {
   },
   save(db) {
     db.updatedAt = now();
+    this.snapshot(db);
     localStorage.setItem(LS_KEY, JSON.stringify(db));
     this._cache = null;
     return db;
@@ -1299,7 +1385,7 @@ document.addEventListener('selectionchange', () => {
 
 $('#toolbar').addEventListener('mousedown', (e) => {
   // 防止点工具栏时丢失选区
-  if (e.target.closest('.tbtn')) e.preventDefault();
+  if (e.target.closest('.tbtn') || e.target.closest('.color-picker')) e.preventDefault();
 });
 $$('.tbtn[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1336,8 +1422,76 @@ $('#fmtSize').addEventListener('change', (e) => {
   scheduleSave();
   e.target.value = '';
 });
-$('#fmtColor').addEventListener('input', (e) => { exec('foreColor', e.target.value); });
-$('#fmtBg').addEventListener('input', (e) => { exec('hiliteColor', e.target.value); });
+/* ---------- 预设颜色面板 ---------- */
+const TEXT_COLORS = [
+  { n: '默认黑', v: '#1f2329' }, { n: '深灰', v: '#555c66' }, { n: '浅灰', v: '#8a919e' },
+  { n: '红色', v: '#d93025' }, { n: '橙色', v: '#e8710a' }, { n: '琥珀', v: '#b8860b' },
+  { n: '墨绿', v: '#0f9d58' }, { n: '青色', v: '#0097a7' }, { n: '蓝色', v: '#1a73e8' },
+  { n: '靛蓝', v: '#4a5fc1' }, { n: '紫色', v: '#7c5cf0' }, { n: '粉色', v: '#d01884' }
+];
+const BG_COLORS = [
+  { n: '柠檬黄', v: '#ffe58f' }, { n: '浅橙', v: '#ffd8a8' }, { n: '浅粉', v: '#ffc9de' },
+  { n: '浅紫', v: '#e0d4ff' }, { n: '浅蓝', v: '#cfe4fd' }, { n: '浅青', v: '#c7f0f0' },
+  { n: '浅绿', v: '#d3f2d9' }, { n: '浅灰', v: '#e8ebf0' }, { n: '亮黄', v: '#fff3c4' },
+  { n: '中黄', v: '#ffe066' }, { n: '浅红', v: '#ffd6d6' }, { n: '白', v: '#ffffff' }
+];
+
+function buildSwatches(gridId, colors, kind) {
+  const g = $(gridId);
+  g.innerHTML = colors.map(c =>
+    `<button class="cp-swatch" data-v="${c.v}" data-kind="${kind}" title="${c.n}" style="background:${c.v}"></button>`
+  ).join('');
+}
+buildSwatches('#gridText', TEXT_COLORS, 'text');
+buildSwatches('#gridBg', BG_COLORS, 'bg');
+
+function closeColorPops() {
+  $$('.color-pop').forEach(p => p.classList.remove('open'));
+  $$('.cp-swatch').forEach(b => b.classList.remove('on'));
+}
+['#btnTextColor', '#btnBgColor'].forEach(sel => {
+  $(sel).addEventListener('click', (e) => {
+    e.stopPropagation();
+    const pop = $(sel === '#btnTextColor' ? '#popText' : '#popBg');
+    const was = pop.classList.contains('open');
+    closeColorPops();
+    if (!was) pop.classList.add('open');
+  });
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.color-picker')) closeColorPops();
+});
+$$('.cp-swatch').forEach(b => {
+  b.addEventListener('click', (e) => {
+    e.preventDefault();
+    const v = b.dataset.v;
+    // 恢复选区后应用
+    $('#editor').focus();
+    if (b.dataset.kind === 'text') {
+      exec('foreColor', v);
+      $('#cdotText').style.background = v;
+    } else {
+      exec('hiliteColor', v);
+      $('#cdotBg').style.background = v;
+    }
+    closeColorPops();
+  });
+});
+$('#fmtColor').addEventListener('input', (e) => {
+  $('#editor').focus(); exec('foreColor', e.target.value);
+  $('#cdotText').style.background = e.target.value;
+});
+$('#fmtBg').addEventListener('input', (e) => {
+  $('#editor').focus(); exec('hiliteColor', e.target.value);
+  $('#cdotBg').style.background = e.target.value;
+});
+$('#btnBgNone').addEventListener('click', (e) => {
+  e.preventDefault();
+  $('#editor').focus();
+  exec('hiliteColor', 'transparent');
+  $('#cdotBg').style.background = '#ffffff';
+  closeColorPops();
+});
 $('#btnQuote').addEventListener('click', () => exec('formatBlock', '<blockquote>'));
 $('#btnCode').addEventListener('click', () => {
   const sel = window.getSelection();
@@ -1368,8 +1522,88 @@ $('#editor').addEventListener('paste', (e) => {
   scheduleSave();
 });
 $('#editor').addEventListener('keydown', (e) => {
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); commitSave('manual'); toast('已保存'); }
-  if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '  '); }
+  const mod = e.metaKey || e.ctrlKey;
+  const k = e.key.toLowerCase();
+  // 保存
+  if (mod && k === 's') { e.preventDefault(); commitSave('manual'); toast('已保存'); return; }
+  // 撤销 / 重做：显式走 execCommand，保证 contenteditable 与工具栏状态一致
+  if (mod && k === 'z' && !e.shiftKey) { e.preventDefault(); document.execCommand('undo'); scheduleSave(400); syncToolbarState(); return; }
+  if (mod && (k === 'y' || (k === 'z' && e.shiftKey))) { e.preventDefault(); document.execCommand('redo'); scheduleSave(400); syncToolbarState(); return; }
+  // 加粗/斜体/下划线（浏览器默认行为已支持，这里只做状态同步）
+  if (mod && ['b', 'i', 'u'].includes(k)) { setTimeout(syncToolbarState, 20); }
+  // 列表
+  if (mod && e.shiftKey && k === '8') { e.preventDefault(); exec('insertUnorderedList'); return; }
+  if (mod && e.shiftKey && k === '7') { e.preventDefault(); exec('insertOrderedList'); return; }
+  // 引用 / 代码
+  if (mod && e.shiftKey && k === 'q') { e.preventDefault(); exec('formatBlock', '<blockquote>'); return; }
+  if (mod && e.shiftKey && k === 'c') { e.preventDefault(); $('#editor').focus(); document.execCommand('insertHTML', false, '<pre><code>\n\n</code></pre><p><br></p>'); scheduleSave(); return; }
+  // 超链接
+  if (mod && k === 'k') { e.preventDefault(); const u = prompt('输入链接地址：', 'https://'); if (u) exec('createLink', u); return; }
+  // Tab 缩进
+  if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '  '); return; }
+  // Esc 退出焦点
+  if (e.key === 'Escape') { $('#editor').blur(); return; }
+});
+
+/* ---------- 全局快捷键 ---------- */
+const SHORTCUTS = [
+  { g: '编辑', items: [
+    ['⌘/Ctrl + Z', '撤销'], ['⌘/Ctrl + ⇧ + Z', '重做'], ['⌘/Ctrl + Y', '重做（备用）'],
+    ['⌘/Ctrl + C', '复制'], ['⌘/Ctrl + V', '粘贴（纯文本）'], ['⌘/Ctrl + X', '剪切'],
+    ['⌘/Ctrl + A', '全选'], ['⌘/Ctrl + B', '加粗'], ['⌘/Ctrl + I', '斜体'],
+    ['⌘/Ctrl + U', '下划线']
+  ]},
+  { g: '段落', items: [
+    ['⌘/Ctrl + ⇧ + 8', '无序列表'], ['⌘/Ctrl + ⇧ + 7', '有序列表'],
+    ['⌘/Ctrl + ⇧ + Q', '引用块'], ['⌘/Ctrl + ⇧ + C', '代码块'],
+    ['⌘/Ctrl + K', '插入链接'], ['Tab', '缩进两个空格']
+  ]},
+  { g: '应用', items: [
+    ['⌘/Ctrl + S', '立即保存'], ['⌘/Ctrl + N', '新建笔记'],
+    ['⌘/Ctrl + F', '聚焦搜索框'], ['⌘/Ctrl + /', '聚焦搜索框（备用）'],
+    ['⌘/Ctrl + ⇧ + S', '立即云端同步'], ['?', '打开本说明'], ['Esc', '关闭弹窗/取消焦点']
+  ]}
+];
+
+function openShortcuts() {
+  if ($('#scMask')) { $('#scMask').classList.add('open'); return; }
+  const html = `
+  <div class="modal-mask" id="scMask">
+    <div class="modal" style="width:min(720px,94vw)">
+      <h2>快捷键</h2>
+      <p class="sub">Mac 用 ⌘，Windows / Linux 用 Ctrl</p>
+      <div class="sc-groups">
+        ${SHORTCUTS.map(g => `
+          <div class="sc-group">
+            <div class="sc-gt">${g.g}</div>
+            ${g.items.map(([k, d]) => `<div class="sc-row"><kbd>${esc(k)}</kbd><span>${esc(d)}</span></div>`).join('')}
+          </div>`).join('')}
+      </div>
+      <div class="modal-foot"><button class="tb-btn primary" id="scClose">知道了</button></div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  $('#scMask').classList.add('open');
+  $('#scClose').addEventListener('click', () => $('#scMask').classList.remove('open'));
+  $('#scMask').addEventListener('click', (e) => { if (e.target.id === 'scMask') $('#scMask').classList.remove('open'); });
+}
+
+document.addEventListener('keydown', (e) => {
+  const mod = e.metaKey || e.ctrlKey;
+  const k = e.key.toLowerCase();
+  const inEditor = document.activeElement === $('#editor');
+  // 弹窗开关
+  if (e.key === 'Escape') { closeColorPops(); $$('.modal-mask.open').forEach(m => m.classList.remove('open')); }
+  if (e.key === '?' && !inEditor && !/input|textarea/i.test(document.activeElement.tagName)) {
+    e.preventDefault(); openShortcuts();
+  }
+  if (mod && k === '/') { e.preventDefault(); openShortcuts(); }
+  // 搜索
+  if (mod && (k === 'k' || k === 'f')) { e.preventDefault(); $('#searchInput').focus(); $('#searchInput').select(); }
+  // 新建
+  if (mod && k === 'n') { e.preventDefault(); createNote(); }
+  // 手动云同步
+  if (mod && e.shiftKey && k === 's') { e.preventDefault(); Cloud.sync(false); }
 });
 
 $('#titleInput').addEventListener('input', () => { scheduleSave(600); });
@@ -1430,14 +1664,142 @@ $('#btnReload').addEventListener('click', () => {
   renderEditor();
   toast('已载入其他标签页的最新版本');
 });
-$('#btnExport').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(State.db, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `prompt-cabin-${new Date().toISOString().slice(0, 10)}.json`;
-  a.click();
-  toast('已导出 JSON 备份');
-});
+/* ---------- 数据备份：导出 / 导入 / 快照恢复 ---------- */
+$('#btnExport').addEventListener('click', () => openDataModal());
+
+function openDataModal() {
+  const snaps = Storage.snapshots().reverse();
+  const html = `
+  <div class="modal-mask" id="dataMask">
+    <div class="modal" style="width:min(620px,94vw)">
+      <h2>数据备份</h2>
+      <p class="sub">笔记只存在这台设备的浏览器里，换设备或清缓存前请先导出</p>
+
+      <div class="data-row">
+        <div>
+          <b>导出为 JSON</b>
+          <span>包含全部笔记、标签与格式，可在其他设备导入</span>
+        </div>
+        <button class="tb-btn primary" id="dmExport">导出</button>
+      </div>
+
+      <div class="data-row">
+        <div>
+          <b>从 JSON 导入</b>
+          <span>支持合并（按笔记 ID 去重）或覆盖当前数据</span>
+        </div>
+        <button class="tb-btn" id="dmImport">选择文件</button>
+        <input type="file" id="dmFile" accept=".json" style="display:none" />
+      </div>
+
+      <div class="data-row">
+        <div>
+          <b>导出为纯文本</b>
+          <span>每条笔记输出为 Markdown 分节，方便粘贴到别处</span>
+        </div>
+        <button class="tb-btn" id="dmMarkdown">导出 .md</button>
+      </div>
+
+      <div class="data-sec">本地快照（最近 ${snaps.length} 份）</div>
+      <div class="snap-list">
+        ${snaps.length ? snaps.map((s, i) => `
+          <div class="snap-item">
+            <span class="snap-time">${new Date(s.at).toLocaleString('zh-CN')}</span>
+            <span class="snap-meta">${s.size} 条 · rev ${s.rev}</span>
+            <button class="f-btn" data-snap="${i}">恢复</button>
+          </div>`).join('') : '<div class="snap-empty">还没有快照，编辑笔记后会自动生成</div>'}
+      </div>
+
+      <div class="modal-foot"><button class="tb-btn" id="dmClose">关闭</button></div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  $('#dataMask').classList.add('open');
+  $('#dmClose').addEventListener('click', () => $('#dataMask').remove());
+  $('#dataMask').addEventListener('click', (e) => { if (e.target.id === 'dataMask') $('#dataMask').remove(); });
+
+  $('#dmExport').addEventListener('click', () => {
+    const payload = { app: 'prompt-cabin', version: 1, exportedAt: new Date().toISOString(), db: State.db };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `prompt-cabin-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    toast('已导出 JSON');
+  });
+
+  $('#dmMarkdown').addEventListener('click', () => {
+    const md = State.db.notes.map(n => {
+      const tags = (n.tags || []).map(t => '#' + t).join(' ');
+      return `# ${n.title || '未命名'}\n\n${tags ? tags + '\n\n' : ''}${(n.plain || '').trim()}\n`;
+    }).join('\n---\n\n');
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `prompt-cabin-${new Date().toISOString().slice(0, 10)}.md`;
+    a.click();
+    toast('已导出 Markdown');
+  });
+
+  $('#dmImport').addEventListener('click', () => $('#dmFile').click());
+  $('#dmFile').addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const parsed = JSON.parse(rd.result);
+        const incoming = parsed.db ? parsed.db : parsed;   // 兼容裸 db 格式
+        if (!incoming || !Array.isArray(incoming.notes)) throw new Error('格式不对');
+        const mode = confirm('点「确定」= 合并到现有笔记\n点「取消」= 覆盖现有笔记');
+        let notes;
+        if (mode) {
+          const map = new Map(State.db.notes.map(n => [n.id, n]));
+          incoming.notes.forEach(n => {
+            const old2 = map.get(n.id);
+            if (!old2 || (n.updatedAt || 0) > (old2.updatedAt || 0)) map.set(n.id, n);
+          });
+          notes = [...map.values()];
+        } else {
+          notes = incoming.notes;
+        }
+        Lock.run(() => {
+          const fresh = Storage.load();
+          fresh.notes = notes;
+          fresh.rev = (fresh.rev || 0) + 1;
+          Storage.save(fresh);
+          State.db = fresh;
+          State.lastRemoteRev = fresh.rev;
+        });
+        State.activeId = sortNotes(State.db.notes)[0]?.id || null;
+        renderAll(); renderEditor(); scheduleCloudSync();
+        toast(`导入完成，共 ${notes.length} 条笔记`);
+        $('#dataMask').remove();
+      } catch (err) {
+        toast('导入失败：' + err.message, 'err');
+      }
+    };
+    rd.readAsText(f);
+  });
+
+  $$('[data-snap]', $('#dataMask')).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const snap = Storage.snapshots().reverse()[+btn.dataset.snap];
+      if (!snap) return;
+      if (!confirm(`恢复到 ${new Date(snap.at).toLocaleString('zh-CN')} 的快照？\n当前数据会被替换（建议先导出备份）。`)) return;
+      Lock.run(() => {
+        const fresh = { rev: (State.db.rev || 0) + 1, notes: snap.db.notes, updatedAt: now() };
+        localStorage.setItem(LS_KEY, JSON.stringify(fresh));
+        State.db = fresh;
+        State.lastRemoteRev = fresh.rev;
+      });
+      State.activeId = sortNotes(State.db.notes)[0]?.id || null;
+      renderAll(); renderEditor();
+      toast('已恢复快照');
+      $('#dataMask').remove();
+    });
+  });
+}
 
 $('#searchInput').addEventListener('input', (e) => {
   State.keyword = e.target.value.trim();
@@ -1445,9 +1807,6 @@ $('#searchInput').addEventListener('input', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-  const mod = e.metaKey || e.ctrlKey;
-  if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); $('#searchInput').select(); }
-  if (mod && e.key.toLowerCase() === 'n') { e.preventDefault(); createNote(); }
   if (e.key === 'Escape' && document.activeElement === $('#searchInput')) {
     $('#searchInput').value = ''; State.keyword = ''; renderList(); $('#searchInput').blur();
   }
