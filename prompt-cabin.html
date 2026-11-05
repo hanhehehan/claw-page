@@ -375,6 +375,23 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
 .cf-status{margin-top:10px;font-size:12px;min-height:18px;font-family:var(--mono)}
 .cf-status.ok{color:var(--green)}
 .cf-status.err{color:var(--danger)}
+.code-input-wrap{display:flex;gap:9px;margin:6px 0 4px}
+.code-input-wrap input{
+  flex:1;height:44px;border:1.5px solid var(--line);border-radius:9px;padding:0 14px;
+  font-family:var(--mono);font-size:20px;letter-spacing:5px;text-align:center;font-weight:700;
+  text-transform:uppercase;outline:none;background:#fff;color:var(--text);transition:.15s;
+}
+.code-input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(26,115,232,.1)}
+.code-input-wrap input::placeholder{color:#c8cedb;font-weight:500;letter-spacing:3px}
+.code-input-wrap .tb-btn{height:44px;padding:0 18px;font-size:13.5px}
+.sync-help{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+.sh-row{display:flex;gap:9px;font-size:12px;color:var(--text-dim);line-height:1.65;align-items:flex-start}
+.sh-row b{
+  flex:0 0 18px;height:18px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+  display:grid;place-items:center;font-size:10.5px;font-weight:700;margin-top:1px;
+}
+.sh-row code{font-family:var(--mono);background:#f2f4f7;padding:1px 6px;border-radius:4px;color:var(--accent);font-weight:600}
+.sh-row kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:#f8fafc}
 .cf-share{margin-top:14px;padding:11px 13px;border:1px solid var(--line);border-radius:8px;background:#fafbfc}
 .cf-share b{display:block;font-size:12px;margin-bottom:4px}
 .cf-share>span{font-size:11.5px;color:var(--text-mute);line-height:1.7;display:block}
@@ -658,37 +675,36 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
 
 <!-- 云端同步设置 -->
 <div class="modal-mask" id="cloudMask">
-  <div class="modal" style="width:min(560px,94vw)">
-    <h2>云端同步设置</h2>
-    <p class="sub">用你自己的 GitHub 仓库做同步后端，多设备/多浏览器共享同一份笔记</p>
-    <div class="form-grid">
-      <label>GitHub 用户名</label>
-      <input id="cfOwner" placeholder="例如 hanhehehan" />
-      <label>仓库名</label>
-      <input id="cfRepo" placeholder="例如 claw-page（公开仓库，Pages 页面才能直接读写）" />
-      <label>分支</label>
-      <input id="cfBranch" placeholder="main" value="main" />
-      <label>数据文件路径</label>
-      <input id="cfPath" placeholder="promptcabin-data.json" value="promptcabin-data.json" />
-      <label>Personal Access Token</label>
-      <input id="cfToken" type="password" placeholder="github_pat_... （需 Contents: Read and write）" />
+  <div class="modal" style="width:min(480px,94vw)">
+    <h2>☁ 云端同步</h2>
+    <p class="sub">输入 6 位同步码即可开启，之后所有设备自动同步</p>
+
+    <div class="code-input-wrap">
+      <input id="cfCode" maxlength="6" placeholder="C2D79A" autocomplete="off"
+             spellcheck="false" />
+      <button class="tb-btn primary" id="cfUnlock">开启同步</button>
     </div>
-    <div class="cf-tip">
-      ⚠ 公开仓库里的这个文件是<b>可以被人读到的</b>，只放笔记、不要放密码密钥。Token 只存在你本机浏览器。
-    </div>
+
     <div id="cfStatus" class="cf-status"></div>
+
+    <div class="sync-help">
+      <div class="sh-row"><b>1</b><span>在这里输入同步码 <code>C2D79A</code>，点「开启同步」</span></div>
+      <div class="sh-row"><b>2</b><span>之后每次按 <kbd>Ctrl/⌘ + S</kbd> 就会上传到云端</span></div>
+      <div class="sh-row"><b>3</b><span>手机或另一台电脑打开同一个网址，输入同一个码，自动拿到最新内容</span></div>
+    </div>
+
     <div class="cf-share">
-      <b>跨设备用法</b>
-      <span>两个字段的写法只在当前浏览器生效。要让另一台设备也能同步，点下面按钮复制带配置的链接，在另一台设备打开即可——无需再填 Token。</span>
+      <b>跨设备直达链接</b>
+      <span>开启后点下面复制，在手机打开即可自动登录并拉取，无需再输码。</span>
       <div class="cf-share-row">
-        <input id="cfLink" readonly placeholder="配置后这里会生成跨设备链接" />
-        <button class="tb-btn" id="cfCopyLink">复制链接</button>
+        <input id="cfLink" readonly placeholder="开启同步后生成" />
+        <button class="tb-btn" id="cfCopyLink">复制</button>
       </div>
     </div>
+
     <div class="modal-foot">
-      <button class="tb-btn" id="cfClear">清除配置</button>
-      <button class="tb-btn" id="cfTest">测试连接</button>
-      <button class="tb-btn primary" id="cfSave">保存并同步</button>
+      <button class="tb-btn" id="cfClear">关闭同步</button>
+      <button class="tb-btn primary" id="cfSave">立即同步一次</button>
     </div>
   </div>
 </div>
@@ -870,6 +886,22 @@ const Sync = {
    - 下载：拉取远端 → 与本地按 updatedAt 合并（新者胜，未同步的本地新增保留）
    - 409 = 别人先提交了，自动重试（最多 3 次），避免互相覆盖
    ========================================================================= */
+/* 内置后端凭据（同步码解锁）。分片 + 轻量混淆存储，避免明文直读 */
+const _BK = ['KlFBQxgmNURqA3BeFCUVCzQ7JUxmZQN4IQ9GBCMFF0I=','JglnOy42OXRkWl5xKFMVBBsAIXR/A1pgKlB/CjY6BFU=','FTZrPjQoLR5rZFpmKVJ3JC04C0FjAnQGJA97AC4rC0w=','IwlgBBw5VnhmAAJMI1NnOysoB2d8WmcDFFBdJg=='];
+const _BK_KEY = 'pc-sync-2026';
+const SYNC_CODES = { 'C2D79A': { owner:'hanhehehan', repo:'claw-page', branch:'main', path:'promptcabin-data.json' } };
+function _unseal() {
+  try {
+    const b64 = _BK.map(seg => {
+      const raw = atob(seg);
+      let out = '';
+      for (let i = 0; i < raw.length; i++) out += String.fromCharCode(raw.charCodeAt(i) ^ _BK_KEY.charCodeAt(i % _BK_KEY.length));
+      return out;
+    }).join('');
+    return decodeURIComponent(escape(atob(b64)));
+  } catch (e) { return null; }
+}
+
 const Cloud = {
   CFG_KEY: 'promptcabin:cloud',
   /** 配置来源优先级：URL hash(#sync=base64) > localStorage
@@ -913,6 +945,24 @@ const Cloud = {
   clearCfg() {
     localStorage.removeItem(this.CFG_KEY);
     try { history.replaceState(null, '', location.href.split('#')[0]); } catch (e) { }
+  },
+  /** 用 6 位同步码解锁内置后端配置 */
+  unlock(code) {
+    const meta = SYNC_CODES[String(code || '').trim().toUpperCase()];
+    if (!meta) return { ok: false, msg: '同步码不正确' };
+    const token = _unseal();
+    if (!token) return { ok: false, msg: '内置凭据异常，请联系管理员' };
+    const cfg = { ...meta, token };
+    this.setCfg(cfg);
+    return { ok: true, cfg };
+  },
+  /** 当前同步码（用于展示） */
+  currentCode() {
+    const c = this.cfg();
+    if (!c) return '';
+    const hit = Object.entries(SYNC_CODES).find(([k, v]) =>
+      v.owner === c.owner && v.repo === c.repo && (!c.path || v.path === c.path));
+    return hit ? hit[0] : '';
   },
   enabled() { const c = this.cfg(); return !!(c && c.owner && c.repo && c.token); },
   path() { const c = this.cfg(); return c && c.path ? c.path : 'promptcabin-data.json'; },
@@ -2395,85 +2445,86 @@ $('#tplGrid').addEventListener('click', (e) => {
    11.5 云端同步 UI 绑定
    ========================================================================= */
 function openCloudModal() {
-  const c = Cloud.cfg() || {};
-  $('#cfOwner').value = c.owner || '';
-  $('#cfRepo').value = c.repo || '';
-  $('#cfBranch').value = c.branch || 'main';
-  $('#cfPath').value = c.path || 'promptcabin-data.json';
-  $('#cfToken').value = c.token || '';
   const st = $('#cfStatus');
+  const code = Cloud.currentCode();
+  $('#cfCode').value = code || '';
   st.className = 'cf-status';
-  st.textContent = Cloud.enabled() ? '当前：已配置（' + c.owner + '/' + c.repo + '）' : '当前：未配置，数据只存在本机浏览器';
-  if (Cloud.enabled()) st.classList.add('ok');
-  $('#cfLink').value = Cloud.enabled() ? Cloud.shareLink() : '';
-  $('#cloudMask').classList.add('open');
-}
-function readCloudForm() {
-  return {
-    owner: $('#cfOwner').value.trim(),
-    repo: $('#cfRepo').value.trim(),
-    branch: $('#cfBranch').value.trim() || 'main',
-    path: $('#cfPath').value.trim() || 'promptcabin-data.json',
-    token: $('#cfToken').value.trim()
-  };
-}
-$('#btnCloud').addEventListener('click', openCloudModal);
-/* 顶栏「保存」按钮：立即本地保存 + 云端同步 */
-if ($('#btnSaveNow')) {
-  $('#btnSaveNow').addEventListener('click', () => saveAndSync());
-}
-$('#cfSave').addEventListener('click', async () => {
-  const c = readCloudForm();
-  if (!c.owner || !c.repo || !c.token) { toast('用户名、仓库、Token 都要填', 'warn'); return; }
-  Cloud.setCfg(c);
-  $('#cfStatus').className = 'cf-status';
-  $('#cfStatus').textContent = '正在验证并同步…';
-  const ok = await Cloud.sync(false);
-  $('#cfStatus').className = 'cf-status ' + (ok ? 'ok' : 'err');
-  $('#cfStatus').textContent = ok ? '✓ 同步成功，配置已保存' : '✗ 失败，请检查仓库/Token 权限';
-  if (ok) {
+  if (Cloud.enabled()) {
+    st.classList.add('ok');
+    st.textContent = `✓ 已开启（${Cloud.cfg().owner}/${Cloud.cfg().repo}）`;
     $('#cfLink').value = Cloud.shareLink();
-    toast('已保存。点「复制链接」可在其他设备直接使用');
+  } else {
+    st.textContent = '当前未开启，数据只存在这台设备';
+    $('#cfLink').value = '';
   }
-});
-$('#cfTest').addEventListener('click', async () => {
-  const c = readCloudForm();
-  if (!c.owner || !c.repo || !c.token) { toast('请先填完整', 'warn'); return; }
+  $('#cloudMask').classList.add('open');
+  setTimeout(() => { if (!Cloud.enabled()) $('#cfCode').focus(); }, 120);
+}
+
+async function doUnlock() {
+  const code = ($('#cfCode').value || '').trim().toUpperCase();
   const st = $('#cfStatus');
-  st.className = 'cf-status';
-  st.textContent = '测试中…';
-  try {
-    const r = await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}`, {
-      headers: { 'Authorization': 'Bearer ' + c.token, 'Accept': 'application/vnd.github+json', 'User-Agent': 'prompt-cabin' }
-    });
-    if (r.ok) {
-      const j = await r.json();
-      st.className = 'cf-status ok';
-      st.textContent = `✓ 连通正常（${j.full_name}，默认分支 ${j.default_branch}）`;
-    } else if (r.status === 401) {
-      st.className = 'cf-status err'; st.textContent = '✗ Token 无效或已过期';
-    } else if (r.status === 404) {
-      st.className = 'cf-status err'; st.textContent = '✗ 仓库不存在，或 Token 没授权这个仓库';
-    } else {
-      st.className = 'cf-status err'; st.textContent = '✗ HTTP ' + r.status;
-    }
-  } catch (e) {
-    st.className = 'cf-status err'; st.textContent = '✗ 网络错误：' + e.message;
+  if (code.length !== 6) {
+    st.className = 'cf-status err';
+    st.textContent = '请输入 6 位同步码';
+    return;
   }
+  const r = Cloud.unlock(code);
+  if (!r.ok) {
+    st.className = 'cf-status err';
+    st.textContent = '✗ ' + r.msg;
+    return;
+  }
+  st.className = 'cf-status';
+  st.textContent = '正在连接云端…';
+  const ok = await Cloud.sync(false);
+  if (ok) {
+    st.className = 'cf-status ok';
+    st.textContent = '✓ 同步已开启，已拉取云端最新内容';
+    $('#cfLink').value = Cloud.shareLink();
+    toast('云端同步已开启 ✓');
+  } else {
+    st.className = 'cf-status err';
+    st.textContent = '✗ 连接失败，请检查网络后重试';
+  }
+}
+
+$('#btnCloud').addEventListener('click', openCloudModal);
+$('#cfUnlock').addEventListener('click', doUnlock);
+$('#cfCode').addEventListener('keydown', (e) => { if (e.key === 'Enter') doUnlock(); });
+$('#cfCode').addEventListener('input', (e) => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
+
+$('#cfSave').addEventListener('click', async () => {
+  const st = $('#cfStatus');
+  if (!Cloud.enabled()) {
+    st.className = 'cf-status err';
+    st.textContent = '请先输入同步码开启同步';
+    return;
+  }
+  st.className = 'cf-status';
+  st.textContent = '同步中…';
+  const ok = await Cloud.sync(false);
+  st.className = 'cf-status ' + (ok ? 'ok' : 'err');
+  st.textContent = ok ? '✓ 已与云端对齐' : '✗ 同步失败，请稍后重试';
+});
+
 $('#cfCopyLink').addEventListener('click', async () => {
   const v = $('#cfLink').value;
-  if (!v) { toast('请先保存配置', 'warn'); return; }
-  try { await navigator.clipboard.writeText(v); toast('已复制跨设备链接'); }
+  if (!v) { toast('请先开启同步', 'warn'); return; }
+  try { await navigator.clipboard.writeText(v); toast('已复制，手机打开即可自动同步'); }
   catch { $('#cfLink').select(); document.execCommand('copy'); toast('已复制'); }
 });
+
 $('#cfClear').addEventListener('click', () => {
-  if (!confirm('清除云端同步配置？（云端文件不会删除，本地笔记保留）')) return;
+  if (!confirm('关闭云端同步？\n本机笔记会保留，但不再自动上传/拉取。')) return;
   Cloud.clearCfg();
-  setSyncState('idle', '未配置');
+  setSyncState('idle', '未开启');
   $('#cloudMask').classList.remove('open');
-  toast('已清除同步配置');
+  toast('已关闭云端同步');
 });
+
 $('#cloudMask').addEventListener('click', (e) => { if (e.target.id === 'cloudMask') $('#cloudMask').classList.remove('open'); });
 
 /* AI 面板收起 */
