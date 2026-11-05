@@ -7,6 +7,8 @@
 <style>
 :root{
   --editor-max:920px;
+  --w-left:240px;
+  --w-right:320px;
   /* 浅色调 · 参考腾讯文档 / 飞书 / 大象的克制蓝灰体系 */
   --bg:#f5f7fa;          /* 页面底色 */
   --bg-soft:#fafbfc;     /* 次级底色 */
@@ -97,7 +99,29 @@ button{cursor:pointer;border:none;background:none}
 @keyframes pulse{50%{opacity:.35}}
 
 /* ============ 主布局 ============ */
-.layout{display:grid;grid-template-columns:276px minmax(0,1fr) 372px;height:calc(100vh - 56px);height:calc(100dvh - 56px)}
+.layout{
+  display:grid;
+  grid-template-columns:var(--w-left,240px) 5px minmax(0,1fr) 5px var(--w-right,320px);
+  height:calc(100vh - 56px);height:calc(100dvh - 56px);
+}
+.layout.no-ai{grid-template-columns:var(--w-left,240px) 5px minmax(0,1fr)}
+.layout.no-ai .splitter-r,.layout.no-ai .ai-panel{display:none}
+.splitter{
+  position:relative;cursor:col-resize;background:transparent;transition:background .15s;
+  display:flex;align-items:center;justify-content:center;z-index:10;
+}
+.splitter::after{
+  content:'';width:1px;height:100%;background:var(--line);transition:.15s;
+}
+.splitter:hover::after{width:2px;background:#9dc1f5}
+.splitter.dragging::after{width:2px;background:var(--accent)}
+.splitter .grip{
+  position:absolute;top:50%;transform:translateY(-50%);width:5px;height:34px;border-radius:3px;
+  background:#d7dce5;opacity:0;transition:.15s;
+}
+.splitter:hover .grip{opacity:1}
+body.resizing{cursor:col-resize;user-select:none}
+body.resizing iframe,body.resizing #editor{pointer-events:none}
 .layout.no-ai{grid-template-columns:276px minmax(0,1fr)}
 .sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--bg-soft)}
 .side-head{padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between}
@@ -350,6 +374,12 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
 .cf-status{margin-top:10px;font-size:12px;min-height:18px;font-family:var(--mono)}
 .cf-status.ok{color:var(--green)}
 .cf-status.err{color:var(--danger)}
+.cf-share{margin-top:14px;padding:11px 13px;border:1px solid var(--line);border-radius:8px;background:#fafbfc}
+.cf-share b{display:block;font-size:12px;margin-bottom:4px}
+.cf-share>span{font-size:11.5px;color:var(--text-mute);line-height:1.7;display:block}
+.cf-share-row{display:flex;gap:8px;margin-top:9px}
+.cf-share-row input{flex:1;height:30px;border:1px solid var(--line);border-radius:6px;padding:0 9px;font-size:11px;font-family:var(--mono);color:var(--text-dim);background:#fff;outline:none;min-width:0}
+.cf-share-row input:focus{border-color:#9dc1f5}
 .sc-groups{display:grid;grid-template-columns:1fr 1fr;gap:18px 26px;margin-top:6px}
 .data-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
 .data-row>div{flex:1;min-width:0}
@@ -446,15 +476,16 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
     <span class="led"></span><span id="syncText">同步就绪</span>
   </div>
 
+  <button class="tb-btn primary" id="btnSaveNow" title="保存并同步 (Ctrl/⌘+S)">⌘S 保存</button>
   <button class="tb-btn" id="btnCloud" title="云端同步设置">☁ 同步</button>
   <button class="tb-btn" id="btnTemplates">✦ 模板库</button>
   <button class="tb-btn" id="btnExport" title="导出 / 导入 / 快照">⇅ 备份</button>
-  <button class="tb-btn primary" id="btnNew">＋ 新建笔记</button>
+  <button class="tb-btn" id="btnNew">＋ 新建</button>
 </div>
 
 <div class="layout" id="layout">
   <!-- ================= 侧栏 ================= -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="paneLeft">
     <div class="side-head">
       <h3>笔记</h3>
       <div style="display:flex;align-items:center;gap:6px">
@@ -465,6 +496,8 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
     <div class="tagbar" id="tagBar"></div>
     <div class="note-list" id="noteList"></div>
   </aside>
+
+  <div class="splitter splitter-l" id="splitL" title="拖动调整笔记列表宽度"><span class="grip"></span></div>
 
   <!-- ================= 编辑器 ================= -->
   <section class="editor-area">
@@ -583,6 +616,8 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
     </div>
   </section>
 
+  <div class="splitter splitter-r" id="splitR" title="拖动调整 AI 面板宽度"><span class="grip"></span></div>
+
   <!-- ================= AI 面板 ================= -->
   <aside class="ai-panel" id="aiPanel">
     <div class="ai-head">
@@ -634,10 +669,18 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
       ⚠ 公开仓库里的这个文件是<b>可以被人读到的</b>，只放笔记、不要放密码密钥。Token 只存在你本机浏览器。
     </div>
     <div id="cfStatus" class="cf-status"></div>
+    <div class="cf-share">
+      <b>跨设备用法</b>
+      <span>两个字段的写法只在当前浏览器生效。要让另一台设备也能同步，点下面按钮复制带配置的链接，在另一台设备打开即可——无需再填 Token。</span>
+      <div class="cf-share-row">
+        <input id="cfLink" readonly placeholder="配置后这里会生成跨设备链接" />
+        <button class="tb-btn" id="cfCopyLink">复制链接</button>
+      </div>
+    </div>
     <div class="modal-foot">
       <button class="tb-btn" id="cfClear">清除配置</button>
       <button class="tb-btn" id="cfTest">测试连接</button>
-      <button class="tb-btn primary" id="cfSave">保存并立即同步</button>
+      <button class="tb-btn primary" id="cfSave">保存并同步</button>
     </div>
   </div>
 </div>
@@ -821,11 +864,48 @@ const Sync = {
    ========================================================================= */
 const Cloud = {
   CFG_KEY: 'promptcabin:cloud',
+  /** 配置来源优先级：URL hash(#sync=base64) > localStorage
+   *  这样只要把带 #sync= 的链接发到另一台设备，配置就自动带过去，无需手填 Token */
   cfg() {
+    // 1) 先看 URL
+    try {
+      const h = location.hash || '';
+      const m = h.match(/[#&]sync=([^&]+)/);
+      if (m) {
+        const parsed = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));
+        if (parsed && parsed.owner && parsed.repo && parsed.token) {
+          // 顺手写入本地，之后即使去掉 hash 也能用
+          localStorage.setItem(this.CFG_KEY, JSON.stringify(parsed));
+          return parsed;
+        }
+      }
+    } catch (e) { /* hash 不合法就忽略 */ }
+    // 2) 退回本地
     try { return JSON.parse(localStorage.getItem(this.CFG_KEY) || 'null'); } catch { return null; }
   },
-  setCfg(c) { localStorage.setItem(this.CFG_KEY, JSON.stringify(c)); },
-  clearCfg() { localStorage.removeItem(this.CFG_KEY); },
+  setCfg(c) {
+    localStorage.setItem(this.CFG_KEY, JSON.stringify(c));
+    this.syncHash(c);
+  },
+  /** 把配置编码进 URL，便于跨设备传播 */
+  syncHash(c) {
+    try {
+      const enc = btoa(unescape(encodeURIComponent(JSON.stringify(c))));
+      const base = location.href.split('#')[0];
+      history.replaceState(null, '', base + '#sync=' + encodeURIComponent(enc));
+    } catch (e) { }
+  },
+  /** 生成给别的设备用的链接 */
+  shareLink() {
+    const c = this.cfg();
+    if (!c) return '';
+    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(c))));
+    return location.href.split('#')[0] + '#sync=' + encodeURIComponent(enc);
+  },
+  clearCfg() {
+    localStorage.removeItem(this.CFG_KEY);
+    try { history.replaceState(null, '', location.href.split('#')[0]); } catch (e) { }
+  },
   enabled() { const c = this.cfg(); return !!(c && c.owner && c.repo && c.token); },
   path() { const c = this.cfg(); return c && c.path ? c.path : 'promptcabin-data.json'; },
 
@@ -906,18 +986,31 @@ const Cloud = {
     return { sha: j.content.sha };
   },
 
+  /** 判断远端是否有本地缺失或更新的笔记 */
+  remoteIsNewer(localDb, remoteDb) {
+    const lmap = new Map((localDb.notes || []).map(n => [n.id, n]));
+    return (remoteDb.notes || []).some(rn => {
+      const ln = lmap.get(rn.id);
+      if (!ln) return true;
+      return (rn.updatedAt || 0) > (ln.updatedAt || 0);
+    });
+  },
+
   /** 三方合并：以 note.id 为单位，updatedAt 新者胜（本地无 updatedAt 视为新本地条目） */
   merge(localDb, remoteDb) {
     const map = new Map();
     const stamp = (n) => n.updatedAt || n.createdAt || 0;
     let pulled = 0, pushed = 0;
-    (remoteDb.notes || []).forEach(rn => map.set(rn.id, rn));
+    const localIds = new Set((localDb.notes || []).map(n => n.id));
+    (remoteDb.notes || []).forEach(rn => {
+      map.set(rn.id, rn);
+      if (!localIds.has(rn.id)) pulled++;   // 本地没有 → 从远端新增
+    });
     (localDb.notes || []).forEach(ln => {
       const rn = map.get(ln.id);
-      if (!rn) { map.set(ln.id, ln); pushed++; return; }        // 本地新增
-      if (stamp(ln) > stamp(rn)) { map.set(ln.id, ln); pushed++; return; }  // 本地更新
-      if (stamp(rn) > stamp(ln)) { pulled++; return; }           // 远端更新，保留远端
-      // 时间戳相同：内容不同则保留本地（pushed++），内容相同不计数
+      if (!rn) { map.set(ln.id, ln); pushed++; return; }                     // 本地新增
+      if (stamp(ln) > stamp(rn)) { map.set(ln.id, ln); pushed++; return; }    // 本地更新
+      if (stamp(rn) > stamp(ln)) { pulled++; return; }                        // 远端更新
       if (JSON.stringify(ln) !== JSON.stringify(rn)) { map.set(ln.id, ln); pushed++; }
     });
     const notes = [...map.values()];
@@ -941,8 +1034,25 @@ const Cloud = {
           if (!silent) toast('已上传到云端');
           return true;
         }
+        // 先检测「云端是否真的比本地新」——这决定是纯拉取还是需要回推
+        const remoteNewer = this.remoteIsNewer(State.db, remote.db);
         const { db: merged, pulled, pushed } = this.merge(State.db, remote.db);
-        // 数据无差异就不再制造空提交
+
+        // 本地无任何需要上传的改动，但有远端新数据 → 纯拉取，不回推（避免空提交与循环）
+        if (pushed === 0 && pulled > 0) {
+          Storage.save(merged);
+          State.db = merged;
+          State.lastRemoteRev = merged.rev;
+          if (!getNote(State.activeId)) State.activeId = sortNotes(merged.notes)[0]?.id || null;
+          const el3 = document.activeElement;
+          const editing = (el3 === $('#editor') || el3 === $('#titleInput')) && State.typing;
+          renderList(); renderTagBar();
+          if (!editing) renderEditor();
+          setSyncState('ok', `${fmtTime(now())} 已拉取`);
+          if (!silent) toast(`已从云端拉取 ${pulled} 条更新`);
+          return true;
+        }
+        // 完全一致 → 无事可做
         if (pulled === 0 && pushed === 0) {
           State.db = { ...State.db, rev: Math.max(State.db.rev || 0, remote.db.rev || 0) };
           setSyncState('ok', '已是最新');
@@ -951,15 +1061,27 @@ const Cloud = {
         }
         const r = await this.push(merged, remote.sha);
         if (r.conflict) continue;   // 别人抢先提交，重新拉取合并
+
+        // 关键：无论 pulled 是否为 0，合并结果都必须落盘并刷新 UI
         Storage.save(merged);
         State.db = merged;
-        if (pulled > 0) State.lastRemoteRev = merged.rev;
-        const keepId = State.activeId;
-        if (!getNote(keepId)) State.activeId = sortNotes(merged.notes)[0]?.id || null;
-        renderAll();
-        renderEditor();
+        State.lastRemoteRev = merged.rev;
+        if (!getNote(State.activeId)) State.activeId = sortNotes(merged.notes)[0]?.id || null;
+
+        // 若当前正在编辑，不要把编辑器内容覆盖掉（保住用户正在打的字）
+        const el2 = document.activeElement;
+        const editing = (el2 === $('#editor') || el2 === $('#titleInput')) && State.typing;
+        renderList(); renderTagBar();
+        if (!editing) { renderEditor(); }
+        updateCounters(plain($('#editor').innerHTML));
+
         setSyncState('ok', `${fmtTime(now())} 已同步`);
-        if (!silent) toast(`同步完成：拉取 ${pulled} 条，上传 ${pushed} 条`);
+        if (!silent) {
+          const parts = [];
+          if (pulled) parts.push(`拉取 ${pulled} 条`);
+          if (pushed) parts.push(`上传 ${pushed} 条`);
+          toast('同步完成' + (parts.length ? '：' + parts.join('，') : ''));
+        }
         return true;
       }
       setSyncState('err', '冲突重试失败');
@@ -967,6 +1089,7 @@ const Cloud = {
       return false;
     } catch (e) {
       setSyncState('err', e.message || '同步失败');
+      console.error('[cloud sync]', e);
       if (!silent) toast('同步失败：' + (e.message || '网络错误'), 'err');
       return false;
     }
@@ -1525,7 +1648,11 @@ $('#editor').addEventListener('keydown', (e) => {
   const mod = e.metaKey || e.ctrlKey;
   const k = e.key.toLowerCase();
   // 保存
-  if (mod && k === 's') { e.preventDefault(); commitSave('manual'); toast('已保存'); return; }
+  if (mod && k === 's' && !e.shiftKey) {
+    e.preventDefault();
+    saveAndSync();
+    return;
+  }
   // 撤销 / 重做：显式走 execCommand，保证 contenteditable 与工具栏状态一致
   if (mod && k === 'z' && !e.shiftKey) { e.preventDefault(); document.execCommand('undo'); scheduleSave(400); syncToolbarState(); return; }
   if (mod && (k === 'y' || (k === 'z' && e.shiftKey))) { e.preventDefault(); document.execCommand('redo'); scheduleSave(400); syncToolbarState(); return; }
@@ -1544,6 +1671,27 @@ $('#editor').addEventListener('keydown', (e) => {
   // Esc 退出焦点
   if (e.key === 'Escape') { $('#editor').blur(); return; }
 });
+
+/* ---------- 统一的「保存并同步」入口 ---------- */
+let saving = false;
+async function saveAndSync() {
+  if (saving) { toast('正在保存中…'); return; }
+  saving = true;
+  try {
+    commitSave('manual');
+    if (!Cloud.enabled()) {
+      toast('已保存到本机（未配置云端同步）', 'warn');
+      return;
+    }
+    setSyncState('syncing');
+    toast('正在上传到云端…');
+    const ok = await Cloud.sync(false);
+    if (ok) toast('已保存并同步到云端 ✓');
+  } finally {
+    saving = false;
+  }
+}
+window.saveAndSync = saveAndSync;
 
 /* ---------- 全局快捷键 ---------- */
 const SHORTCUTS = [
@@ -1811,6 +1959,24 @@ document.addEventListener('keydown', (e) => {
     $('#searchInput').value = ''; State.keyword = ''; renderList(); $('#searchInput').blur();
   }
 });
+
+/* 页面重新可见时拉取最新（切回标签页、手机从后台回来） */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Cloud.enabled()) {
+    Cloud.sync(true);
+  }
+});
+/* 定时后台拉取：每 60s，仅在无未保存改动时执行，保证多端最终一致 */
+setInterval(() => {
+  if (!Cloud.enabled() || saving) return;
+  if (document.visibilityState !== 'visible') return;
+  // 只有「真的正在输入」时才跳过：有未保存改动 或 光标在编辑器里且刚打过字
+  const el = document.activeElement;
+  const focused = el === $('#editor') || el === $('#titleInput');
+  if (State.dirty) return;
+  if (focused && State.typing) return;
+  Cloud.sync(true);
+}, 20000);
 
 window.addEventListener('beforeunload', (e) => {
   if (State.dirty) { commitSave('unload'); }
@@ -2231,6 +2397,7 @@ function openCloudModal() {
   st.className = 'cf-status';
   st.textContent = Cloud.enabled() ? '当前：已配置（' + c.owner + '/' + c.repo + '）' : '当前：未配置，数据只存在本机浏览器';
   if (Cloud.enabled()) st.classList.add('ok');
+  $('#cfLink').value = Cloud.enabled() ? Cloud.shareLink() : '';
   $('#cloudMask').classList.add('open');
 }
 function readCloudForm() {
@@ -2243,6 +2410,10 @@ function readCloudForm() {
   };
 }
 $('#btnCloud').addEventListener('click', openCloudModal);
+/* 顶栏「保存」按钮：立即本地保存 + 云端同步 */
+if ($('#btnSaveNow')) {
+  $('#btnSaveNow').addEventListener('click', () => saveAndSync());
+}
 $('#cfSave').addEventListener('click', async () => {
   const c = readCloudForm();
   if (!c.owner || !c.repo || !c.token) { toast('用户名、仓库、Token 都要填', 'warn'); return; }
@@ -2252,7 +2423,10 @@ $('#cfSave').addEventListener('click', async () => {
   const ok = await Cloud.sync(false);
   $('#cfStatus').className = 'cf-status ' + (ok ? 'ok' : 'err');
   $('#cfStatus').textContent = ok ? '✓ 同步成功，配置已保存' : '✗ 失败，请检查仓库/Token 权限';
-  if (ok) setTimeout(() => $('#cloudMask').classList.remove('open'), 900);
+  if (ok) {
+    $('#cfLink').value = Cloud.shareLink();
+    toast('已保存。点「复制链接」可在其他设备直接使用');
+  }
 });
 $('#cfTest').addEventListener('click', async () => {
   const c = readCloudForm();
@@ -2279,6 +2453,12 @@ $('#cfTest').addEventListener('click', async () => {
     st.className = 'cf-status err'; st.textContent = '✗ 网络错误：' + e.message;
   }
 });
+$('#cfCopyLink').addEventListener('click', async () => {
+  const v = $('#cfLink').value;
+  if (!v) { toast('请先保存配置', 'warn'); return; }
+  try { await navigator.clipboard.writeText(v); toast('已复制跨设备链接'); }
+  catch { $('#cfLink').select(); document.execCommand('copy'); toast('已复制'); }
+});
 $('#cfClear').addEventListener('click', () => {
   if (!confirm('清除云端同步配置？（云端文件不会删除，本地笔记保留）')) return;
   Cloud.clearCfg();
@@ -2295,6 +2475,93 @@ $('#btnAiToggle').addEventListener('click', () => {
   $('#aiPanel').style.display = l.classList.contains('no-ai') ? 'none' : 'flex';
   $('#btnAiToggle').textContent = l.classList.contains('no-ai') ? '⇤' : '⇥';
 });
+
+/* =========================================================================
+   11.8 可拖拽分栏
+   ========================================================================= */
+const Split = {
+  MIN_L: 170, MAX_L: 420,
+  MIN_R: 240, MAX_R: 620,
+  MIN_C: 380,
+  KEY: 'promptcabin:panes',
+
+  load() {
+    try {
+      const c = JSON.parse(localStorage.getItem(this.KEY) || 'null');
+      if (c) {
+        if (c.left) document.documentElement.style.setProperty('--w-left', c.left + 'px');
+        if (c.right) document.documentElement.style.setProperty('--w-right', c.right + 'px');
+      }
+    } catch (e) { }
+  },
+  save() {
+    const cs = getComputedStyle(document.documentElement);
+    localStorage.setItem(this.KEY, JSON.stringify({
+      left: parseInt(cs.getPropertyValue('--w-left')) || 240,
+      right: parseInt(cs.getPropertyValue('--w-right')) || 320
+    }));
+  },
+  bind(el, side) {
+    if (!el) return;
+    let startX = 0, startW = 0, dragging = false;
+
+    const onDown = (e) => {
+      if (window.innerWidth <= 900) return;
+      dragging = true;
+      startX = (e.touches ? e.touches[0].clientX : e.clientX);
+      const cs = getComputedStyle(document.documentElement);
+      startW = parseInt(cs.getPropertyValue(side === 'l' ? '--w-left' : '--w-right')) || (side === 'l' ? 240 : 320);
+      el.classList.add('dragging');
+      document.body.classList.add('resizing');
+      e.preventDefault();
+    };
+    const onMove = (e) => {
+      if (!dragging) return;
+      const x = (e.touches ? e.touches[0].clientX : e.clientX);
+      const dx = x - startX;
+      const layoutW = $('#layout').clientWidth;
+      if (side === 'l') {
+        let w = startW + dx;
+        // 保证中间编辑区至少 MIN_C
+        const rightW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--w-right')) || 320;
+        const maxL = Math.min(this.MAX_L, layoutW - rightW - this.MIN_C - 10);
+        w = Math.max(this.MIN_L, Math.min(maxL, w));
+        document.documentElement.style.setProperty('--w-left', w + 'px');
+      } else {
+        let w = startW - dx;
+        const leftW = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--w-left')) || 240;
+        const maxR = Math.min(this.MAX_R, layoutW - leftW - this.MIN_C - 10);
+        w = Math.max(this.MIN_R, Math.min(maxR, w));
+        document.documentElement.style.setProperty('--w-right', w + 'px');
+      }
+      if (e.cancelable) e.preventDefault();
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging');
+      document.body.classList.remove('resizing');
+      this.save();
+    };
+
+    el.addEventListener('mousedown', onDown);
+    el.addEventListener('touchstart', onDown, { passive: false });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchend', onUp);
+    // 双击恢复默认
+    el.addEventListener('dblclick', () => {
+      document.documentElement.style.setProperty('--w-left', '240px');
+      document.documentElement.style.setProperty('--w-right', '320px');
+      this.save();
+      toast('已恢复默认布局');
+    });
+  }
+};
+Split.load();
+Split.bind($('#splitL'), 'l');
+Split.bind($('#splitR'), 'r');
 
 /* =========================================================================
    12. 启动
@@ -2327,10 +2594,21 @@ function init() {
 
   Sync.init();
   Sync.setBusy(false);
-  // 云端状态初始化
+  // 云端状态初始化：启动即同步，失败自动重试（新设备首次打开时 GitHub 可能有几秒延迟）
   if (Cloud.enabled()) {
     setSyncState('idle', '待同步');
-    setTimeout(() => Cloud.sync(true), 800);
+    let tries = 0;
+    const boot = async () => {
+      tries++;
+      const ok = await Cloud.sync(true);
+      if (!ok && tries < 4) {
+        setSyncState('idle', `重试中 ${tries}/4`);
+        setTimeout(boot, 2500 * tries);
+      } else if (!ok) {
+        setSyncState('err', '同步失败，点☁重试');
+      }
+    };
+    setTimeout(boot, 500);
   } else {
     setSyncState('idle', '未配置');
   }
