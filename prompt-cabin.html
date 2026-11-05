@@ -100,13 +100,13 @@ button{cursor:pointer;border:none;background:none}
 @keyframes pulse{50%{opacity:.35}}
 
 /* ============ 主布局 ============ */
-.layout{
+.pc-app{
   display:grid;
   grid-template-columns:var(--w-left,240px) 5px minmax(0,1fr) 5px var(--w-right,320px);
   height:calc(100vh - 56px);height:calc(100dvh - 56px);
 }
-.layout.no-ai{grid-template-columns:var(--w-left,240px) 5px minmax(0,1fr)}
-.layout.no-ai .splitter-r,.layout.no-ai .ai-panel{display:none}
+.pc-app.no-ai{grid-template-columns:var(--w-left,240px) 5px minmax(0,1fr)}
+.pc-app.no-ai .splitter-r,.pc-app.no-ai .ai-panel{display:none}
 .splitter{
   position:relative;cursor:col-resize;background:transparent;transition:background .15s;
   display:flex;align-items:center;justify-content:center;z-index:10;
@@ -123,7 +123,7 @@ button{cursor:pointer;border:none;background:none}
 .splitter:hover .grip{opacity:1}
 body.resizing{cursor:col-resize;user-select:none}
 body.resizing iframe,body.resizing #editor{pointer-events:none}
-.layout.no-ai{grid-template-columns:276px minmax(0,1fr)}
+.pc-app.no-ai{grid-template-columns:276px minmax(0,1fr)}
 .sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--bg-soft)}
 .side-head{padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between}
 .side-head h3{margin:0;font-size:12px;letter-spacing:.6px;color:var(--text-mute);font-weight:600}
@@ -434,7 +434,7 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
   .editor-wrap{padding:18px 22px 110px}
 }
 @media(max-width:900px){
-  .layout,.layout.no-ai{grid-template-columns:minmax(0,1fr);height:calc(100vh - 52px);height:calc(100dvh - 52px)}
+  .pc-app,.pc-app.no-ai{grid-template-columns:minmax(0,1fr);height:calc(100vh - 52px);height:calc(100dvh - 52px)}
   .splitter{display:none}
   .sidebar{display:none}
   .ai-panel{display:none}
@@ -447,7 +447,7 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
   .sync-badge{display:none}
   .tb-btn{padding:0 10px;font-size:12px}
   .tb-btn#btnTemplates,.tb-btn#btnExport{display:none}
-  .layout{height:calc(100vh - 52px);height:calc(100dvh - 52px)}
+  .pc-app{height:calc(100vh - 52px);height:calc(100dvh - 52px)}
   .editor-head{padding:14px 14px 8px}
   .title-input{font-size:17px}
   .toolbar{padding:6px 10px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
@@ -491,7 +491,7 @@ mark.hl{background:#fff3c4;color:#8a5a00;padding:0 1px;border-radius:2px;font-we
   <button class="tb-btn" id="btnNew">＋ 新建</button>
 </div>
 
-<div class="layout" id="layout">
+<div class="pc-app" id="layout">
   <!-- ================= 侧栏 ================= -->
   <aside class="sidebar" id="paneLeft">
     <div class="side-head">
