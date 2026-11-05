@@ -1,5 +1,5 @@
 {
- "rev": 5,
+ "rev": 8,
  "notes": [
   {
    "id": "p_mw3fi5kzfr03r",
@@ -41,7 +41,18 @@
    "rev": 1,
    "createdAt": 1793876095857,
    "updatedAt": 1793876095857
+  },
+  {
+   "id": "p_mw3fiizfc4rwd",
+   "title": "B端V6",
+   "content": "bbb",
+   "plain": "bbb",
+   "tags": [],
+   "pinned": false,
+   "rev": 2,
+   "createdAt": 1793876102043,
+   "updatedAt": 1793876102980
   }
  ],
- "updatedAt": 1793876100191
+ "updatedAt": 1793876106542
 }
