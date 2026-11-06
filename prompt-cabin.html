@@ -921,7 +921,20 @@ const Cloud = {
       }
     } catch (e) { /* hash 不合法就忽略 */ }
     // 2) 退回本地
-    try { return JSON.parse(localStorage.getItem(this.CFG_KEY) || 'null'); } catch { return null; }
+    try {
+      const c = JSON.parse(localStorage.getItem(this.CFG_KEY) || 'null');
+      if (c && c.owner && c.repo && c.token) return c;
+    } catch { }
+    // 3) 内置默认后端：开箱即用，无需任何配置
+    try {
+      const token = _unseal();
+      if (token) {
+        const def = { ...Object.values(SYNC_CODES)[0], token };
+        localStorage.setItem(this.CFG_KEY, JSON.stringify(def));
+        return def;
+      }
+    } catch { }
+    return null;
   },
   setCfg(c) {
     localStorage.setItem(this.CFG_KEY, JSON.stringify(c));
@@ -2630,8 +2643,8 @@ function init() {
   State.lastRemoteRev = State.db.rev;
 
   const FIRST_RUN = !localStorage.getItem('promptcabin:inited');
-  if (!State.db.notes.length && FIRST_RUN) {
-    // 首次使用：播下示例
+  const maybeSeed = () => {
+    if (!FIRST_RUN || State.db.notes.length) return;
     localStorage.setItem('promptcabin:inited', '1');
     const t = now();
     State.db.notes = [{
@@ -2644,10 +2657,8 @@ function init() {
     }];
     State.db.rev = 1;
     Storage.save(State.db);
-  } else if (FIRST_RUN) {
-    localStorage.setItem('promptcabin:inited', '1');
-  }
-  State.activeId = sortNotes(State.db.notes)[0].id;
+  };
+  State.activeId = sortNotes(State.db.notes)[0]?.id || null;
   const n = getNote(State.activeId);
   State.editingNoteRev = n ? n.rev : 0;
 
@@ -2660,16 +2671,26 @@ function init() {
     const boot = async () => {
       tries++;
       const ok = await Cloud.sync(true);
-      if (!ok && tries < 4) {
-        setSyncState('idle', `重试中 ${tries}/4`);
-        setTimeout(boot, 2500 * tries);
+      if (!ok && tries < 6) {
+        setSyncState('idle', `同步中(${tries})`);
+        setTimeout(boot, 2000 * tries);
       } else if (!ok) {
-        setSyncState('err', '同步失败，点☁重试');
+        setSyncState('err', '暂时连不上，稍后自动重试');
+        setTimeout(boot, 30000);
       }
     };
-    setTimeout(boot, 500);
+    setTimeout(async () => {
+      await boot();
+      maybeSeed();
+      renderAll();
+      if (!getNote(State.activeId)) {
+        State.activeId = sortNotes(State.db.notes)[0]?.id || null;
+        renderEditor();
+      }
+    }, 400);
   } else {
-    setSyncState('idle', '未配置');
+    setSyncState('err', '云端不可用');
+    maybeSeed();
   }
   refreshTabPeers();
   renderAll();
