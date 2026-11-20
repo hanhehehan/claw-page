@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美区 App Store 评论在线对比</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f5f7; color: #1d1d1f; }
+  header { background: linear-gradient(135deg, #0a2540, #1d4e89); color: #fff; padding: 26px 32px; }
+  header h1 { font-size: 23px; font-weight: 700; }
+  header .sub { font-size: 13px; opacity: .85; margin-top: 6px; }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  .panel { background: #fff; border-radius: 16px; padding: 20px 22px; box-shadow: 0 1px 3px rgba(0,0,0,.07); margin-bottom: 14px; }
+  .panel h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .panel h3 small { font-weight: 400; color: #86868b; }
+  .panel .tip { font-size: 11px; color: #0071e3; margin-bottom: 12px; }
+  .note { font-size: 12px; color: #6e6e73; line-height: 1.7; background: #f5f5f7; border-radius: 10px; padding: 10px 14px; margin-top: 12px; }
+
+  .searchrow { display: flex; gap: 10px; flex-wrap: wrap; }
+  .searchrow input { flex: 1; min-width: 220px; padding: 11px 16px; border-radius: 12px; border: 1px solid #d2d2d7; outline: none; font-size: 14px; }
+  .searchrow input:focus { border-color: #0071e3; }
+  .searchrow button, .resrow button, .basket button { padding: 9px 18px; font-size: 13px; font-weight: 600; border-radius: 12px; border: none; background: #0071e3; color: #fff; cursor: pointer; }
+  .searchrow button:disabled, .resrow button:disabled { background: #d2d2d7; cursor: default; }
+  .searchrow select { padding: 9px 12px; border-radius: 12px; border: 1px solid #d2d2d7; outline: none; font-size: 13px; background: #fff; cursor: pointer; }
+  .resrow { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #f0f0f3; font-size: 13.5px; }
+  .resrow .rn { font-weight: 700; }
+  .resrow .rd { color: #86868b; font-size: 12px; }
+  .resrow .meta { margin-left: auto; color: #6e6e73; font-size: 12px; white-space: nowrap; }
+
+  .basket { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .basket .bchip { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 20px; background: #e1efff; color: #0071e3; font-size: 12.5px; font-weight: 600; }
+  .basket .bchip .st { font-weight: 400; color: #6e6e73; }
+  .basket .bchip button { background: none; border: none; color: #0071e3; font-size: 14px; cursor: pointer; padding: 0 2px; }
+
+  .apptabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; position: sticky; top: 0; padding: 10px 0; background: #f5f5f7; z-index: 5; }
+  .apptab { padding: 9px 18px; border-radius: 20px; border: 1px solid #d2d2d7; background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .apptab.active { background: #1d1d1f; color: #fff; border-color: #1d1d1f; }
+  .apptab .cnt { font-weight: 400; opacity: .7; font-size: 12px; margin-left: 4px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap: 14px; margin-bottom: 22px; }
+  .card { background: #fff; border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+  .card .v { font-size: 26px; font-weight: 800; }
+  .card .k { font-size: 12px; color: #86868b; margin-top: 4px; }
+  .card.hi .v { color: #0071e3; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.cmp th { font-size: 12px; color: #86868b; font-weight: 600; text-align: left; padding: 8px 10px; border-bottom: 2px solid #f0f0f3; }
+  table.cmp td { padding: 9px 10px; border-bottom: 1px solid #f0f0f3; }
+  table.cmp td.metric { color: #6e6e73; font-size: 12.5px; }
+  table.cmp td.best { font-weight: 800; }
+
+  .group .grow { display: flex; align-items: center; gap: 10px; margin: 8px 0; cursor: pointer; border-radius: 6px; padding: 2px 4px; }
+  .group .grow:hover { background: #f0f7ff; }
+  .group .grow.active { background: #e1efff; outline: 2px solid #0071e3; }
+  .group .glb { width: 116px; text-align: right; font-weight: 600; font-size: 13px; flex-shrink: 0; }
+  .group .gtrack { flex: 1; display: flex; gap: 2px; height: 22px; background: #f5f5f7; border-radius: 5px; overflow: hidden; }
+  .group .gfill { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; font-weight: 700; min-width: 22px; transition: width .3s; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: #6e6e73; margin-top: 12px; flex-wrap: wrap; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+  .minis { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .mini h4 { font-size: 13px; margin-bottom: 8px; }
+  .trend { display: flex; align-items: flex-end; gap: 3px; height: 90px; }
+  .trend .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; cursor: pointer; border-radius: 3px; }
+  .trend .col:hover { background: #f0f7ff; }
+  .trend .col.active { background: #e1efff; outline: 2px solid #0071e3; }
+  .trend .bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 2px; }
+
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .filters button { padding: 7px 14px; font-size: 13px; border-radius: 18px; border: 1px solid #d2d2d7; background: #fff; cursor: pointer; }
+  .filters button.active { background: #1d1d1f; color: #fff; border-color: #1d1d1f; }
+  .filters input { padding: 8px 14px; border-radius: 18px; border: 1px solid #d2d2d7; outline: none; font-size: 13px; flex: 1; min-width: 170px; }
+  .filters select { padding: 8px 12px; border-radius: 18px; border: 1px solid #d2d2d7; outline: none; font-size: 13px; background: #fff; cursor: pointer; }
+  .filters .cnt { font-size: 12px; color: #86868b; }
+  .chipbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; min-height: 22px; }
+  .chip { background: #0071e3; color: #fff; font-size: 12px; padding: 4px 10px; border-radius: 14px; cursor: pointer; }
+  .chip span { margin-left: 6px; font-weight: 700; }
+
+  .rv { background: #fff; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .rv .hd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .rv .st { color: #ff9500; font-size: 14px; letter-spacing: 1px; }
+  .rv .ti { font-weight: 700; font-size: 15px; }
+  .rv .mt { font-size: 12px; color: #86868b; margin-left: auto; }
+  .badge { font-size: 11px; padding: 2px 9px; border-radius: 10px; color: #fff; font-weight: 700; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rv .trbtn { font-size: 12px; color: #fff; background: #0071e3; border: none; border-radius: 12px; padding: 3px 12px; cursor: pointer; }
+  .rv .body { font-size: 14px; line-height: 1.6; color: #333; margin-top: 8px; white-space: pre-line; }
+  .rv .body.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .rv .more { font-size: 12px; color: #0071e3; cursor: pointer; margin-top: 6px; user-select: none; }
+  .rv .trans { background: #faf6ee; border-left: 3px solid #c9a86a; border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-size: 13.5px; line-height: 1.7; color: #4b4b50; }
+  .rv .trans .tlabel { font-size: 11px; color: #b08d4f; font-weight: 700; margin-bottom: 4px; }
+  .rv .trans.loading { color: #86868b; }
+  .rv .dev { background: #eef6ff; border-left: 3px solid #0071e3; border-radius: 8px; padding: 10px 14px; margin-top: 10px; }
+  .rv .dev .dl { font-size: 12px; font-weight: 700; color: #0071e3; margin-bottom: 4px; }
+  .rv .dev .db { font-size: 13px; line-height: 1.55; color: #1d1d1f; white-space: pre-line; }
+  .rv .dev .dm { font-size: 11px; color: #86868b; margin-top: 5px; }
+  .rv .dev .trans { background: #f4ecdc; border-left-color: #c9a86a; margin-top: 8px; }
+  .pager { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 16px; }
+  .pager button { padding: 8px 18px; border-radius: 10px; border: none; background: #0071e3; color: #fff; cursor: pointer; font-size: 14px; }
+  .pager button:disabled { background: #d2d2d7; cursor: default; }
+  .pager .pg { font-size: 13px; color: #6e6e73; }
+  .empty { text-align: center; color: #86868b; padding: 40px 0; }
+  .trall { font-size: 12px; color: #0071e3; background: #e1efff; border: 1px solid #b6d7ff; border-radius: 14px; padding: 5px 14px; cursor: pointer; }
+  .quota-note { font-size: 12px; color: #b26a00; background: #fff3e0; border-radius: 8px; padding: 8px 14px; margin-bottom: 10px; display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 美区 App Store 评论在线对比</h1>
+  <div class="sub">输入 App 名称 → 添加到对比（最多 4 个）→ 浏览器自动抓取评论并生成对比 · 数据来自苹果公开接口 · 无需安装任何东西</div>
+</header>
+<main>
+
+  <div class="panel">
+    <h3>1️⃣ 添加要对比的 App <small>（美区 App Store）</small></h3>
+    <div class="searchrow">
+      <input id="sq" placeholder="输入 App 名称，如：tile match / wordle / notability …" onkeydown="if(event.key==='Enter')doSearch()">
+      <select id="depthSel" title="每个 App 抓取条数">
+        <option value="100">快速（100条/App）</option>
+        <option value="300" selected>标准（300条/App）</option>
+        <option value="500">深度（500条/App）</option>
+      </select>
+      <button id="sbtn" onclick="doSearch()">🔍 搜索</button>
+    </div>
+    <div id="results" style="margin-top:8px"></div>
+    <div class="basket" id="basket"></div>
+    <div class="note" id="srcNote">
+      数据通道：<b>主通道为苹果评论 RSS</b>（直连、稳定，每个 App 最多 500 条近期评论，<b>不含开发者回复</b>）；同时会尝试经公共代理转发苹果官方评论接口（含开发者回复，公共代理常不可用/限流，成功时自动合并，失败不影响主流程）。
+      需要全量数据 + 稳定开发者回复的深度对比，请用仓库中的 pipeline.py 离线流水线生成看板。
+    </div>
+  </div>
+
+  <div id="dash" style="display:none">
+    <div class="apptabs" id="appTabs"></div>
+
+    <div class="cards" id="statCards"></div>
+
+    <div class="panel">
+      <h3>核心指标对比 <small>（加粗为各指标最优）</small></h3>
+      <div id="metricTable"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h3>评分分布对比 <small>（每个 App 内部占比 %）</small></h3>
+        <div class="tip">👆 点击星级行 → 筛选所有 App 该星级评论</div>
+        <div id="ratingCmp" class="group" data-scope="star"></div>
+      </div>
+      <div class="panel">
+        <h3>负面痛点对比 <small>（占各 App 负面评论 %，1-2星）</small></h3>
+        <div class="tip">👆 点击痛点行 → 筛选所有 App 命中该痛点的负面评论</div>
+        <div id="negCmp" class="group" data-scope="neg"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h3>好评驱动因素对比 <small>（占各 App 5星评论 %）</small></h3>
+        <div class="tip">👆 点击因素行 → 筛选命中该因素的5星评论</div>
+        <div id="posCmp" class="group" data-scope="pos"></div>
+      </div>
+      <div class="panel">
+        <h3>月度评论量趋势对比 <small>（近12个月，红=负面1-2星）</small></h3>
+        <div class="tip">👆 点击月份柱 → 筛选该月评论</div>
+        <div class="minis" id="monthCmp"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>评论浏览 <small>（App 标签 + 分类筛选 + 关键词搜索 + 按需中文翻译）</small></h3>
+      <div class="filters" id="filters">
+        <button data-f="all" class="active">全部</button>
+        <button data-f="5">5星</button>
+        <button data-f="4">4星</button>
+        <button data-f="3">3星</button>
+        <button data-f="2">2星</button>
+        <button data-f="1">1星</button>
+        <button data-f="dev">仅含开发者回复</button>
+        <button data-f="neg">负面1-2星</button>
+        <input id="kw" placeholder="搜索评论/标题/回复中的关键词…">
+        <select id="sortSel">
+          <option value="default">排序：默认（App分组·最新在前）</option>
+          <option value="new">排序：时间 ↓ 最新优先</option>
+          <option value="old">排序：时间 ↑ 最早优先</option>
+          <option value="high">排序：评分 ↓ 高分优先</option>
+          <option value="low">排序：评分 ↑ 低分优先</option>
+        </select>
+        <button class="trall" id="trAll">🌐 翻译本页中文</button>
+        <span class="cnt" id="cnt"></span>
+      </div>
+      <div class="chipbar" id="chipbar"></div>
+      <div class="quota-note" id="quotaNote"></div>
+      <div id="list"></div>
+      <div class="pager">
+        <button id="prev">上一页</button>
+        <span class="pg" id="pg"></span>
+        <button id="next">下一页</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ============ 状态 ============
+const APPS = [];              // {id,name,artist,store_rating,ratings_count,channel,status,reviews}
+const COLORS = ['#0071e3', '#ff9500', '#34c759', '#af52de'];
+const MAX_APPS = 4;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const stars = n => '★★★★★'.slice(0, n) + '☆☆☆☆☆'.slice(0, 5 - (n || 0));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const THEMES_NEG = {
+  '广告频率/强制': /\bad(s)?\b|advert|commercial/i,
+  '关卡难/不可解': /impossible|unwinnable|rigged|can'?t (win|solve|clear|finish)|stuck|unfair|cheat/i,
+  '付费/价格': /pay|paid|money|price|expensive|subscription|purchase/i,
+  '崩溃/冻结/丢奖励': /crash|freez|glitch|bug|stuck ad|lost my (progress|level)/i,
+  '无聊/重复': /boring|repetit|monoton/i,
+  '进度重置': /reset|started over|erase/i,
+};
+const THEMES_POS = {
+  '有趣/好玩/上瘾': /fun|enjoy|love|addict|entertain/i,
+  '放松/解压': /relax|calm|sooth|stress|unwind|chill/i,
+  '难度适中/挑战感': /challeng/i,
+  '画面/音效': /graphic|color|visual|sound|music|beautiful/i,
+  '知识/地标/世界': /landmark|world|informative|learn|countries|wonder/i,
+};
+
+let ALL = [], S = [], mKeys = [];
+
+// ============ 派生统计（每次数据变化后重建） ============
+function rebuild() {
+  ALL = APPS.flatMap((a, ai) => a.reviews.map(r => Object.assign({}, r, { _ai: ai })));
+  S = APPS.map((a, ai) => {
+    const rs = a.reviews, total = rs.length;
+    const dev = rs.filter(r => r.developerResponse).length;
+    const neg = rs.filter(r => (r.rating || 0) <= 2);
+    const pos5 = rs.filter(r => r.rating === 5);
+    const avg = total ? rs.reduce((s, r) => s + (r.rating || 0), 0) / total : 0;
+    const byStar = {}; rs.forEach(r => { byStar[r.rating] = (byStar[r.rating] || 0) + 1; });
+    const months = {}, monthsNeg = {};
+    rs.forEach(r => { const m = (r.date || '').slice(0, 7); if (m) { months[m] = (months[m] || 0) + 1; if ((r.rating || 0) <= 2) monthsNeg[m] = (monthsNeg[m] || 0) + 1; } });
+    const themeCnt = (themes, group) => { const o = {}; for (const [n, re] of Object.entries(themes)) o[n] = group.filter(r => re.test((r.review || '') + ' ' + (r.title || ''))).length; return o; };
+    return { ai, name: a.name, total, dev, neg, pos5, avg, byStar, months, monthsNeg,
+             negRate: neg.length * 100 / Math.max(1, total), devRate: dev * 100 / Math.max(1, total),
+             posRate: pos5.length * 100 / Math.max(1, total),
+             negDevRate: neg.filter(r => r.developerResponse).length * 100 / Math.max(1, neg.length),
+             adsRate: neg.filter(r => THEMES_NEG['广告频率/强制'].test((r.review || '') + ' ' + (r.title || ''))).length * 100 / Math.max(1, neg.length),
+             negThemes: themeCnt(THEMES_NEG, neg), posThemes: themeCnt(THEMES_POS, pos5) };
+  });
+  const am = {}; S.forEach(s => Object.keys(s.months).forEach(m => { am[m] = 1; }));
+  mKeys = Object.keys(am).sort().slice(-12);
+  document.getElementById('dash').style.display = APPS.length ? '' : 'none';
+  renderTabs(); renderBasket(); renderResults(lastResults);
+  if (APPS.length) { renderCards(); renderMetrics(); renderCharts(); renderMinis(); }
+  render();
+}
+
+// ============ 搜索 ============
+let lastResults = [];
+async function doSearch() {
+  const t = document.getElementById('sq').value.trim();
+  if (!t) return;
+  const box = document.getElementById('results');
+  box.innerHTML = '<div class="resrow"><span class="rd">搜索中…</span></div>';
+  try {
+    const r = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(t) + '&country=us&entity=software&limit=8');
+    const j = await r.json();
+    lastResults = j.results || [];
+    renderResults(lastResults);
+  } catch (e) {
+    box.innerHTML = '<div class="resrow"><span class="rd">搜索失败：' + esc(e.message) + '</span></div>';
+  }
+}
+function renderResults(results) {
+  const box = document.getElementById('results');
+  if (!box) return;
+  if (!results.length) { box.innerHTML = ''; return; }
+  box.innerHTML = results.map((r, i) => {
+    const added = APPS.some(a => a.id === String(r.trackId));
+    const full = APPS.length >= MAX_APPS;
+    return `<div class="resrow"><span><span class="rn">${esc(r.trackName)}</span><br><span class="rd">${esc(r.artistName || '')} · ${esc((r.genres || []).slice(0, 2).join('/'))}</span></span>
+      <span class="meta">⭐ ${(r.averageUserRating || 0).toFixed(2)}（${(r.userRatingCount || 0).toLocaleString()} 条）· ID ${r.trackId}</span>
+      <button ${added || full ? 'disabled' : ''} onclick="addApp(${i})">${added ? '✓ 已添加' : full ? '已达上限' : '+ 添加对比'}</button></div>`;
+  }).join('');
+}
+function addApp(i) {
+  const r = lastResults[i];
+  if (!r || APPS.length >= MAX_APPS || APPS.some(a => a.id === String(r.trackId))) return;
+  const app = { id: String(r.trackId), name: r.trackName, artist: r.artistName || '',
+                store_rating: r.averageUserRating, ratings_count: r.userRatingCount,
+                channel: '', status: '排队中…', reviews: [] };
+  APPS.push(app);
+  rebuild();
+  fetchReviews(app);
+}
+function removeApp(i) {
+  APPS.splice(i, 1);
+  clsFilter = null; page = 0; curApp = 'all';
+  rebuild();
+}
+window.addApp = addApp; window.removeApp = removeApp; window.doSearch = doSearch;
+
+function renderBasket() {
+  document.getElementById('basket').innerHTML = APPS.map((a, i) =>
+    `<span class="bchip"><span class="dot" style="background:${COLORS[i]}"></span>${esc(a.name)}
+     <span class="st">${esc(a.status || '')}${a.channel === 'rss' ? ' ·RSS无回复' : ''}</span>
+     <button onclick="removeApp(${i})" title="移除">✕</button></span>`).join('');
+}
+
+// ============ 抓取评论 ============
+const PROXIES = [
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+];
+const ampUrl = (id, off) => 'https://apps.apple.com/api/apps/v1/catalog/us/apps/' + id +
+  '/reviews?l=en-US&offset=' + off + '&limit=20&platform=web&extend=developerResponse';
+
+async function fetchTO(url, ms) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), ms);
+  try { return await fetch(url, { signal: c.signal }); } finally { clearTimeout(t); }
+}
+
+async function fetchAmpPage(id, off) {
+  // 三个代理并行竞速，任一成功即用；全部失败/限流则报告
+  const target = ampUrl(id, off);
+  const tries = PROXIES.map(async p => {
+    const r = await fetchTO(p(target), 9000);
+    const txt = await r.text();
+    if (/api capacity exceeded/i.test(txt)) throw { limited: true };
+    if (r.ok) return JSON.parse(txt);
+    throw { err: 'HTTP' + r.status };
+  });
+  try {
+    return { ok: true, json: await Promise.any(tries) };
+  } catch (e) {
+    const errs = (e && e.errors) || [e];
+    if (errs.some(x => x && x.limited)) return { limited: true };
+    return { err: '代理通道均不可用' };
+  }
+}
+
+function mergeReviews(rssReviews, ampReviews) {
+  // amp 优先（含开发者回复），RSS 补足，按 用户|标题|日期 去重
+  const key = r => (r.userName || '') + '|' + (r.title || '') + '|' + (r.date || '').slice(0, 10);
+  const seen = new Set(ampReviews.map(key));
+  return ampReviews.concat(rssReviews.filter(r => !seen.has(key(r))));
+}
+
+async function fetchRss(app, want) {
+  const out = [];
+  for (let pno = 1; pno <= 10 && out.length < want; pno++) {
+    try {
+      const u = 'https://itunes.apple.com/us/rss/customerreviews/page=' + pno + '/id=' + app.id + '/sortby=mostrecent/json';
+      const r = await fetchTO(u, 14000);
+      if (!r.ok) break;
+      const j = await r.json();
+      let entries = (j.feed && j.feed.entry) || [];
+      if (!Array.isArray(entries)) entries = [entries];
+      if (!entries.length) break;
+      entries.forEach(e => {
+        try {
+          out.push({ rating: +(e['im:rating'] && e['im:rating'].label || 0), title: (e.title && e.title.label) || '',
+            review: (e.content && e.content.label) || '', userName: (e.author && e.author.name && e.author.name.label) || '',
+            date: ((e.updated && e.updated.label) || '').slice(0, 10), developerResponse: null });
+        } catch (err) {}
+      });
+      app.status = 'RSS 补量中… 已 ' + out.length + ' 条';
+      renderBasket();
+      await sleep(650);
+    } catch (e) { break; }
+  }
+  return out;
+}
+
+async function fetchReviews(app) {
+  const depth = +document.getElementById('depthSel').value;
+  app.status = '抓取中(官方接口)…';
+  renderBasket();
+
+  // ---- 阶段1：官方接口（经 CORS 代理，含开发者回复），能拿多少保留多少 ----
+  let offset = 0, first = true, limitedNote = '';
+  while (app.reviews.length < depth) {
+    const res = await fetchAmpPage(app.id, offset);
+    if (res.limited || res.err) {
+      if (!first) limitedNote = res.limited ? '官方接口限流' : '代理通道故障';
+      break;
+    }
+    first = false;
+    const data = (res.json.data || []);
+    if (!data.length) break;
+    data.forEach(x => {
+      const a = x.attributes || {};
+      app.reviews.push({ rating: a.rating, title: a.title, review: a.review, userName: a.userName,
+                         date: a.date, developerResponse: a.developerResponse || null });
+    });
+    app.status = '抓取中… 已 ' + app.reviews.length + ' 条(含回复)';
+    renderBasket(); render();
+    offset = app.reviews.length;
+    if (!res.json.next) break;
+    await sleep(1200);
+  }
+  const ampCount = app.reviews.length;
+
+  // ---- 阶段2：RSS 补量（直连、稳定），与官方接口数据去重合并 ----
+  if (app.reviews.length < depth) {
+    app.channel = 'rss';
+    app.status = 'RSS 补量中…';
+    renderBasket();
+    const rss = await fetchRss(app, Math.min(depth, 500));
+    app.reviews = mergeReviews(rss, app.reviews);
+  } else {
+    app.channel = 'amp';
+  }
+
+  app.status = '✓ 完成 · ' + app.reviews.length + ' 条' +
+    (ampCount > 0 ? ' · 含开发者回复' + (ampCount < app.reviews.length ? '（部分 ' + ampCount + ' 条）' : '')
+                  : ' · RSS模式(无回复)') +
+    (limitedNote ? ' · ' + limitedNote : '');
+  renderBasket(); rebuild();
+}
+
+// ============ 渲染：标签/卡片/指标/图表 ============
+let curApp = 'all';
+function renderTabs() {
+  document.getElementById('appTabs').innerHTML = APPS.length ?
+    `<button class="apptab ${curApp === 'all' ? 'active' : ''}" data-app="all">🔀 对比总览（全部）</button>` +
+    APPS.map((a, i) => `<button class="apptab ${curApp === i ? 'active' : ''}" data-app="${i}">
+      <span class="dot" style="background:${COLORS[i]}"></span>${esc(a.name)}<span class="cnt">${a.reviews.length}条</span></button>`).join('') : '';
+}
+document.getElementById('appTabs').addEventListener('click', e => {
+  const b = e.target.closest('.apptab');
+  if (!b) return;
+  const v = b.dataset.app;
+  curApp = (v === 'all') ? 'all' : parseInt(v, 10);
+  page = 0;
+  renderTabs();
+  if (curApp !== 'all') document.getElementById('filters').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  render();
+});
+
+function renderCards() {
+  const totAll = Math.max(1, ALL.length);
+  document.getElementById('statCards').innerHTML = [
+    [ALL.length.toLocaleString(), '对比评论总数（' + APPS.length + ' 个 App）', ''],
+    [APPS.length, '对比 App 数量', ''],
+    [Math.max(...S.map(s => s.avg)).toFixed(2), '最高样本均分', 'hi'],
+    [Math.min(...S.map(s => s.negRate)).toFixed(1) + '%', '最低负面率', 'hi'],
+    [Math.max(...S.map(s => s.devRate)).toFixed(1) + '%', '最高开发者回复率', 'hi'],
+    [(ALL.filter(r => r.developerResponse).length * 100 / totAll).toFixed(1) + '%', '整体回复率', ''],
+  ].map(([v, k, cls]) => `<div class="card ${cls}"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+}
+
+function renderMetrics() {
+  const bestMark = (vals, better) => {
+    const b = better === 'high' ? Math.max(...vals) : Math.min(...vals);
+    return v => v === b;
+  };
+  const row = (label, vals, better, fmt) => {
+    const isBest = bestMark(vals, better);
+    return `<tr><td class="metric">${label}</td>` + vals.map((v, i) => `<td class="${isBest(v) && APPS.length > 1 ? 'best' : ''}">${fmt(v, i)}</td>`).join('') + '</tr>';
+  };
+  document.getElementById('metricTable').innerHTML = '<div style="overflow-x:auto"><table class="cmp"><tr><th style="width:130px">指标</th>' +
+    S.map(s => `<th><span class="dot" style="background:${COLORS[s.ai]}"></span>${esc(s.name)}${APPS[s.ai].channel === 'rss' ? '<br><small>RSS·无回复</small>' : ''}</th>`).join('') + '</tr>' +
+    row('评论样本数', S.map(s => s.total), 'high', v => v) +
+    row('样本平均评分 ↑', S.map(s => +s.avg.toFixed(2)), 'high', v => v.toFixed(2)) +
+    row('商店总评分 ↑', S.map(s => APPS[s.ai].store_rating != null ? +APPS[s.ai].store_rating.toFixed(2) : 0), 'high', (v, i) => APPS[i].store_rating != null ? v.toFixed(2) : '-') +
+    row('负面率 1-2星 ↓', S.map(s => +s.negRate.toFixed(1)), 'low', v => v.toFixed(1) + '%') +
+    row('1星占比 ↓', S.map(s => (s.byStar[1] || 0) * 100 / Math.max(1, s.total)), 'low', v => v.toFixed(1) + '%') +
+    row('5星占比 ↑', S.map(s => s.posRate), 'high', v => v.toFixed(1) + '%') +
+    row('开发者回复率 ↑', S.map(s => s.devRate), 'high', v => v.toFixed(1) + '%') +
+    row('负面中回复率 ↑', S.map(s => s.negDevRate), 'high', v => v.toFixed(1) + '%') +
+    row('负面中广告抱怨率 ↓', S.map(s => s.adsRate), 'low', v => v.toFixed(1) + '%') +
+    '</table></div><div style="font-size:11px;color:#86868b;margin-top:8px">注：样本为近期评论（RSS 上限 500 条/App），非商店全量；RSS 通道无开发者回复，其回复率显示 0 不代表真实情况。</div>';
+}
+
+function groupBar(el, categories, valuesFn) {
+  el.innerHTML = categories.map(cat => {
+    const vals = S.map(s => valuesFn(s, cat));
+    const sum = vals.reduce((a, b) => a + b, 0) || 1;
+    const fills = vals.map((v, i) => v > 0
+      ? `<div class="gfill" style="width:${v * 100 / sum}%;background:${COLORS[i]}" title="${esc(APPS[i].name)}: ${v}">${v >= 8 ? v : ''}</div>` : '').join('');
+    return `<div class="grow" data-scope="${el.dataset.scope}" data-key="${esc(cat)}" title="点击筛选：${esc(cat)}">
+      <div class="glb">${esc(cat)}</div><div class="gtrack">${fills}</div></div>`;
+  }).join('') + '<div class="legend">' + S.map(s => `<span><span class="dot" style="background:${COLORS[s.ai]}"></span>${esc(s.name)}</span>`).join('') + '</div>';
+}
+function renderCharts() {
+  groupBar(document.getElementById('ratingCmp'), ['5星', '4星', '3星', '2星', '1星'],
+    (s, cat) => Math.round((s.byStar[cat.replace('星', '')] || 0) * 1000 / Math.max(1, s.total)) / 10);
+  const negCats = Object.keys(THEMES_NEG).filter(n => S.some(s => s.negThemes[n] > 0));
+  groupBar(document.getElementById('negCmp'), negCats,
+    (s, cat) => Math.round(s.negThemes[cat] * 1000 / Math.max(1, s.neg.length)) / 10);
+  const posCats = Object.keys(THEMES_POS).filter(n => S.some(s => s.posThemes[n] > 0));
+  groupBar(document.getElementById('posCmp'), posCats,
+    (s, cat) => Math.round(s.posThemes[cat] * 1000 / Math.max(1, s.pos5.length)) / 10);
+}
+function renderMinis() {
+  document.getElementById('monthCmp').innerHTML = S.map(s => {
+    const max = Math.max(1, ...mKeys.map(m => s.months[m] || 0));
+    return `<div class="mini"><h4><span class="dot" style="background:${COLORS[s.ai]}"></span>${esc(s.name)}</h4>
+      <div class="trend">${mKeys.map(m => {
+        const tot = s.months[m] || 0, neg = s.monthsNeg[m] || 0;
+        return `<div class="col" data-scope="month" data-key="${m}" title="${m}: ${tot} 条（负面 ${neg}）">
+          <div style="display:flex;flex-direction:column;justify-content:flex-end;gap:1px;height:100%;width:100%">
+            <div class="bar" style="height:${neg * 100 / max}%;background:#d63c1f"></div>
+            <div class="bar" style="height:${(tot - neg) * 100 / max}%;background:${COLORS[s.ai]}"></div>
+          </div></div>`;
+      }).join('')}</div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:#86868b"><span>${mKeys[0] || ''}</span><span>${mKeys[mKeys.length - 1] || ''}</span></div></div>`;
+  }).join('');
+}
+
+// ============ 评论浏览（筛选/排序/翻译） ============
+let curFilter = 'all', curKw = '', page = 0, curSort = 'default', clsFilter = null;
+const PER = 15;
+
+function sortList(list) {
+  if (curSort === 'default') return list;
+  const s = list.slice();
+  if (curSort === 'new') s.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  else if (curSort === 'old') s.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  else if (curSort === 'high') s.sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.date || '').localeCompare(a.date || ''));
+  else if (curSort === 'low') s.sort((a, b) => (a.rating || 0) - (b.rating || 0) || (b.date || '').localeCompare(a.date || ''));
+  return s;
+}
+function matchCls(r) {
+  if (!clsFilter) return true;
+  if (clsFilter.scope === 'star') return String(r.rating) === clsFilter.key.replace('星', '');
+  if (clsFilter.scope === 'month') return (r.date || '').slice(0, 7) === clsFilter.key;
+  const themes = clsFilter.scope === 'neg' ? THEMES_NEG : THEMES_POS;
+  const re = themes[clsFilter.key];
+  if (!re) return true;
+  const starOk = clsFilter.scope === 'neg' ? (r.rating || 0) <= 2 : r.rating === 5;
+  return starOk && re.test((r.review || '') + ' ' + (r.title || ''));
+}
+function filtered() {
+  let list = ALL;
+  if (curApp !== 'all') list = list.filter(r => r._ai === curApp);
+  if (curFilter === 'neg') list = list.filter(r => (r.rating || 0) <= 2);
+  else if (curFilter === 'dev') list = list.filter(r => r.developerResponse);
+  else if (curFilter !== 'all') list = list.filter(r => String(r.rating) === curFilter);
+  if (clsFilter) list = list.filter(matchCls);
+  if (curKw) {
+    const kw = curKw.toLowerCase();
+    list = list.filter(r => ((r.review || '') + ' ' + (r.title || '') + ' ' + (r.developerResponse && r.developerResponse.body || '')).toLowerCase().includes(kw));
+  }
+  return sortList(list);
+}
+
+let transCache = {};
+try { transCache = JSON.parse(localStorage.getItem('cmp_trans') || '{}'); } catch (e) {}
+function hashKey(t) { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return 'k' + h; }
+function saveCache() { try { localStorage.setItem('cmp_trans', JSON.stringify(transCache)); } catch (e) {} }
+function splitChunks(text, max) {
+  const chunks = []; let cur = '';
+  const parts = text.split(/(?<=[.!?。！？])\s+/);
+  for (const p of parts) {
+    if ((cur + ' ' + p).length <= max) { cur = cur ? cur + ' ' + p : p; }
+    else { if (cur) chunks.push(cur); if (p.length <= max) cur = p; else { for (let i = 0; i < p.length; i += max) chunks.push(p.slice(i, i + max)); cur = ''; } }
+  }
+  if (cur) chunks.push(cur);
+  return chunks.length ? chunks : [''];
+}
+async function translateText(text) {
+  text = (text || '').trim();
+  if (!text) return '';
+  const k = hashKey(text);
+  if (transCache[k]) return transCache[k];
+  const parts = [];
+  for (const c of splitChunks(text, 400)) {
+    const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(c) + '&langpair=en|zh-CN&de=hansu.compare%40example.com';
+    const r = await fetch(url);
+    const j = await r.json();
+    const det = String(j.responseDetails || '');
+    if (det.includes('ALL AVAILABLE FREE TRANSLATIONS') || j.responseStatus !== 200) throw new Error('QUOTA');
+    parts.push(j.responseData.translatedText || '');
+  }
+  const out = parts.join(' ');
+  transCache[k] = out; saveCache();
+  return out;
+}
+function showQuotaNote() {
+  const n = document.getElementById('quotaNote');
+  n.style.display = 'block';
+  n.textContent = '⚠️ 免费翻译接口今日配额已用完（每日重置）。已翻译过的内容仍可查看。';
+}
+async function translateReviewEl(btn, idx) {
+  const r = filtered()[page * PER + idx];
+  if (!r) return;
+  const bodyEl = document.getElementById('b' + idx);
+  let transEl = document.getElementById('tb' + idx);
+  if (transEl && transEl.dataset.shown === '1') { transEl.remove(); btn.textContent = '中文翻译'; return; }
+  if (!transEl) {
+    transEl = document.createElement('div');
+    transEl.className = 'trans loading';
+    transEl.id = 'tb' + idx;
+    transEl.innerHTML = '<div class="tlabel">【中译·评论】</div><div class="tbody">翻译中，请稍候…</div>';
+    bodyEl.after(transEl);
+    transEl.dataset.shown = '1';
+  }
+  btn.textContent = '收起翻译';
+  try {
+    const t = await translateText(r.review || '');
+    const tb = transEl.querySelector('.tbody');
+    transEl.classList.remove('loading');
+    tb.textContent = t || '（无正文）';
+    if (r.developerResponse && r.developerResponse.body) {
+      let devTrans = document.getElementById('dt' + idx);
+      if (!devTrans) {
+        devTrans = document.createElement('div');
+        devTrans.className = 'trans';
+        devTrans.id = 'dt' + idx;
+        devTrans.innerHTML = '<div class="tlabel">【中译·开发者回复】</div><div class="tbody"></div>';
+        document.getElementById('d' + idx).appendChild(devTrans);
+      }
+      const dt = await translateText(r.developerResponse.body);
+      devTrans.querySelector('.tbody').textContent = dt;
+    }
+  } catch (e) {
+    if (String(e.message) === 'QUOTA') { showQuotaNote(); transEl.remove(); btn.textContent = '中文翻译'; }
+    else { transEl.classList.remove('loading'); transEl.querySelector('.tbody').textContent = '翻译失败：' + e.message; }
+  }
+}
+async function translateCurrentPage() {
+  const btn = document.getElementById('trAll');
+  btn.textContent = '🌐 翻译中…'; btn.disabled = true;
+  for (const b of document.querySelectorAll('.rv .trbtn')) {
+    if (b.textContent === '中文翻译') await translateReviewEl(b, b.dataset.idx);
+  }
+  btn.textContent = '🌐 翻译本页中文'; btn.disabled = false;
+}
+window.translateReviewEl = translateReviewEl;
+
+function render() {
+  if (!APPS.length) { document.getElementById('list').innerHTML = ''; document.getElementById('cnt').textContent = ''; return; }
+  const list = filtered();
+  const start = page * PER;
+  const slice = list.slice(start, start + PER);
+  document.getElementById('cnt').textContent = `命中 ${list.length} 条`;
+  document.getElementById('pg').textContent = `${list.length ? start + 1 : 0}-${Math.min(start + PER, list.length)} / ${list.length}`;
+  document.getElementById('prev').disabled = page === 0;
+  document.getElementById('next').disabled = start + PER >= list.length;
+  const chips = [];
+  if (curApp !== 'all') chips.push(`<span class="chip" onclick="backToAll()">App：${esc(APPS[curApp].name)}<span>✕</span></span>`);
+  if (clsFilter) {
+    const scopeName = { neg: '负面痛点', pos: '好评因素', star: '评分', month: '月份' }[clsFilter.scope];
+    chips.push(`<span class="chip" onclick="clearCls()">分类筛选：${scopeName} · ${esc(clsFilter.key)}<span>✕</span></span>`);
+  }
+  document.getElementById('chipbar').innerHTML = chips.join(' ');
+  document.querySelectorAll('.group .grow, .trend .col').forEach(el => {
+    el.classList.toggle('active', clsFilter && el.dataset.scope === clsFilter.scope && el.dataset.key === clsFilter.key);
+  });
+  document.getElementById('list').innerHTML = slice.length ? slice.map((r, i) => {
+    const body = r.review || '';
+    const long = body.length > 260;
+    const dr = r.developerResponse;
+    return `<div class="rv">
+      <div class="hd"><span class="badge" style="background:${COLORS[r._ai]}">${esc(APPS[r._ai].name)}</span><span class="st">${stars(r.rating)}</span><span class="ti">${esc(r.title || '(无标题)')}</span><button class="trbtn" data-idx="${i}" onclick="translateReviewEl(this, ${i})">中文翻译</button><span class="mt">${esc(r.userName || '匿名')} · ${(r.date || '').slice(0, 10)}</span></div>
+      <div class="body clamp" id="b${i}">${esc(body)}</div>
+      ${long ? `<div class="more" onclick="var el=document.getElementById('b${i}');el.classList.remove('clamp');this.remove()">展开全文 (${body.length} 字符) ▾</div>` : ''}
+      ${dr ? `<div class="dev" id="d${i}"><div class="dl">💬 开发者回复</div><div class="db">${esc(dr.body || '')}</div><div class="dm">${(dr.modified || '').slice(0, 10)}</div></div>` : ''}
+    </div>`;
+  }).join('') : '<div class="empty">无匹配评论（添加 App 后这里会显示评论）</div>';
+}
+function clearCls() { clsFilter = null; page = 0; render(); }
+function backToAll() { curApp = 'all'; page = 0; renderTabs(); render(); }
+window.clearCls = clearCls; window.backToAll = backToAll;
+
+document.addEventListener('click', e => {
+  const bar = e.target.closest('.group .grow, .trend .col');
+  if (bar && bar.dataset.scope) {
+    const scope = bar.dataset.scope, key = bar.dataset.key;
+    if (clsFilter && clsFilter.scope === scope && clsFilter.key === key) clsFilter = null;
+    else clsFilter = { scope, key };
+    page = 0; render();
+    document.getElementById('filters').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
+document.getElementById('filters').addEventListener('click', e => {
+  if (e.target.tagName === 'BUTTON' && e.target.dataset.f) {
+    document.querySelectorAll('.filters button[data-f]').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    curFilter = e.target.dataset.f; page = 0; render();
+  }
+});
+document.getElementById('sortSel').addEventListener('change', e => { curSort = e.target.value; page = 0; render(); });
+let kwTimer;
+document.getElementById('kw').addEventListener('input', e => {
+  clearTimeout(kwTimer);
+  kwTimer = setTimeout(() => { curKw = e.target.value.trim(); page = 0; render(); }, 300);
+});
+document.getElementById('trAll').addEventListener('click', translateCurrentPage);
+document.getElementById('prev').onclick = () => { if (page > 0) { page--; render(); } };
+document.getElementById('next').onclick = () => { page++; render(); };
+
+rebuild();
+</script>
+</body>
+</html>
