@@ -106,6 +106,10 @@
   .empty { text-align: center; color: #86868b; padding: 40px 0; }
   .trall { font-size: 12px; color: #0071e3; background: #e1efff; border: 1px solid #b6d7ff; border-radius: 14px; padding: 5px 14px; cursor: pointer; }
   .quota-note { font-size: 12px; color: #b26a00; background: #fff3e0; border-radius: 8px; padding: 8px 14px; margin-bottom: 10px; display: none; }
+  .exportbtn { padding: 7px 14px; font-size: 13px; border-radius: 18px; border: 1px solid #d2d2d7; background: #fff; cursor: pointer; font-weight: 600; }
+  .exportbtn:hover { border-color: #0071e3; color: #0071e3; }
+  .up { color: #d63c1f; font-weight: 700; }
+  .down { color: #34c759; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -128,6 +132,7 @@
     </div>
     <div id="results" style="margin-top:8px"></div>
     <div class="basket" id="basket"></div>
+    <div class="basket" id="savedBar" style="margin-top:8px"></div>
     <div class="note" id="srcNote">
       数据通道：<b>主通道为苹果评论 RSS</b>（直连、稳定，每个 App 最多 500 条近期评论，<b>不含开发者回复</b>）；同时会尝试经公共代理转发苹果官方评论接口（含开发者回复，公共代理常不可用/限流，成功时自动合并，失败不影响主流程）。
       需要全量数据 + 稳定开发者回复的深度对比，请用仓库中的 pipeline.py 离线流水线生成看板。
@@ -142,6 +147,11 @@
     <div class="panel">
       <h3>核心指标对比 <small>（加粗为各指标最优）</small></h3>
       <div id="metricTable"></div>
+    </div>
+
+    <div class="panel">
+      <h3>综合能力雷达图 <small>（六个维度均越高越好，具体数值见雷达图下方表格）</small></h3>
+      <div id="radarChart"></div>
     </div>
 
     <div class="grid2">
@@ -190,6 +200,9 @@
           <option value="low">排序：评分 ↑ 低分优先</option>
         </select>
         <button class="trall" id="trAll">🌐 翻译本页中文</button>
+        <button class="exportbtn" id="expCsv">⬇ 导出CSV</button>
+        <button class="exportbtn" id="expMd">⬇ 导出MD</button>
+        <button class="exportbtn" id="shareBtn">🔗 复制分享链接</button>
         <span class="cnt" id="cnt"></span>
       </div>
       <div class="chipbar" id="chipbar"></div>
@@ -255,7 +268,7 @@ function rebuild() {
   mKeys = Object.keys(am).sort().slice(-12);
   document.getElementById('dash').style.display = APPS.length ? '' : 'none';
   renderTabs(); renderBasket(); renderResults(lastResults);
-  if (APPS.length) { renderCards(); renderMetrics(); renderCharts(); renderMinis(); }
+  if (APPS.length) { renderCards(); renderMetrics(); renderRadar(); renderCharts(); renderMinis(); }
   render();
 }
 
@@ -426,6 +439,48 @@ async function fetchReviews(app) {
 }
 
 // ============ 渲染：标签/卡片/指标/图表 ============
+function negRateLast(reviews, days) {
+  const ds = reviews.map(r => new Date(r.date || 0).getTime()).filter(t => !isNaN(t));
+  if (!ds.length) return null;
+  const now = Math.max(...ds), D = 86400000;
+  const seg = reviews.filter(r => { const t = new Date(r.date || 0).getTime(); return t >= now - days * D; });
+  if (seg.length < 10) return null;
+  return seg.filter(r => (r.rating || 0) <= 2).length * 100 / seg.length;
+}
+function deltaCell(x, y) { if (x == null || y == null) return ''; const d = x - y; if (Math.abs(d) < 0.5) return '≈'; return `<span class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '↑' : '↓'}${Math.abs(d).toFixed(1)}pt</span>`; }
+function renderRadar() {
+  const negPct = (s, key) => s.negThemes[key] * 100 / Math.max(1, s.neg.length);
+  const axes = [
+    ['样本均分', s => s.avg * 20],
+    ['5星占比', s => s.posRate],
+    ['开发者回复率', s => s.devRate],
+    ['无广告抱怨', s => 100 - negPct(s, '广告频率/强制')],
+    ['无付费抱怨', s => 100 - negPct(s, '付费/价格')],
+    ['无崩溃抱怨', s => 100 - negPct(s, '崩溃/冻结/丢奖励')],
+  ];
+  const CX = 190, CY = 132, R = 100, N = axes.length;
+  const pt = (i, v) => { const ang = -Math.PI / 2 + i * 2 * Math.PI / N; return [CX + R * v / 100 * Math.cos(ang), CY + R * v / 100 * Math.sin(ang)]; };
+  let svg = '<svg viewBox="0 0 380 275" style="width:100%;max-width:540px">';
+  [25, 50, 75, 100].forEach(g => {
+    svg += `<polygon points="${axes.map((_, i) => pt(i, g).map(x => x.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#e5e5ea"/>`;
+  });
+  axes.forEach((a, i) => {
+    const [x, y] = pt(i, 100);
+    svg += `<line x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e5e5ea"/>`;
+    const [lx, ly] = pt(i, 124);
+    svg += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="11" fill="#6e6e73" text-anchor="middle">${esc(a[0])}</text>`;
+  });
+  S.forEach(s => {
+    const ps = axes.map((a, i) => pt(i, Math.max(0, Math.min(100, a[1](s)))).map(x => x.toFixed(1)).join(',')).join(' ');
+    svg += `<polygon points="${ps}" fill="${COLORS[s.ai]}" fill-opacity="0.15" stroke="${COLORS[s.ai]}" stroke-width="2"/>`;
+  });
+  svg += '</svg>';
+  document.getElementById('radarChart').innerHTML = svg +
+    '<div class="legend">' + S.map(s => `<span><span class="dot" style="background:${COLORS[s.ai]}"></span>${esc(s.name)}</span>`).join('') + '</div>' +
+    '<table class="cmp" style="margin-top:8px"><tr><th>维度</th>' + S.map(s => `<th><span class="dot" style="background:${COLORS[s.ai]}"></span>${esc(s.name.slice(0, 20))}</th>`).join('') + '</tr>' +
+    axes.map(a => `<tr><td class="metric">${a[0]}</td>` + S.map(s => `<td>${Math.max(0, Math.min(100, a[1](s))).toFixed(0)}</td>`).join('') + '</tr>').join('') +
+    '</table><div style="font-size:11px;color:#86868b;margin-top:6px">「无X抱怨」= 100 − 该痛点占负面评论的比例；RSS 通道无开发者回复，其回复率维度不代表真实情况；样本量差异较大时请结合绝对值解读。</div>';
+}
 let curApp = 'all';
 function renderTabs() {
   document.getElementById('appTabs').innerHTML = APPS.length ?
@@ -476,6 +531,12 @@ function renderMetrics() {
     row('开发者回复率 ↑', S.map(s => s.devRate), 'high', v => v.toFixed(1) + '%') +
     row('负面中回复率 ↑', S.map(s => s.negDevRate), 'high', v => v.toFixed(1) + '%') +
     row('负面中广告抱怨率 ↓', S.map(s => s.adsRate), 'low', v => v.toFixed(1) + '%') +
+    (function () {
+      const vals = S.map(s => negRateLast(APPS[s.ai].reviews, 90));
+      const prior = S.map(s => negRateLast(APPS[s.ai].reviews, 180));
+      return '<tr><td class="metric">近3月负面率（vs前3月）</td>' + vals.map((v, i) =>
+        `<td>${v == null ? '样本不足' : v.toFixed(1) + '% ' + deltaCell(v, prior[i])}</td>`).join('') + '</tr>';
+    })() +
     '</table></div><div style="font-size:11px;color:#86868b;margin-top:8px">注：样本为近期评论（RSS 上限 500 条/App），非商店全量；RSS 通道无开发者回复，其回复率显示 0 不代表真实情况。</div>';
 }
 
@@ -566,6 +627,20 @@ function splitChunks(text, max) {
   if (cur) chunks.push(cur);
   return chunks.length ? chunks : [''];
 }
+function detectLang(t) {
+  if (/[ァ-ヶー]/.test(t)) return 'ja';
+  if (/[가-힣]/.test(t)) return 'ko';
+  if (/[а-яА-Я]/.test(t)) return 'ru';
+  const s = ' ' + t.toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ') + ' ';
+  const cnt = arr => arr.reduce((n, w) => n + (s.includes(' ' + w + ' ') ? 1 : 0), 0);
+  const fr = cnt(['le', 'la', 'les', 'je', 'est', 'pas', 'vous', 'mais', 'tres']);
+  const es = cnt(['el', 'los', 'las', 'que', 'muy', 'pero', 'para', 'este', 'juego']);
+  const de = cnt(['der', 'die', 'das', 'und', 'nicht', 'ist', 'sehr', 'aber', 'spiel']);
+  if (fr >= 2 && fr >= es && fr >= de) return 'fr';
+  if (es >= 2 && es > fr && es >= de) return 'es';
+  if (de >= 2 && de > fr && de > es) return 'de';
+  return 'en';
+}
 async function translateText(text) {
   text = (text || '').trim();
   if (!text) return '';
@@ -573,7 +648,7 @@ async function translateText(text) {
   if (transCache[k]) return transCache[k];
   const parts = [];
   for (const c of splitChunks(text, 400)) {
-    const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(c) + '&langpair=en|zh-CN&de=hansu.compare%40example.com';
+    const url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(c) + '&langpair=' + detectLang(text) + '|zh-CN&de=hansu.compare%40example.com';
     const r = await fetch(url);
     const j = await r.json();
     const det = String(j.responseDetails || '');
@@ -698,7 +773,116 @@ document.getElementById('trAll').addEventListener('click', translateCurrentPage)
 document.getElementById('prev').onclick = () => { if (page > 0) { page--; render(); } };
 document.getElementById('next').onclick = () => { page++; render(); };
 
+// ============ 按 ID 添加 + 保存对比方案 ============
+async function addById(id) {
+  id = String(id).trim();
+  if (!/^\d+$/.test(id) || APPS.some(a => a.id === id) || APPS.length >= MAX_APPS) return null;
+  try {
+    const r = await fetchTO('https://itunes.apple.com/lookup?id=' + id + '&country=us', 12000);
+    const j = await r.json();
+    const it = (j.results || [])[0];
+    if (!it) return null;
+    const app = { id: String(it.trackId), name: it.trackName, artist: it.artistName || '',
+      store_rating: it.averageUserRating, ratings_count: it.userRatingCount,
+      channel: '', status: '排队中…', reviews: [] };
+    APPS.push(app);
+    rebuild();
+    fetchReviews(app);
+    return app;
+  } catch (e) { return null; }
+}
+window.addById = addById;
+function getSaved() { try { return JSON.parse(localStorage.getItem('conline_saved') || '[]'); } catch (e) { return []; } }
+function saveScheme() {
+  if (!APPS.length) return;
+  const curKey = APPS.map(a => a.id).join(',');
+  const list = getSaved().filter(s => s.ids.join(',') !== curKey);
+  list.unshift({ name: APPS.map(a => a.name).join(' vs ').slice(0, 44), ids: APPS.map(a => a.id), saved_at: new Date().toISOString().slice(0, 10) });
+  try { localStorage.setItem('conline_saved', JSON.stringify(list.slice(0, 8))); } catch (e) {}
+  renderSavedBar();
+}
+function delScheme(i) { const l = getSaved(); l.splice(i, 1); try { localStorage.setItem('conline_saved', JSON.stringify(l)); } catch (e) {} renderSavedBar(); }
+async function loadScheme(i) {
+  const s = getSaved()[i];
+  if (!s) return;
+  APPS.length = 0; clsFilter = null; page = 0; curApp = 'all';
+  rebuild();
+  for (const id of s.ids) { await addById(id); await sleep(300); }
+}
+function renderSavedBar() {
+  const bar = document.getElementById('savedBar');
+  if (!bar) return;
+  const list = getSaved();
+  bar.innerHTML = '<button class="exportbtn" ' + (APPS.length ? '' : 'disabled') + ' onclick="saveScheme()">💾 保存当前对比方案</button>' +
+    list.map((s, i) => `<span class="bchip">💾 ${esc(s.name)}<span class="st">${s.saved_at} · ${s.ids.length}个App</span><button onclick="loadScheme(${i})" title="载入该方案">载入</button><button onclick="delScheme(${i})" title="删除该方案">✕</button></span>`).join('');
+}
+window.saveScheme = saveScheme; window.loadScheme = loadScheme; window.delScheme = delScheme;
+
+// ============ 导出 / 分享链接 ============
+function downloadFile(content, mime, ext) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime + ';charset=utf-8' }));
+  a.download = '评论导出_' + new Date().toISOString().slice(0, 10) + '.' + ext;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+function exportCsv() {
+  const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"';
+  const rows = [['App', '星级', '日期', '用户', '标题', '评论原文', '开发者回复', '回复日期'].join(',')];
+  filtered().forEach(r => rows.push([APPS[r._ai].name, r.rating, r.date || '', r.userName || '', r.title || '', r.review || '', (r.developerResponse && r.developerResponse.body) || '', (r.developerResponse && r.developerResponse.modified) || ''].map(q).join(',')));
+  downloadFile('\uFEFF' + rows.join('\n'), 'text/csv', 'csv');
+}
+function exportMd() {
+  const L = ['# 评论导出（当前筛选结果）', '', '- 导出时间：' + new Date().toISOString().slice(0, 10) + ' · 共 ' + filtered().length + ' 条（原文留底，未翻译）', ''];
+  filtered().forEach((r, i) => {
+    L.push(`## #${i + 1} [${APPS[r._ai].name}] ${'★'.repeat(r.rating || 0)}｜${r.title || '(无标题)'}`, '', `- 用户：${r.userName || '匿名'} · ${r.date || ''}`, '', '> ' + (r.review || '').replace(/\n/g, '\n> '));
+    if (r.developerResponse) L.push('', '> **开发者回复**：' + (r.developerResponse.body || '').replace(/\n/g, '\n> '));
+    L.push('', '---', '');
+  });
+  downloadFile(L.join('\n'), 'text/markdown', 'md');
+}
+function shareUrl() {
+  const p = new URLSearchParams();
+  if (APPS.length) p.set('ids', APPS.map(a => a.id).join(','));
+  p.set('f', curFilter); p.set('s', curSort);
+  if (curApp !== 'all') p.set('app', curApp);
+  if (curKw) p.set('k', curKw);
+  if (clsFilter) p.set('c', clsFilter.scope + ':' + clsFilter.key);
+  return location.href.split('#')[0] + '#' + p.toString();
+}
+function copyText(t) {
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(() => true).catch(() => false);
+  return Promise.resolve(false);
+}
+document.getElementById('expCsv').onclick = exportCsv;
+document.getElementById('expMd').onclick = exportMd;
+document.getElementById('shareBtn').onclick = async () => {
+  const ok = await copyText(shareUrl());
+  const b = document.getElementById('shareBtn');
+  if (ok) { b.textContent = '✓ 已复制'; setTimeout(() => b.textContent = '🔗 复制分享链接', 2000); }
+  else prompt('自动复制不可用，请手动复制：', shareUrl());
+};
+
+// ============ 分享链接还原（#ids=自动加 App + 筛选状态） ============
+async function applyHash() {
+  if (!location.hash || location.hash.length < 2) { renderSavedBar(); return; }
+  const p = new URLSearchParams(location.hash.slice(1));
+  const ids = (p.get('ids') || '').split(',').filter(x => /^\d+$/.test(x)).slice(0, MAX_APPS);
+  for (const id of ids) { await addById(id); await sleep(300); }
+  if (p.get('f')) {
+    curFilter = p.get('f');
+    document.querySelectorAll('.filters button[data-f]').forEach(b => b.classList.toggle('active', b.dataset.f === curFilter));
+  }
+  if (p.get('s')) { curSort = p.get('s'); document.getElementById('sortSel').value = curSort; }
+  const appv = p.get('app');
+  if (appv != null && appv !== 'all') { const v = parseInt(appv, 10); if (v >= 0 && v < APPS.length) { curApp = v; renderTabs(); } }
+  if (p.get('k')) { curKw = p.get('k'); document.getElementById('kw').value = curKw; }
+  if (p.get('c')) { const i = p.get('c').indexOf(':'); if (i > 0) clsFilter = { scope: p.get('c').slice(0, i), key: p.get('c').slice(i + 1) }; }
+  render();
+  renderSavedBar();
+}
+
 rebuild();
+applyHash();
 </script>
 </body>
 </html>
