@@ -883,6 +883,7 @@ async function applyHash() {
 
 rebuild();
 applyHash();
+window.addEventListener('hashchange', applyHash);
 </script>
 </body>
 </html>
